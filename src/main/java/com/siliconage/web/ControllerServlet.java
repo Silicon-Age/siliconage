@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.function.Supplier;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.siliconage.web.exception.WebException;
+import com.siliconage.web.exception.AuthorizationException;
+import com.siliconage.web.exception.BadRequestException;
+import com.siliconage.web.exception.DataConflictException;
+import com.siliconage.web.exception.MethodNotAllowedException;
+import com.siliconage.web.exception.NotFoundException;
 import com.siliconage.web.form.FormFieldRequirement;
 import com.siliconage.web.form.PriorInput;
 
@@ -45,7 +52,6 @@ public abstract class ControllerServlet extends HttpServlet {
 	 * for the system to internally update fields on the object (such as add a default provided by the database)
 	 * and have those non-user-supplied values immediately seen.
 	 */
-	
 	public static final String DO_NOT_PASS_BACK_PRIOR_INPUT_KEY = "NO_PRIOR_INPUT";
 	
 	@SuppressWarnings("unused")
@@ -53,16 +59,19 @@ public abstract class ControllerServlet extends HttpServlet {
 		return;
 	}
 	
-	protected static final void checkSecurity(boolean argOkay) {
-		if (!argOkay) {
-			throw new SecurityException();
-		}
-//		assert argOkay;
+	protected static void checkSecurity(boolean argOkay) throws AuthorizationException {
+		requireOrThrow(argOkay, () -> new AuthorizationException());
 	}
 	
-	protected static void requireNonNullForSecurity(Object argO) {
-		checkSecurity(argO != null);
-//		assert argO != null;
+	public static <T, E extends WebException> T requireNonNullOrThrow(T argObject, Supplier<E> argExceptionSupplier) throws E {
+		requireOrThrow(argObject != null, argExceptionSupplier);
+		return argObject;
+	}
+	
+	public static <E extends WebException> void requireOrThrow(boolean argCondition, Supplier<E> argExceptionSupplier) throws E {
+		if (argCondition == false) {
+			throw argExceptionSupplier.get();
+		}
 	}
 	
 	protected boolean allowGet() {
@@ -95,7 +104,7 @@ public abstract class ControllerServlet extends HttpServlet {
 		String lclUsername = getUsername(argRequest);
 		String lclUsernameExplanation = lclUsername == null ? "no user" : "username is '" + lclUsername + "'";
 		
-		ourLogger.debug(this.getClass().getName() + " does not allow " + argAttemptedMethod + "; " + lclUsernameExplanation + "; referer is " + argRequest.getHeader("referer"));
+		ourLogger.warn(this.getClass().getName() + " does not allow " + argAttemptedMethod + "; " + lclUsernameExplanation + "; referer is " + argRequest.getHeader("referer"));
 		
 		argResponse.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, argAttemptedMethod + " is not allowed");
 	}
@@ -133,11 +142,12 @@ public abstract class ControllerServlet extends HttpServlet {
 			
 			argResponse.setStatus(HttpServletResponse.SC_SEE_OTHER);
 			argResponse.setHeader("Location", argResponse.encodeRedirectURL(lclDestination));
-		} catch (SecurityException lclE) {
+		} catch (WebException lclE) {
 			try {
-				argResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Not authorized");
+				argRequest.setAttribute("com.siliconage.web.exception.WebException", lclE);
+				argResponse.sendError(lclE.getHttpStatus(), lclE.getPlainTextMessageForUser());
 			} catch (IOException lclE2) {
-				ourLogger.error("Couldn't send forbidden redirect", lclE2);
+				ourLogger.error("Couldn't send error redirect", lclE2);
 				throw new ServletException(lclE2);
 			}
 		} catch (Exception lclE) {
