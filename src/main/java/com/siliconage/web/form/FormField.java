@@ -119,7 +119,7 @@ public abstract class FormField<T extends FormField<?, V>, V> {
 		boolean lclEnabled = getEnteredValueProvider() == null || getEnteredValueProvider().isEnabled(getId());
 		
 		// ourLogger.debug(getId() + " isEnabled(): myEnabled = " + myEnabled + "; EVP = " + getEnteredValueProvider() + " says " + (getEnteredValueProvider() == null ? null : lclEnabled));
-		return myEnabled.asBoolean(lclEnabled);
+		return myEnabled.asBooleanPrimitive(lclEnabled);
 	}
 	
 	public final boolean isDisabled() {

@@ -20,6 +20,10 @@ public class NumberField<T extends NumberField<?>> extends TextBasedHTMLInputFie
 		super(argName, argValue);
 	}
 	
+	public NumberField(String argName, int argValue) {
+		super(argName, Integer.valueOf(argValue));
+	}
+	
 	public NumberField(String argName) {
 		this(argName, null);
 	}
@@ -55,6 +59,10 @@ public class NumberField<T extends NumberField<?>> extends TextBasedHTMLInputFie
 		return castThis();
 	}
 	
+	public T max(int argMax) {
+		return max(Integer.valueOf(argMax));
+	}
+	
 	public T min(Number argMin) {
 		if (argMin == null) {
 			removeAttribute("min");
@@ -63,6 +71,10 @@ public class NumberField<T extends NumberField<?>> extends TextBasedHTMLInputFie
 		}
 		
 		return castThis();
+	}
+
+	public T min(int argMin) {
+		return min(Integer.valueOf(argMin));
 	}
 	
 	public T step(Number argStep) {
@@ -87,6 +99,10 @@ public class NumberField<T extends NumberField<?>> extends TextBasedHTMLInputFie
 		
 		min(argMin);
 		return max(argMax);
+	}
+	
+	public T range(int argMin, int argMax) {
+		return range(Integer.valueOf(argMin), Integer.valueOf(argMax));
 	}
 	
 	public T range(Number argMin, Number argMax, Number argStep) {
