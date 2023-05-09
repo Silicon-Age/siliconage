@@ -25,6 +25,7 @@ import javax.sql.DataSource;
  * @author <a href="mailto:info@silicon-age.com">Silicon Age, Inc.</a>
  */
 
+@SuppressWarnings("resource")
 /* package */ class PoolConnection implements Connection {
 	
 	private final Connection myConnection;
