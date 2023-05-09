@@ -2,6 +2,7 @@ package com.siliconage.database;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.sql.Connection;
@@ -982,6 +983,34 @@ public abstract class DatabaseUtility {
 			}
 			
 			return select(argConnection, lclSB.toString(), argWhereClauseValues);
+		}
+	}
+	
+	public static <T> List<T> select(DataSource argDS, java.util.function.Function<ResultSet, ? extends T> argF, String argSQL, Object... argParameters) throws SQLException {
+		List<T> lclTs = null;
+		try (Connection lclC = argDS.getConnection()) {
+			ResultSet lclRS = null;
+			try {
+				lclRS = select(lclC, argSQL, argParameters);
+				while (lclRS.next()) {
+					T lclT = argF.apply(lclRS);
+					if (lclT != null) {
+						if (lclTs == null) {
+							lclTs = new java.util.ArrayList<>();
+						}
+						lclTs.add(lclT);
+					}
+				}
+			} finally {
+				if (lclRS != null) {
+					cleanUp(lclRS, CLEAN_STATEMENT);
+				}
+			}
+		}
+		if (lclTs == null) {
+			return java.util.Collections.emptyList();
+		} else {
+			return lclTs;
 		}
 	}
 	
