@@ -1,5 +1,6 @@
 package com.siliconage.web.form;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 
@@ -100,8 +101,16 @@ public class TextAreaField<T extends TextAreaField<?>> extends SingleValueFormFi
 			.append(disabledAttribute())
 			.append(outputCssClassAttribute());
 		
-		if (isEnabled()) {
+		String lclScript = getScript();
+		boolean lclHasScript = StringUtils.isNotBlank(lclScript);
+		
+		if (isEnabled() && (lclHasScript == false)) {
 			argSB.append(onChangeScript());
+		}
+		
+		if (lclHasScript) {
+			argSB.append(' ');
+			argSB.append(lclScript);
 		}
 		
 		argSB.append('>')
