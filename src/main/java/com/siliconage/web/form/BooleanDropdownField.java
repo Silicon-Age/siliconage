@@ -8,13 +8,17 @@ public class BooleanDropdownField<T extends BooleanDropdownField<T>> extends Ass
 	public BooleanDropdownField(String argName, Boolean argCurrentValue, FormValueProvider argEnteredValueProvider) {
 		super(argName, argCurrentValue, argEnteredValueProvider);
 		
-		choices(true, false);
+		choices(Boolean.TRUE, Boolean.FALSE);
 		doNotSort();
 		namer(DefaultBooleanDropdownNameCodeExtractor.getInstance());
 	}
 	
 	public BooleanDropdownField(String argName, Boolean argCurrentValue) {
 		this(argName, argCurrentValue, null);
+	}
+	
+	public BooleanDropdownField(String argName, boolean argCurrentValue) {
+		this(argName, Boolean.valueOf(argCurrentValue), null);
 	}
 	
 	public T namer(Function<Boolean, String> argNamer) {

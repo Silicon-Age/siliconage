@@ -105,7 +105,7 @@ public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> e
 		Validate.notNull(argNamer);
 		Validate.notNull(argCoder);
 		
-		return namer(new FunctionalNameCodeExtractor<C>(argNamer, argCoder));
+		return namer(new FunctionalNameCodeExtractor<>(argNamer, argCoder));
 	}
 	
 	public <K> T grouper(DropdownEntryAssemblerGroupingSpecification<C, K> argGroupingSpecification) {

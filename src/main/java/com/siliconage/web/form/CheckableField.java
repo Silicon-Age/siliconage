@@ -13,7 +13,7 @@ public abstract class CheckableField<T extends CheckableField<?>> extends HTMLIn
 	// I played around the idea of introducing an EditableFormField class, but it introduced a diamond problem wherein we would want many fields to inherit from both that and HTMLInputField, but some HTMLInputField subclasses would not be EditableFormFields (namely HiddenField and ButtonField), and some non-HTMLInputField-subclasses would subclass EditableFormField (namely AbstractDropdownField).
 
 	protected CheckableField(String argName, String argValue, boolean argChecked, FormValueProvider argEnteredValueProvider) {
-		super(argName, argChecked, argEnteredValueProvider);
+		super(argName, Boolean.valueOf(argChecked), argEnteredValueProvider);
 
 		myHTMLValueAttribute = argValue == null ? "" : argValue;
 	}

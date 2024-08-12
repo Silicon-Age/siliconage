@@ -18,9 +18,9 @@ public enum Trinary {
 
 	public Boolean asBoolean(Boolean argUnknownValue) {
 		switch (this) {
-			case FALSE: return false;
+			case FALSE: return Boolean.FALSE;
 			case UNKNOWN: return argUnknownValue; // Could be null
-			case TRUE: return true;
+			case TRUE: return Boolean.TRUE;
 			default: throw new IllegalStateException();
 		}
 	}

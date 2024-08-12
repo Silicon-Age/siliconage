@@ -63,6 +63,10 @@ public class NumberField<T extends NumberField<?>> extends TextBasedHTMLInputFie
 		return max(Integer.valueOf(argMax));
 	}
 	
+	public T max(double argMax) {
+		return max(Double.valueOf(argMax));
+	}
+	
 	public T min(Number argMin) {
 		if (argMin == null) {
 			removeAttribute("min");
@@ -77,12 +81,20 @@ public class NumberField<T extends NumberField<?>> extends TextBasedHTMLInputFie
 		return min(Integer.valueOf(argMin));
 	}
 	
+	public T min(double argMin) {
+		return min(Double.valueOf(argMin));
+	}
+	
 	public T step(Number argStep) {
 		if (argStep != null) {
 			attribute("step", argStep instanceof Double ? String.format("%.9f", argStep) : String.valueOf(argStep)); // String.format prevents exponential-notation-ification
 		}
 		
 		return castThis();
+	}
+
+	public T step(double argStep) {
+		return step(Double.valueOf(argStep));
 	}
 	
 	public T stepAny() {
@@ -103,6 +115,14 @@ public class NumberField<T extends NumberField<?>> extends TextBasedHTMLInputFie
 	
 	public T range(int argMin, int argMax) {
 		return range(Integer.valueOf(argMin), Integer.valueOf(argMax));
+	}
+	
+	public T range(double argMin, double argMax) {
+		return range(Double.valueOf(argMin), Double.valueOf(argMax));
+	}
+	
+	public T range(double argMin, double argMax, double argStep) {
+		return range(Double.valueOf(argMin), Double.valueOf(argMax), Double.valueOf(argStep));
 	}
 	
 	public T range(Number argMin, Number argMax, Number argStep) {

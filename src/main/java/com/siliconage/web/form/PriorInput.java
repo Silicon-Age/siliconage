@@ -280,6 +280,10 @@ public class PriorInput implements FormValueProvider {
 		return new NumberField<>(argName, argValue, this);
 	}
 	
+	public NumberField<?> number(String argName, int argValue) {
+		return new NumberField<>(argName, Integer.valueOf(argValue), this);
+	}
+	
 	public NumberField<?> number(String argName) {
 		return number(argName, null);
 	}
@@ -351,7 +355,7 @@ public class PriorInput implements FormValueProvider {
 			}
 		}
 		
-		return new BooleanDropdownField<>(argName, lclCurrentValue == null ? false : lclCurrentValue.booleanValue(), this);
+		return new BooleanDropdownField<>(argName, (lclCurrentValue != null) ? lclCurrentValue : Boolean.FALSE, this);
 	}
 	
 	public <C> AssembledDropdownField<?, C> dropdown(String argName, Collection<C> argChoices, C argCurrent, NameCodeExtractor<C> argNCE) {
