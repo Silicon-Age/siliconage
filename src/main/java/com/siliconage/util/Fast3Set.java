@@ -12,9 +12,6 @@ public class Fast3Set<T> extends AbstractSet<T> {
 	
 	private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(Fast3Set.class.getName());
 
-//	private static int ourCount;
-//	private static int ourEnlarged;
-	
 	private static final Constructor<?> ourEnlargementSetConstructor;
 	private static final Constructor<?> ourEnlargementSetCapacityConstructor;
 	
@@ -84,7 +81,7 @@ public class Fast3Set<T> extends AbstractSet<T> {
 	protected Set<T> createEnlargedSet(int argCapacity) {
 		try {
 			@SuppressWarnings("unchecked")
-			Set<T> lclReturn = (Set<T>) ourEnlargementSetCapacityConstructor.newInstance(argCapacity);
+			Set<T> lclReturn = (Set<T>) ourEnlargementSetCapacityConstructor.newInstance(Integer.valueOf(argCapacity));
 			return lclReturn;
 		} catch (IllegalAccessException | InvocationTargetException | InstantiationException lclE) {
 			ourLogger.error("Could not create new enlarged backing set with given capacity for Fast3Set", lclE);
@@ -111,6 +108,7 @@ public class Fast3Set<T> extends AbstractSet<T> {
 		return mySet != null;
 	}
 	
+	@SuppressWarnings("unlikely-arg-type")
 	@Override
 	public boolean contains(Object argO) {
 		if (isEnlarged()) {
@@ -189,6 +187,7 @@ public class Fast3Set<T> extends AbstractSet<T> {
 		}
 	}
 	
+	@SuppressWarnings("unlikely-arg-type")
 	@Override
 	public boolean remove(Object argT) {
 		if (argT == null) {
