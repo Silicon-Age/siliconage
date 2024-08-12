@@ -61,6 +61,10 @@ public abstract class DatabaseUtility {
 	 * @param argWhereClauseColumns The columns on which to filter (using parameters that will be incorporated later in a prepared statement)
 	 * @return A delete string ready to be run with parameters as a prepared statement
 	 */
+	/* CONCERN: This method might have problems if it is used to build a SQL command intended to delete objects with NULL values for
+	 * certain columns.  It will generate a string like "WHERE column_name = ?", but putting a NULL into the parameters\
+	 * won't work.
+	 */
 	public static String buildDeleteString(String argFullyQualifiedTableName, String[] argWhereClauseColumns) {
 		Validate.notNull(argFullyQualifiedTableName);
 		Validate.notNull(argWhereClauseColumns);
@@ -102,25 +106,8 @@ public abstract class DatabaseUtility {
 		/* Is there at least one column name in the iterator? */
 		/* FIXME: This needs different code to handle cases where there are no values to insert depending on
 		 * which database is being used.  MySQL works with an empty column list, but SQL Server requires the
-		 * commented-out version. */
+		 * commented-out version.  I have no good solution for the general case. */
 		
-		/* MariaDB Version */
-		
-//		lclSQL.append(" (");
-//		boolean lclFirst = true;
-//		while (argI.hasNext()) {
-//			if (!lclFirst) {
-//				lclSQL.append(", ");
-//				lclQ.append(", ");
-//			}
-//			lclSQL.append(argI.next());
-//			lclQ.append('?');
-//			lclFirst = false;
-//		}
-//		lclSQL.append(") VALUES (");
-//		lclSQL.append(lclQ + "");
-//		lclSQL.append(")");
-				
 		/* SQL Server Version */
 		
 		if (argI.hasNext()) {
@@ -179,13 +166,14 @@ public abstract class DatabaseUtility {
 			lclSQL.append(")");
 		}
 		
+		/* This portion dealing with output columns is probably SQL Server-specific. */
 		if (argOutputColumns.length > 0) {
 			lclSQL.append(" OUTPUT ");
 			for (int lclI = 0; lclI < argOutputColumns.length; ++lclI) {
 				if (lclI > 0) {
 					lclSQL.append (", ");
 				}
-				lclSQL.append("Inserted.");
+				lclSQL.append("Inserted."); // This is the generic prefix representing the table into which the row was inserted.
 				lclSQL.append(argOutputColumns[lclI]);
 			}
 		} else {
@@ -375,7 +363,7 @@ public abstract class DatabaseUtility {
 //					System.out.println("Connection " + argConnection.hashCode() + " was already closed.");
 				}
 			} catch (Exception lclE) {
-				ourLogger.error("Suppressing exception thrown while closing Connection", lclE);
+				ourLogger.error("Suppressing exception thrown while closing a Connection.", lclE);
 			}
 		}
 	}
@@ -390,7 +378,7 @@ public abstract class DatabaseUtility {
 			try {
 				argRS.close();
 			} catch (Exception lclE) {
-				ourLogger.error("Suppressing exception thrown while closing ResultSet", lclE);
+				ourLogger.error("Suppressing exception thrown while closing a ResultSet.", lclE);
 			}
 		}
 	}
@@ -405,11 +393,12 @@ public abstract class DatabaseUtility {
 			try {
 				argStatement.close();
 			} catch (Exception lclE) {
-				ourLogger.error("Suppressed the following error while closing a statement:", lclE);
+				ourLogger.error("Suppressing exception while closing a Statement.", lclE);
 			}
 		}
 	}
 	
+	/* CONCERN: This may not work if you are trying to delete rows where one of the WHERE clause values is null. */
 	public static int delete(Connection argConnection, String argFullyQualifiedTablename, String[] argWhereClauseColumns, Object... argWhereClauseValues) throws SQLException {
 		if (argConnection == null) {
 			throw new IllegalArgumentException("argConnection is null");
@@ -439,6 +428,7 @@ public abstract class DatabaseUtility {
 	 * @return int
 	 * @throws SQLException If there is a problem running the SQL statement
 	 */
+	/* CONCERN: Because this uses lclPS.setObject, does it work for nvarchar columns (setNString) and/or null columns? */
 	public static int executeDML(Connection argConnection, String argSQL, Object... argParameters) throws SQLException {
 		if (argConnection == null) {
 			throw new IllegalArgumentException("argConnection is null");
@@ -547,32 +537,6 @@ public abstract class DatabaseUtility {
 		return extractSingleInt(argRS, argRS.findColumn(argColumnName));
 	}
 	
-//	public static int executeBlobQuery(Connection argConnection, String argFieldName, String argTableName, String[] argWhereClauseColumnNames, Object... argWhereClauseValues) {
-//		if (argConnection == null) {
-//			throw new IllegalArgumentException("argConnection is null");
-//		}
-//		ResultSet lclRS = null;
-//		try {
-//			lclRS = select(
-//					lclConnection.
-//					new String[] { argFieldName },
-//					argFullyQualifiedTableName,
-//					argWhereClauseColumnNames,
-//					argWhereClauseValues
-//					);
-//			if (lclRS.next() == false) {
-//				throw new IllegalStateException("No rows returned.");
-//			}
-//			Blob lclBlob = lclRS.getBlob(0);
-//			if (lclRS.next() == true) {
-//				throw new IllegalStateException("More than one row returned.");
-//			}
-//			return lclBlob;
-//		} finally {
-//			cleanUp(lclRS, CLEAN_STATEMENT);
-//		}
-//	}
-	
 	/**
 	 * @param argConnection The Connection to use
 	 * @param argSequence The sequence whose current value to find
@@ -580,6 +544,7 @@ public abstract class DatabaseUtility {
 	 * @throws SQLException If there is a problem obtaining the sequence value
 	 * @throws RuntimeException If either no rows or multiple rows are returned
 	 */
+	// This is Oracle-specific.
 	public static int getCurrvalForSequence(Connection argConnection, String argSequence) throws SQLException {
 		String lclSQL = "SELECT " + argSequence + ".currval FROM Dual\n";
 //		Logger.getInstance().log(Logger.Debug, lclSQL);
@@ -599,6 +564,7 @@ public abstract class DatabaseUtility {
 	 * @throws SQLException If there is a problem obtaining the next sequence value
 	 * @throws RuntimeException If either no rows or multiple rows are returned
 	 */
+	// This is Oracle-specific.
 	public static int getNextvalForSequence(DataSource argDataSource, String argSequence) throws SQLException {
 		try (Connection lclConnection = argDataSource.getConnection()) {
 			return getNextvalForSequence(lclConnection, argSequence);
@@ -612,6 +578,7 @@ public abstract class DatabaseUtility {
 	 * @throws SQLException If there is a problem obtaining the next sequence value
 	 * @throws RuntimeException If either no rows or multiple rows are returned
 	 */
+	// This is Oracle-specific.
 	public static int getNextvalForSequence(Connection argConnection, String argSequence) throws SQLException {
 		String lclSQL = "SELECT " + argSequence + ".nextval FROM Dual\n";
 //		Logger.getInstance().log(Logger.Debug, lclSQL);
@@ -625,6 +592,41 @@ public abstract class DatabaseUtility {
 		
 	}
 
+	/* Determines whether a String contains only ASCII (0-127) characters.  A null String is deemed to be ASCII. */
+	private static boolean isASCII(String argS) {
+		if (argS == null) {
+			return true;
+		}
+		for (int lclI = 0; lclI < argS.length(); ++lclI) {
+			if (argS.charAt(lclI) > 127) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private static void setParameter(PreparedStatement argPS, int argIndex, Object argV) throws SQLException {
+		switch (argV) {
+		case null:
+//			argPS.setString(argIndex, null); // Is this still necessary with the Microsoft JDBC Driver?
+			argPS.setNull(argIndex, Types.NULL); // Is this still necessary with the Microsoft JDBC Driver?
+			break;
+		case Character lclC:
+			argPS.setString(argIndex, String.valueOf(lclC)); // Is this still necessary with the Microsoft JDBC Driver?
+			break;
+		case String lclS:
+			if (isASCII(lclS)) {
+				argPS.setString(argIndex, lclS);
+			} else {
+				argPS.setNString(argIndex, lclS);
+			}
+			break;
+		default:
+			argPS.setObject(argIndex, argV);
+			break;
+		}
+	}
+		
 	private static void setInsertParameters(PreparedStatement argPS, Map<String, Object> argMap) throws SQLException {
 		if (argPS == null) {
 			throw new IllegalArgumentException("argPS is null");
@@ -648,15 +650,7 @@ public abstract class DatabaseUtility {
 			}
 			/* See http://java.sun.com/products/jdk/1.1/docs/guide/jdbc/getstart/preparedstatement.doc.html for why this treatment of NULLs is necessary. */
 			
-			if (lclV == null) {
-				argPS.setString(++lclCount, null);
-			} else {
-				if (lclV.getClass() == java.lang.Character.class) {
-					argPS.setObject(++lclCount, String.valueOf(lclV));
-				} else {
-					argPS.setObject(++lclCount, lclV);
-				}
-			}
+			setParameter(argPS, ++lclCount, lclV);
 		}
 	}
 
@@ -780,6 +774,7 @@ public abstract class DatabaseUtility {
 	 * @throws IllegalArgumentException If any of the arguments are <code>null</code> or if either of the Strings are empty
 	 * @throws IllegalStateException If argConnection is closed
 	 */
+	// This is Oracle-specific.
 	public static int insertWithSequence(Connection argConnection, String argTableName, Map<String, Object> argMap, String argIDColumnName, String argSequenceName) throws SQLException {
 		if (argConnection == null) {
 			throw new IllegalArgumentException("argConnection is null in DatabaseUtility.insertWithSequence().");
@@ -816,7 +811,7 @@ public abstract class DatabaseUtility {
 			Iterator<String> lclI = argMap.keySet().iterator();
 			int lclCount = 0;
 			while (lclI.hasNext()) {
-				lclPS.setObject(++lclCount, argMap.get(lclI.next()));
+				setParameter(lclPS, ++lclCount, argMap.get(lclI.next()));
 			}
 //			Logger.getInstance().log(Logger.Debug, "About to insert.");
 			
@@ -845,14 +840,14 @@ public abstract class DatabaseUtility {
 		}
 	}
 	
-	/**
-	 * Determines whether the argument represents a special database ID or not.
-	 * @param argID the database ID
-	 * @return <code>true</code> if the argument is strictly between 0 and 1000; <code>false</code>otherwise.
-	 */
-	public static boolean isSpecialID(int argID) {
-		return (0 < argID) && (argID < 1000);
-	}
+//	/**
+//	 * Determines whether the argument represents a special database ID or not.
+//	 * @param argID the database ID
+//	 * @return <code>true</code> if the argument is strictly between 0 and 1000; <code>false</code>otherwise.
+//	 */
+//	public static boolean isSpecialID(int argID) {
+//		return (0 < argID) && (argID < 1000);
+//	}
 	
 	/**
 	 * Creates a column name to hold the primary key of a
@@ -908,11 +903,12 @@ public abstract class DatabaseUtility {
 					if (ourLogger.isDebugEnabled()) {
 						ourLogger.debug("Parameter[" + lclCount + "] = " + String.valueOf(lclValue));
 					}
-					if (lclValue == null) {
-						lclPS.setString(++lclCount, null); // pre-increment because SQL parameters are 1-based
-					} else {
-						lclPS.setObject(++lclCount, lclValue); // pre-increment because SQL parameters are 1-based
-					}
+					setParameter(lclPS, ++lclCount, lclValue);
+//					if (lclValue == null) {
+//						lclPS.setString(++lclCount, null); // pre-increment because SQL parameters are 1-based
+//					} else {
+//						lclPS.setObject(++lclCount, lclValue); // pre-increment because SQL parameters are 1-based
+//					}
 				}
 			}
 			
@@ -1058,20 +1054,21 @@ public abstract class DatabaseUtility {
 					ourLogger.debug("Parameter[" + lclCount + "] = " + String.valueOf(lclV));
 				}
 				
-				if (lclV == null) {
-					lclPS.setNull(++lclCount, Types.NULL);
-				} else {
-					
-					/* Microsoft's JDBC driver (and maybe others) don't allow Characters to be passed; they throw
-					 * exceptions.  I don't know the most efficient way to deal with this, but converting it into
-					 * a String solves the problem -- RRH (2003 September 23) */
-					 
-					if (lclV.getClass() == java.lang.Character.class) {
-						lclPS.setObject(++lclCount, String.valueOf(lclV));
-					} else {
-						lclPS.setObject(++lclCount, lclV);
-					}
-				}
+				setParameter(lclPS, ++lclCount, lclV);
+//				if (lclV == null) {
+//					lclPS.setNull(++lclCount, Types.NULL);
+//				} else {
+//					
+//					/* Microsoft's JDBC driver (and maybe others) don't allow Characters to be passed; they throw
+//					 * exceptions.  I don't know the most efficient way to deal with this, but converting it into
+//					 * a String solves the problem -- RRH (2003 September 23) */
+//					 
+//					if (lclV.getClass() == java.lang.Character.class) {
+//						lclPS.setObject(++lclCount, String.valueOf(lclV));
+//					} else {
+//						lclPS.setObject(++lclCount, lclV);
+//					}
+//				}
 			}
 			
 			for (int lclJ = 0; lclJ < argWhereClauseValues.length; ++lclJ) {
@@ -1079,15 +1076,16 @@ public abstract class DatabaseUtility {
 				if (ourLogger.isDebugEnabled()) {
 					ourLogger.debug("WhereParameter[" + lclCount + "] = " + String.valueOf(lclV));
 				}
-				if (lclV == null) {
-					lclPS.setNull(++lclCount, Types.NULL);
-				} else {
-					if (lclV.getClass() == java.lang.Character.class) {
-						lclPS.setObject(++lclCount, String.valueOf(lclV));
-					} else {
-						lclPS.setObject(++lclCount, lclV);
-					}
-				}
+				setParameter(lclPS, ++lclCount, lclV);
+//				if (lclV == null) {
+//					lclPS.setNull(++lclCount, Types.NULL);
+//				} else {
+//					if (lclV.getClass() == java.lang.Character.class) {
+//						lclPS.setObject(++lclCount, String.valueOf(lclV));
+//					} else {
+//						lclPS.setObject(++lclCount, lclV);
+//					}
+//				}
 			}
 			
 //			ourLogger.info("lclPS.isClosed() == " + lclPS.isClosed());
