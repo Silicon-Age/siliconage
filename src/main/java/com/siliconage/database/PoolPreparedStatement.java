@@ -1,4 +1,5 @@
 package com.siliconage.database;
+
 import java.io.Reader;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -19,7 +20,6 @@ import java.sql.Timestamp;
 import java.sql.ParameterMetaData;
 import java.net.URL;
 import java.util.Calendar;
-import com.siliconage.util.UnimplementedOperationException;
 
 //import com.siliconage.util.UnimplementedOperationException;
 
@@ -28,6 +28,7 @@ import com.siliconage.util.UnimplementedOperationException;
  * @author <a href="mailto:topquark@silicon-age.com">R. Robert Hentzel</a>
  * @author <a href="mailto:info@silicon-age.com">Silicon Age, Inc.</a>
  */
+@SuppressWarnings("resource")
 public class PoolPreparedStatement extends PoolStatement implements PreparedStatement {
 	private PreparedStatement myPreparedStatement;
 	
@@ -43,10 +44,6 @@ public class PoolPreparedStatement extends PoolStatement implements PreparedStat
 		init();
 	}
 	
-//	protected void init() {
-//		/* Nothing to do*/
-//	}
-//	
 	/**
 	 * Calls addBatch() on the internal PreparedStatement.
 	 * @throws SQLException If there is a problem
@@ -420,8 +417,8 @@ public class PoolPreparedStatement extends PoolStatement implements PreparedStat
 	 */
 	@Deprecated
 	@Override
-	public void setUnicodeStream(int parameterIndex, InputStream x, int length) {
-		throw new UnsupportedOperationException("Called a deprecated method.");
+	public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
+		getPreparedStatement().setUnicodeStream(parameterIndex, x, length);
 	}
 	
 	@Override
@@ -435,118 +432,118 @@ public class PoolPreparedStatement extends PoolStatement implements PreparedStat
 	} // NOPMD by Jonah Greenthal on 9/20/14 11:19 PM
 	
 	@Override
-	public void setAsciiStream(int argArg0, InputStream argArg1) {
-		throw new UnimplementedOperationException();
+	public void setAsciiStream(int parameterIndex, InputStream argIS) throws SQLException {
+		getPreparedStatement().setAsciiStream(parameterIndex, argIS);
 	}
 	
 	@Override
-	public void setAsciiStream(int argArg0, InputStream argArg1, long argArg2) {
-		throw new UnimplementedOperationException();
+	public void setAsciiStream(int parameterIndex, InputStream argIS, long arg2) throws SQLException {
+		getPreparedStatement().setAsciiStream(parameterIndex, argIS, arg2);
 	}
 	
 	@Override
-	public void setBinaryStream(int argArg0, InputStream argArg1) {
-		throw new UnimplementedOperationException();
+	public void setBinaryStream(int parameterIndex, InputStream argIS) throws SQLException {
+		getPreparedStatement().setBinaryStream(parameterIndex, argIS);
 	}
 	
 	@Override
-	public void setBinaryStream(int argArg0, InputStream argArg1, long argArg2) {
-		throw new UnimplementedOperationException();
+	public void setBinaryStream(int parameterIndex, InputStream argIS, long arg2) throws SQLException {
+		getPreparedStatement().setBinaryStream(parameterIndex, argIS, arg2);
 	}
 	
 	@Override
-	public void setBlob(int argArg0, InputStream argArg1) {
-		throw new UnimplementedOperationException();
+	public void setBlob(int parameterIndex, InputStream argIS) throws SQLException {
+		getPreparedStatement().setBlob(parameterIndex, argIS);
 	}
 	
 	@Override
-	public void setBlob(int argArg0, InputStream argArg1, long argArg2) {
-		throw new UnimplementedOperationException();
+	public void setBlob(int parameterIndex, InputStream argIS, long arg2) throws SQLException {
+		getPreparedStatement().setBlob(parameterIndex, argIS, arg2);
 	}
 	
 	@Override
-	public void setCharacterStream(int argArg0, Reader argArg1) {
-		throw new UnimplementedOperationException();
+	public void setCharacterStream(int parameterIndex, Reader argR) throws SQLException {
+		getPreparedStatement().setCharacterStream(parameterIndex, argR);
 	}
 	
 	@Override
-	public void setCharacterStream(int argArg0, Reader argArg1, long argArg2) {
-		throw new UnimplementedOperationException();
+	public void setCharacterStream(int parameterIndex, Reader argR, long arg2) throws SQLException {
+		getPreparedStatement().setCharacterStream(parameterIndex, argR, arg2);
 	}
 	
 	@Override
-	public void setClob(int argArg0, Reader argArg1) {
-		throw new UnimplementedOperationException();
+	public void setClob(int parameterIndex, Reader argR) throws SQLException {
+		getPreparedStatement().setClob(parameterIndex, argR);
 	}
 	
 	@Override
-	public void setClob(int argArg0, Reader argArg1, long argArg2) {
-		throw new UnimplementedOperationException();
+	public void setClob(int parameterIndex, Reader argR, long arg2) throws SQLException {
+		getPreparedStatement().setClob(parameterIndex, argR, arg2);
 	}
 	
 	@Override
-	public void setNCharacterStream(int argArg0, Reader argArg1) {
-		throw new UnimplementedOperationException();
+	public void setNCharacterStream(int parameterIndex, Reader argR) throws SQLException {
+		getPreparedStatement().setNCharacterStream(parameterIndex, argR);
 	}
 	
 	@Override
-	public void setNCharacterStream(int argArg0, Reader argArg1, long argArg2) {
-		throw new UnimplementedOperationException();
+	public void setNCharacterStream(int parameterIndex, Reader argR, long arg2) throws SQLException {
+		getPreparedStatement().setNCharacterStream(parameterIndex, argR, arg2);
 	}
 	
 	@Override
-	public void setNClob(int argArg0, NClob argArg1) {
-		throw new UnimplementedOperationException();
+	public void setNClob(int parameterIndex, NClob argNC) throws SQLException {
+		getPreparedStatement().setNClob(parameterIndex, argNC);
 	}
 	
 	@Override
-	public void setNClob(int argArg0, Reader argArg1) {
-		throw new UnimplementedOperationException();
+	public void setNClob(int parameterIndex, Reader argR) throws SQLException {
+		getPreparedStatement().setNClob(parameterIndex, argR);
 	}
 	
 	@Override
-	public void setNClob(int argArg0, Reader argArg1, long argArg2) {
-		throw new UnimplementedOperationException();
+	public void setNClob(int parameterIndex, Reader argR, long arg2) throws SQLException {
+		getPreparedStatement().setNClob(parameterIndex, argR, arg2);
 	}
 	
 	@Override
-	public void setNString(int argArg0, String argArg1) {
-		throw new UnimplementedOperationException();
+	public void setNString(int parameterIndex, String argArg1) throws SQLException {
+		getPreparedStatement().setNString(parameterIndex, argArg1);
 	}
 	
 	@Override
-	public void setRowId(int argArg0, RowId argArg1) {
-		throw new UnimplementedOperationException();
+	public void setRowId(int parameterIndex, RowId argRId) throws SQLException {
+		getPreparedStatement().setRowId(parameterIndex, argRId);
 	}
 	
 	@Override
-	public void setSQLXML(int argArg0, SQLXML argArg1) {
-		throw new UnimplementedOperationException();
+	public void setSQLXML(int parameterIndex, SQLXML argXML) throws SQLException {
+		getPreparedStatement().setSQLXML(parameterIndex, argXML);
 	}
 	
 	@Override
-	public boolean isClosed() {
-		throw new UnimplementedOperationException();
+	public boolean isClosed() throws SQLException {
+		return getPreparedStatement().isClosed();
 	}
 	
 	@Override
-	public boolean isPoolable() {
-		throw new UnimplementedOperationException();
+	public boolean isPoolable() throws SQLException {
+		return getPreparedStatement().isPoolable();
 	}
 	
 	@Override
-	public void setPoolable(boolean argArg0) {
-		throw new UnimplementedOperationException();
+	public void setPoolable(boolean argP) throws SQLException {
+		getPreparedStatement().setPoolable(argP);
 	}
 	
 	@Override
-	public boolean isWrapperFor(Class<?> argIface) {
-		throw new UnimplementedOperationException();
+	public boolean isWrapperFor(Class<?> argIface) throws SQLException {
+		return getPreparedStatement().isWrapperFor(argIface);
 	}
 	
 	@Override
-	public <T> T unwrap(Class<T> argIface) {
-		throw new UnimplementedOperationException();
+	public <T> T unwrap(Class<T> argIface) throws SQLException {
+		return getPreparedStatement().unwrap(argIface);
 	}
 	
 }
