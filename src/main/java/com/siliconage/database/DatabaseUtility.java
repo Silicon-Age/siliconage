@@ -605,11 +605,33 @@ public abstract class DatabaseUtility {
 		return true;
 	}
 	
+	/* This method is responsible for setting the parameters on DML (UPDATE and INSERT) PreparedStatements.  It has
+	 * a long history of having difficulties with null values.  In short, different databases and their JDBC drivers
+	 * expect some sort of "typing" of null.
+	 * 
+	 *  The original incarnation of this code (which worked on Oracle and Sybase), would just call setObject(index, null)
+	 *  for all null parameters.
+	 *  
+	 *  It was found that this didn't work with the jTDS driver (which NAQT used until 2024) for SQL Server.  However,
+	 *  setString(argIndex, null) did work (even if the null was not being passed to a (var)char field.
+	 *  
+	 *  Later on, that was changed to setNull(argIndex, Types.NULL) in the belief that this was the proper way to do it.
+	 *  This also worked for all fields on jTDS.
+	 *  
+	 *  However, it failed with the Microsoft JDBC driver (adopted in 2024).  In particular, nulls being passed to
+	 *  date fields would cause errors.  Returning to setObject(argIndex, null) appears to have addressed this (but
+	 *  it has not been widely tested with other types of queries or fields).
+	 *  
+	 *  Note that this code will no longer work with the jTDS driver.
+	 *  
+	 *  Solving this problem properly (by giving this code access to the "type" of null) will, in many cases, be difficult.
+	 */
 	private static void setParameter(PreparedStatement argPS, int argIndex, Object argV) throws SQLException {
 		switch (argV) {
 		case null:
 //			argPS.setString(argIndex, null); // Is this still necessary with the Microsoft JDBC Driver?
-			argPS.setNull(argIndex, Types.NULL); // Is this still necessary with the Microsoft JDBC Driver?
+//			argPS.setNull(argIndex, Types.NULL); // Is this still necessary with the Microsoft JDBC Driver?
+			argPS.setObject(argIndex, null);
 			break;
 		case Character lclC:
 			argPS.setString(argIndex, String.valueOf(lclC)); // Is this still necessary with the Microsoft JDBC Driver?
