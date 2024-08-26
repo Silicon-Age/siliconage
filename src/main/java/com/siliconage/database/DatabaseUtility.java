@@ -640,7 +640,12 @@ public abstract class DatabaseUtility {
 			if (isASCII(lclS)) {
 				argPS.setString(argIndex, lclS);
 			} else {
-				argPS.setNString(argIndex, lclS);
+				try {
+					argPS.setNString(argIndex, lclS);
+				} catch (AbstractMethodError lclE) {
+					// The jTDS driver doesn't implement setNString
+					argPS.setString(argIndex, lclS);
+				}
 			}
 			break;
 		default:
