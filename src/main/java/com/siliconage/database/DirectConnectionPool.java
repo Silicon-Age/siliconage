@@ -113,19 +113,6 @@ public class DirectConnectionPool implements javax.sql.DataSource {
 //		ourLogger.debug("ConnectionPool emptied.");
 	}
 
-	/*
-	@Override
-	protected void finalize() throws Throwable {
-		try {
-			close();
-		} catch (Throwable lclT) {
-			ourLogger.error("Squashing Throwable while finalizing " + this);
-			ourLogger.error(lclT.toString(), lclT);
-		}
-		super.finalize();
-	}
-	*/
-	
 	/**
 	 * @return Connection
 	 * @throws SQLException if there is a problem creating the connection
