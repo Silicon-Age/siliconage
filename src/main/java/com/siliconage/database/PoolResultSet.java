@@ -28,10 +28,11 @@ import javax.sql.DataSource;
  * @author <a href="mailto:topquark@silicon-age.com">R. Robert Hentzel</a>
  * @author <a href="mailto:info@silicon-age.com">Silicon Age, Inc.</a>
  */
+@Deprecated
+@SuppressWarnings("resource")
 public class PoolResultSet implements ResultSet {
-	private ResultSet myResultSet;
-	
-	private Statement myStatement;
+	private final ResultSet myResultSet;	
+	private final Statement myStatement;
 	
 	/**
 	 * @param argRS The ResultSet
@@ -40,8 +41,14 @@ public class PoolResultSet implements ResultSet {
 	public PoolResultSet(ResultSet argRS, PoolStatement argPS) {
 		super();
 		// FIXME Make sure that the RS belongs to a PoolConnection (or PoolStatement...)
-		setResultSet(argRS);
-		setStatement(argPS);
+		if (argRS == null) {
+			throw new IllegalStateException("argRS is null.");
+		}
+		myResultSet = argRS;
+		if(argPS == null) {
+			throw new IllegalStateException("argPS is null");
+		}
+		myStatement = argPS;
 	}
 	/**
 	 * Calls <code>absolute()</code> on the internal ResultSet.
@@ -96,11 +103,11 @@ public class PoolResultSet implements ResultSet {
 	public void close() {
 		// Does not automatically check the Connection back in
 		ResultSet lclRS = getResultSet();
-		if (lclRS == null) {
-			throw new IllegalStateException(this + " has already been closed (or was never opened).");
-		}
+//		if (lclRS == null) {
+//			throw new IllegalStateException(this + " has already been closed (or was never opened).");
+//		}
 		DatabaseUtility.closeResultSet(lclRS);
-		setStatement(null);
+//		setStatement(null);
 		// DatabaseReuser.returnPoolResultSet(this);
 	}
 	
@@ -1013,21 +1020,21 @@ public class PoolResultSet implements ResultSet {
 		getResultSet().setFetchSize(rows);
 	}
 	
-	/**
-	 * Sets the internal ResultSet.
-	 * @param argResultSet ResultSet
-	 */
-	final void setResultSet(ResultSet argResultSet) {
-		myResultSet = argResultSet;
-	}
-	
-	/**
-	 * Sets the internal Statement.
-	 * @param argStatement Statement
-	 */
-	void setStatement(Statement argStatement) {
-		myStatement = argStatement;
-	}
+//	/**
+//	 * Sets the internal ResultSet.
+//	 * @param argResultSet ResultSet
+//	 */
+//	final void setResultSet(ResultSet argResultSet) {
+//		myResultSet = argResultSet;
+//	}
+//	
+//	/**
+//	 * Sets the internal Statement.
+//	 * @param argStatement Statement
+//	 */
+//	void setStatement(Statement argStatement) {
+//		myStatement = argStatement;
+//	}
 	
 	/**
 	 * Updates the ASCII stream of the internal ResultSet.

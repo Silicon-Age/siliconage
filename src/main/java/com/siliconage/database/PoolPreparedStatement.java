@@ -28,9 +28,10 @@ import java.util.Calendar;
  * @author <a href="mailto:topquark@silicon-age.com">R. Robert Hentzel</a>
  * @author <a href="mailto:info@silicon-age.com">Silicon Age, Inc.</a>
  */
+@Deprecated
 @SuppressWarnings("resource")
 public class PoolPreparedStatement extends PoolStatement implements PreparedStatement {
-	private PreparedStatement myPreparedStatement;
+	private final PreparedStatement myPreparedStatement;
 	
 	/**
 	 * Constructs an instance of PoolPreparedStatement and sets the internal
@@ -40,8 +41,9 @@ public class PoolPreparedStatement extends PoolStatement implements PreparedStat
 	 */
 	public PoolPreparedStatement(PreparedStatement argPS, PoolConnection argPC) {
 		super(argPS, argPC);
-		setPreparedStatement(argPS);
-		init();
+		myPreparedStatement = argPS;
+//		setPreparedStatement(argPS);
+//		init();
 	}
 	
 	/**
@@ -60,15 +62,15 @@ public class PoolPreparedStatement extends PoolStatement implements PreparedStat
 	public void clearParameters() throws SQLException {
 		getPreparedStatement().clearParameters();
 	}
-	/**
-	 * Closes the internal PreparedStatement and returns this to the PoolPreparedStatement.
-	 */
-	@Override
-	public void close() {
-		// Don't call super or we'll returnPoolStatement as well and that will really screw things up 
-		DatabaseUtility.closeStatement(getPreparedStatement());
-//		DatabaseReuser.returnPoolPreparedStatement(this);
-	}
+//	/**
+//	 * Closes the internal PreparedStatement and returns this to the PoolPreparedStatement.
+//	 */
+//	@Override
+//	public void close() {
+//		// Don't call super or we'll returnPoolStatement as well and that will really screw things up 
+//		DatabaseUtility.closeStatement(getPreparedStatement());
+////		DatabaseReuser.returnPoolPreparedStatement(this);
+//	}
 	/**
 	 * Executes the internal PreparedStatement.
 	 * @return boolean The number of rows affected
@@ -329,13 +331,13 @@ public class PoolPreparedStatement extends PoolStatement implements PreparedStat
 	public void setObject(int parameterIndex, Object x, int targetSqlType, int scale) throws SQLException {
 		getPreparedStatement().setObject(parameterIndex, x, targetSqlType, scale);
 	}
-	/**
-	 * Sets the the internal PreparedStatement.
-	 * @param argPreparedStatement PreparedStatement
-	 */
-	protected final void setPreparedStatement(PreparedStatement argPreparedStatement) {
-		myPreparedStatement = argPreparedStatement;
-	}
+//	/**
+//	 * Sets the the internal PreparedStatement.
+//	 * @param argPreparedStatement PreparedStatement
+//	 */
+//	protected final void setPreparedStatement(PreparedStatement argPreparedStatement) {
+//		myPreparedStatement = argPreparedStatement;
+//	}
 	/**
 	 * Sets the Ref of the internal PreparedStatement.
 	 * @param i int
@@ -521,29 +523,29 @@ public class PoolPreparedStatement extends PoolStatement implements PreparedStat
 		getPreparedStatement().setSQLXML(parameterIndex, argXML);
 	}
 	
-	@Override
-	public boolean isClosed() throws SQLException {
-		return getPreparedStatement().isClosed();
-	}
+//	@Override
+//	public boolean isClosed() throws SQLException {
+//		return getPreparedStatement().isClosed();
+//	}
+//	
+//	@Override
+//	public boolean isPoolable() throws SQLException {
+//		return getPreparedStatement().isPoolable();
+//	}
+//	
+//	@Override
+//	public void setPoolable(boolean argP) throws SQLException {
+//		getPreparedStatement().setPoolable(argP);
+//	}
 	
-	@Override
-	public boolean isPoolable() throws SQLException {
-		return getPreparedStatement().isPoolable();
-	}
-	
-	@Override
-	public void setPoolable(boolean argP) throws SQLException {
-		getPreparedStatement().setPoolable(argP);
-	}
-	
-	@Override
-	public boolean isWrapperFor(Class<?> argIface) throws SQLException {
-		return getPreparedStatement().isWrapperFor(argIface);
-	}
-	
-	@Override
-	public <T> T unwrap(Class<T> argIface) throws SQLException {
-		return getPreparedStatement().unwrap(argIface);
-	}
+//	@Override
+//	public boolean isWrapperFor(Class<?> argIface) throws SQLException {
+//		return getPreparedStatement().isWrapperFor(argIface);
+//	}
+//	
+//	@Override
+//	public <T> T unwrap(Class<T> argIface) throws SQLException {
+//		return getPreparedStatement().unwrap(argIface);
+//	}
 	
 }

@@ -27,7 +27,7 @@ import javax.sql.DataSource;
  */
 
 @SuppressWarnings("resource")
-/* package */ class PoolConnection implements Connection {
+public /* package */ class PoolConnection implements Connection {
 	
 	private final Connection myConnection;
 	private final DataSource myDataSource;
@@ -106,7 +106,8 @@ import javax.sql.DataSource;
 			throw new RuntimeException("Tried to createStatement on a checked-in Connection.");
 		}
 		
-		return new PoolStatement(getConnection().createStatement(), this);
+		return getConnection().createStatement();
+//		return new PoolStatement(getConnection().createStatement(), this);
 	}
 	
 	/**
@@ -120,7 +121,8 @@ import javax.sql.DataSource;
 			throw new RuntimeException("Tried to createStatement on a checked-in Connection.");
 		}
 	
-		return new PoolStatement(getConnection().createStatement(resultSetType, resultSetConcurrency), this);
+		return getConnection().createStatement(resultSetType, resultSetConcurrency);
+//		return new PoolStatement(getConnection().createStatement(resultSetType, resultSetConcurrency), this);
 	}
 	
 	/**
@@ -260,7 +262,8 @@ import javax.sql.DataSource;
 		if (isCheckedIn()) {
 			throw new RuntimeException("Tried to prepareStatement on a checked-in Connection.");
 		}
-		return new PoolPreparedStatement(getConnection().prepareStatement(sql), this);
+		return getConnection().prepareStatement(sql);
+//		return new PoolPreparedStatement(getConnection().prepareStatement(sql), this);
 	}
 	
 	/**
@@ -276,7 +279,8 @@ import javax.sql.DataSource;
 		if (isCheckedIn()) {
 			throw new RuntimeException("Tried to prepareStatement on a checked-in Connection.");
 		}
-		return new PoolPreparedStatement(getConnection().prepareStatement(sql, resultSetType, resultSetConcurrency), this);
+		return getConnection().prepareStatement(sql, resultSetType, resultSetConcurrency);
+//		return new PoolPreparedStatement(getConnection().prepareStatement(sql, resultSetType, resultSetConcurrency), this);
 	}
 	
 	/**

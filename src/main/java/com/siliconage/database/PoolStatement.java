@@ -11,6 +11,8 @@ import java.sql.SQLWarning;
  * @author <a href="mailto:topquark@silicon-age.com">R. Robert Hentzel</a>
  * @author <a href="mailto:info@silicon-age.com">Silicon Age, Inc.</a>
  */
+@Deprecated
+@SuppressWarnings("resource")
 public class PoolStatement implements Statement {
 	private final Statement myStatement;
 	private final PoolConnection myConnection;
@@ -23,7 +25,13 @@ public class PoolStatement implements Statement {
 	public PoolStatement(Statement argStatement, PoolConnection argPC) {
 		super();
 		init();
+		if (argStatement == null) {
+			throw new IllegalArgumentException("argStatement is null");
+		}
 		myStatement = argStatement;
+		if (argPC == null) {
+			throw new IllegalArgumentException("argPC is null");
+		}			
 		myConnection = argPC;
 	}
 	/**
