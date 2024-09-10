@@ -10,7 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
+//import java.sql.Types;
 
 import javax.sql.DataSource;
 
@@ -951,7 +951,18 @@ public abstract class DatabaseUtility {
 //			if (ourQueryCount % 1000 == 0) {
 //				ourLogger.debug("Query count has just hit " + ourQueryCount + ".");
 //			}
-			return lclRS;
+			
+			/* The user has no easy access to the returned ResultSet's underlying (Prepared)Statement, so they can't easily
+			 * close it when they are done with the ResultSet.  This could (conceivably) lead to performance problems or
+			 * memory leaks depending on how the driver handles things.
+			 * 
+			 * We wrap the ResultSet with a StatementClosingResultSet that will close the Statement when the ResultSet
+			 * is closed.  This will prevent the user from retrieving the Statement from the ResultSet and reusing it
+			 * with new parameters, but they really shouldn't be doing that.  If they need to batch statements, don't
+			 * go through DatabaseUtility::select.
+			 */
+			
+			return new StatementClosingResultSet(lclRS);
 		} catch (SQLException | RuntimeException lclE) {
 			closeStatement(lclPS);
 			ourLogger.error("Couldn't execute SELECT query " + argSQL + " with parameters " + Arrays.toString(argParameters), lclE);
