@@ -51,7 +51,6 @@ import javax.sql.DataSource;
 	
 	/**
 	 * @param argRS The ResultSet
-	 * @param argPS The PoolStatement
 	 */
 	public StatementClosingResultSet(ResultSet argRS) {
 		super();
