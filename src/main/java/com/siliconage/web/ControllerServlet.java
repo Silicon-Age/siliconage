@@ -25,10 +25,8 @@ import com.siliconage.web.form.FormFieldRequirement;
 import com.siliconage.web.form.PriorInput;
 
 public abstract class ControllerServlet extends HttpServlet {
-	
 	private static final long serialVersionUID = 1L;
-	
-	private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(ControllerServlet.class.getName());
+	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(LoginControllerServlet.class.getName());
 	
 	private static ThreadLocal<Map<String, Object>> ourPassBacks = new ThreadLocal<>();
 	

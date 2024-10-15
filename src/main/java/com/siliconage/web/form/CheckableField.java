@@ -5,7 +5,7 @@ import java.util.Collection;
 import com.siliconage.web.HTMLUtility;
 
 public abstract class CheckableField<T extends CheckableField<?>> extends HTMLInputField<T, Boolean> {
-	// private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(CheckableField.class.getName());
+	// private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(CheckableField.class.getName());
 	public static final String ID_NAME_VALUE_SEPARATOR = "_";
 
 	private String myHTMLValueAttribute;

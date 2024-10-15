@@ -18,7 +18,7 @@ import com.siliconage.util.Trinary;
 import com.siliconage.web.HTMLUtility;
 
 public class PriorInput implements FormValueProvider {
-	// private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(PriorInput.class.getName());
+	// private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(PriorInput.class.getName());
 	
 	private final long myLoadTime;
 	
