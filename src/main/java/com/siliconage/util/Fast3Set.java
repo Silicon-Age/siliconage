@@ -1,4 +1,5 @@
 package com.siliconage.util;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.AbstractSet;
@@ -9,8 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class Fast3Set<T> extends AbstractSet<T> {
-	
-	private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(Fast3Set.class.getName());
+	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(Fast3Set.class.getName());
 
 	private static final Constructor<?> ourEnlargementSetConstructor;
 	private static final Constructor<?> ourEnlargementSetCapacityConstructor;

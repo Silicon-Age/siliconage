@@ -5,8 +5,7 @@ import javax.servlet.http.HttpSession;
 
 public abstract class LoginControllerServlet extends ControllerServlet {
 	private static final long serialVersionUID = 1L;
-	
-	private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(LoginControllerServlet.class.getName());
+	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(LoginControllerServlet.class.getName());
 	
 	protected abstract Object determineIdentity(HttpServletRequest argRequest);
 	

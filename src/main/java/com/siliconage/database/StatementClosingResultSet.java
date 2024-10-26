@@ -45,7 +45,7 @@ import javax.sql.DataSource;
  */
 @SuppressWarnings("resource")
 /* package */ class StatementClosingResultSet implements ResultSet {
-	private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(StatementClosingResultSet.class.getName());
+	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(StatementClosingResultSet.class.getName());
 
 	private final ResultSet myResultSet;
 	

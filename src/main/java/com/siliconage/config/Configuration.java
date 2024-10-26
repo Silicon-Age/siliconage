@@ -27,7 +27,7 @@ import com.siliconage.database.DirectConnectionPoolFactory;
 public abstract class Configuration extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
 	
-	private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(Configuration.class.getName());
+	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(Configuration.class.getName());
 
 	private DataSource myDataSource;
 	
