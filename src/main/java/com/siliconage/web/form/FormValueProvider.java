@@ -3,7 +3,7 @@ package com.siliconage.web.form;
 import java.util.Collection;
 
 public interface FormValueProvider {
-	// static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(FormValueProvider.class.getName());
+	// static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(FormValueProvider.class.getName());
 	
 	public long getLoadTime();
 	

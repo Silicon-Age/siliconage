@@ -3,7 +3,7 @@ package com.siliconage.web.form;
 import java.util.Collections;
 
 public abstract class SingleValueFormField<T extends SingleValueFormField<?, V>, V> extends FormField<T, V> {
-	// private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(SingleValueFormField.class.getName());
+	// private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(SingleValueFormField.class.getName());
 	
 	protected SingleValueFormField(String argName, V argSavedValue, FormValueProvider argEnteredValueProvider) {
 		super(argName, Collections.singleton(argSavedValue), argEnteredValueProvider);

@@ -5,8 +5,8 @@ import java.util.OptionalLong;
 
 import org.apache.commons.lang3.Validate;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.event.Level;
 
 public abstract class TimedStep implements AutoCloseable {
 	private final String myEventName;
@@ -110,7 +110,7 @@ public abstract class TimedStep implements AutoCloseable {
 		
 		@Override
 		public void emit(String argMessage) {
-			getLogger().log(getLevel(), argMessage);
+			getLogger().atLevel(getLevel()).log(argMessage);
 		}
 	}
 	

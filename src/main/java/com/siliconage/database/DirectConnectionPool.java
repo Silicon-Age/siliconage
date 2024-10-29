@@ -17,7 +17,7 @@ import com.siliconage.util.UnimplementedOperationException;
  * @author <a href="mailto:info@silicon-age.com">Silicon Age, Inc.</a>
  */
 public class DirectConnectionPool implements javax.sql.DataSource {
-//	private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(DirectConnectionPool.class.getName());
+//	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(DirectConnectionPool.class.getName());
 	
 	//	private final ArrayList myConnections = new ArrayList();
 	

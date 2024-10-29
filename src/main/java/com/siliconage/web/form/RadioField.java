@@ -3,7 +3,7 @@ package com.siliconage.web.form;
 import com.siliconage.web.HTMLUtility;
 
 public class RadioField<T extends RadioField<?>> extends CheckableField<T> {
-	// private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(CheckableField.class.getName());
+	// private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(CheckableField.class.getName());
 	private static final String HTML_INPUT_TYPE = "radio";
 	
 	public RadioField(String argName, String argValue, boolean argChecked, FormValueProvider argEnteredValueProvider) {

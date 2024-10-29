@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 import org.apache.commons.lang3.Validate;
 
 public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> extends StandardDropdownField<T, C> {
-	// private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(AssembledDropdownField.class.getName());
+	// private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(AssembledDropdownField.class.getName());
 	
 	private List<C> myChoices;
 	private Comparator<? super C> myComparator = null;

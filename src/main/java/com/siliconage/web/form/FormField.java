@@ -15,7 +15,7 @@ import com.siliconage.util.Fast3Set;
 import com.siliconage.util.Trinary;
 
 public abstract class FormField<T extends FormField<?, V>, V> {
-	// private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(FormField.class.getName());
+	// private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(FormField.class.getName());
 	
 	private static final String USE_DEFAULT_ID = "%%UseDefaultId%%";
 	private static final String USE_INHERITED_CSS = "%%UseInheritedCss%%";

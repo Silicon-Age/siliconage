@@ -25,7 +25,7 @@ import com.siliconage.util.MeasurementTally;
  * @author <a href="mailto:info@silicon-age.com">Silicon Age, Inc.</a>
  */
 public abstract class DatabaseUtility {
-	private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(DatabaseUtility.class.getName());
+	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(DatabaseUtility.class.getName());
 	
 	public static final String SEQUENCE_PREFIX = "seq_";
 	public static final String SEQUENCE_SUFFIX = "_id";
