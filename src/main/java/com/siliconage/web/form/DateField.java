@@ -57,4 +57,14 @@ public class DateField<T extends DateField<?>> extends HTMLInputField<T, LocalDa
 		
 		return castThis();
 	}
+	
+	public T step(Integer argStepDays) {
+		if (argStepDays == null) {
+			removeAttribute("step");
+		} else {
+			attribute("step", String.valueOf(argStepDays));
+		}
+		
+		return castThis();
+	}
 }

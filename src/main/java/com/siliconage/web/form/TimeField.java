@@ -8,10 +8,14 @@ public class TimeField<T extends TimeField<?>> extends HTMLInputField<T, LocalTi
 	
 	public TimeField(String argName, LocalTime argSavedValue, FormValueProvider argEnteredValueProvider) {
 		super(argName, argSavedValue, argEnteredValueProvider);
+		
+		step(1);
 	}
 	
 	public TimeField(String argName, LocalTime argValue) {
 		super(argName, argValue);
+		
+		step(1);
 	}
 	
 	public TimeField(String argName) {
@@ -53,6 +57,16 @@ public class TimeField<T extends TimeField<?>> extends HTMLInputField<T, LocalTi
 			removeAttribute("max");
 		} else {
 			attribute("max", argMax.format(WIRE_FORMAT));
+		}
+		
+		return castThis();
+	}
+	
+	public T step(Integer argStepSeconds) {
+		if (argStepSeconds == null) {
+			removeAttribute("step");
+		} else {
+			attribute("step", String.valueOf(argStepSeconds));
 		}
 		
 		return castThis();
