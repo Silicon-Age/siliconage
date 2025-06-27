@@ -13,13 +13,13 @@ public class DateTimeField<T extends DateTimeField<?>> extends HTMLInputField<T,
 	public DateTimeField(String argName, LocalDateTime argSavedValue, FormValueProvider argEnteredValueProvider) {
 		super(argName, argSavedValue, argEnteredValueProvider);
 		
-		step(1);
+		minutePrecision();
 	}
 	
 	public DateTimeField(String argName, LocalDateTime argValue) {
 		super(argName, argValue);
 		
-		step(1);
+		minutePrecision();
 	}
 	
 	public DateTimeField(String argName) {
@@ -82,5 +82,17 @@ public class DateTimeField<T extends DateTimeField<?>> extends HTMLInputField<T,
 		}
 		
 		return castThis();
+	}
+	
+	public T secondPrecision() {
+		return step(1);
+	}
+	
+	public T minutePrecision() {
+		return step(TimeField.SECONDS_PER_MINUTE);
+	}
+	
+	public T hourPrecision() {
+		return step(TimeField.SECONDS_PER_MINUTE * TimeField.MINUTES_PER_HOUR);
 	}
 }

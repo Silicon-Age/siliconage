@@ -6,16 +6,19 @@ import java.time.format.DateTimeFormatter;
 public class TimeField<T extends TimeField<?>> extends HTMLInputField<T, LocalTime> {
 	public static final DateTimeFormatter WIRE_FORMAT = DateTimeFormatter.ISO_LOCAL_TIME;
 	
+	/* package */ static final int SECONDS_PER_MINUTE = 60;
+	/* package */ static final int MINUTES_PER_HOUR = 60;
+	
 	public TimeField(String argName, LocalTime argSavedValue, FormValueProvider argEnteredValueProvider) {
 		super(argName, argSavedValue, argEnteredValueProvider);
 		
-		step(1);
+		minutePrecision();
 	}
 	
 	public TimeField(String argName, LocalTime argValue) {
 		super(argName, argValue);
 		
-		step(1);
+		minutePrecision();
 	}
 	
 	public TimeField(String argName) {
@@ -70,5 +73,17 @@ public class TimeField<T extends TimeField<?>> extends HTMLInputField<T, LocalTi
 		}
 		
 		return castThis();
+	}
+	
+	public T secondPrecision() {
+		return step(1);
+	}
+	
+	public T minutePrecision() {
+		return step(SECONDS_PER_MINUTE);
+	}
+	
+	public T hourPrecision() {
+		return step(SECONDS_PER_MINUTE * MINUTES_PER_HOUR);
 	}
 }
