@@ -1,6 +1,6 @@
 package com.siliconage.web.exception;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class DataConflictException extends WebException {
 	public DataConflictException() {

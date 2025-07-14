@@ -2,7 +2,7 @@ package com.siliconage.util;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public abstract class NetworkUtils {
 	private NetworkUtils() {
