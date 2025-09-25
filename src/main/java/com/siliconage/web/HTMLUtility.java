@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.siliconage.web.exception.BadRequestException;
+
 /**
  * @author topquark
  */
@@ -54,15 +56,15 @@ public abstract class HTMLUtility {
 		return lclSB.toString();
 	}
 	
-	public static int getIntParameter(HttpServletRequest argRequest, String argParameter) {
+	public static int getIntParameter(HttpServletRequest argRequest, String argParameter) throws BadRequestException {
 		String lclString = StringUtils.trimToNull(argRequest.getParameter(argParameter));
 		if (lclString == null) {
-			throw new IllegalStateException("Required parameter \"" + argParameter + "\" not found in request.");
+			throw new BadRequestException(argParameter + " is required.");
 		}
 		try {
 			return Integer.parseInt(lclString);
 		} catch (NumberFormatException lclE) {
-			throw new IllegalStateException("Could not parse value \"" + lclString + "\" of parameter \"" + argParameter + "\" into an integer.");
+			throw new BadRequestException("We couldn't understand what you provided for " + argParameter + " (which was \"" + lclString + "\").");
 		}
 	}
 	
@@ -75,7 +77,6 @@ public abstract class HTMLUtility {
 			return Integer.parseInt(lclString);
 		} catch (NumberFormatException lclE) {
 			return argDefault;
-			// throw new IllegalStateException("Could not parse value \"" + lclString + "\" of parameter \"" + argParameter + "\" into an integer.");
 		}
 	}
 	
@@ -88,7 +89,6 @@ public abstract class HTMLUtility {
 			return Integer.parseInt(lclString);
 		} catch (NumberFormatException lclE) {
 			return null;
-			// throw new IllegalStateException("Could not parse value \"" + lclString + "\" of parameter \"" + argParameter + "\" into an integer.");
 		}
 	}
 	
