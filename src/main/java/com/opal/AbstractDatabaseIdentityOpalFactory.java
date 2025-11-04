@@ -441,7 +441,7 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 			lclRS = DatabaseUtility.select(argConnection, argSQL, argParameters);
 			
 			/* Convert those rows into their Opals.  This will involve looking to see whether each one is already in
-			 * the cahce and, if not, creating it from the data in the ResultSet.
+			 * the cache and, if not, creating it from the data in the ResultSet.
 			 */
 			acquireFromResultSet(lclRS, argCollection, false);
 			
