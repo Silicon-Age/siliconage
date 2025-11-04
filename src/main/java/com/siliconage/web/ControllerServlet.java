@@ -350,7 +350,7 @@ public abstract class ControllerServlet extends HttpServlet {
 		return StringUtils.trimToNull(argRequest.getParameter(argParameter));
 	}
 	
-	public static int getRequiredIntParameter(HttpServletRequest argRequest, String argParameter) {
+	public static int getRequiredIntParameter(HttpServletRequest argRequest, String argParameter) throws BadRequestException {
 		return HTMLUtility.getIntParameter(argRequest, argParameter);
 	}
 	
