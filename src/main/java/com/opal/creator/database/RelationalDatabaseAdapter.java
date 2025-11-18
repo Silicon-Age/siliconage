@@ -33,6 +33,7 @@ import com.siliconage.util.Fast3Set;
 import com.siliconage.util.StringUtility;
 import com.siliconage.util.Trinary;
 import com.siliconage.util.UnimplementedOperationException;
+import com.opal.creator.ClassGenerator;
 import com.opal.creator.ClassMember;
 import com.opal.creator.MappedClass;
 import com.opal.creator.MappedForeignKey;
@@ -1628,7 +1629,8 @@ public abstract class RelationalDatabaseAdapter {
 		
 		/* Create the classes that are independent of the actual database. */
 		for (MappedClass lclMC : lclMappedClasses.values()) {
-			lclMC.createClasses();
+			ClassGenerator lclCG = new ClassGenerator(lclMC);
+			lclCG.createClasses();
 		}
 		
 		createFactoryMap(lclMappedClasses.values(), argOPC.getDefaultPackage(), argOPC.getSourceDirectory());
