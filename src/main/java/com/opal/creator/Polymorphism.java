@@ -132,6 +132,7 @@ public class Polymorphism extends OpalXMLElement {
 			
 			lclMC.complain(MessageLevel.Debug, "Processing Dereference element #" + lclI);
 			
+			// I'm not sure what's going on in this loop, but something *has* to be wrong about it.
 			for (String lclMethod : ourDereferenceMethods) {
 				String lclName = lclD.getAttribute(lclMethod);
 //				if (lclName != null) { // According to FindBugs, getAttribute will never return null

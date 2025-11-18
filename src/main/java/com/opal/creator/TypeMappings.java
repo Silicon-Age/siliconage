@@ -11,13 +11,4 @@ public class TypeMappings extends OpalXMLElement {
 		super(argParent, argNode);
 	}
 
-//	@Override
-//	protected void preChildren(OpalParseContext argContext) {
-//		System.out.println("In the TypeMappings element");
-//	}
-//	
-//	@Override
-//	protected boolean descend() {
-//		return false;
-//	}
 }

@@ -27,8 +27,6 @@ public class OpalParseContext extends ParseContext {
 	private String myDataSourceJava;
 	
 	private final DBOpts myCLDBOpts;
-//	private final String myDatabaseUsername; // may be null
-//	private final String myDatabasePassword; // may be null
 	
 	private ArrayList<String> myComparatorColumnNameList = new ArrayList<>();
 	private ArrayList<String> myFilterColumnNameList = new ArrayList<>();
@@ -48,13 +46,7 @@ public class OpalParseContext extends ParseContext {
 			throw new IllegalStateException("argCLDBOpts is null");
 		}
 		myCLDBOpts = argCLDBOpts;
-//		myDatabaseUsername = argDatabaseUsername; // may be null
-//		myDatabasePassword = argDatabasePassword; // may be null
 	}
-	
-//	public OpalParseContext() {
-//		this(null, null);
-//	}
 	
 	public String getDefaultPackage() {
 		return myDefaultPackage;
@@ -184,14 +176,14 @@ public class OpalParseContext extends ParseContext {
 		return myCLDBOpts;
 	}
 	
-	@Deprecated
-	public String getDatabaseUsername() {
-		return getCommandLineDBOpts().username();
-	}
-	
-	@Deprecated
-	public String getDatabasePassword() {
-		return getCommandLineDBOpts().password();
-	}
+//	@Deprecated
+//	public String getDatabaseUsername() {
+//		return getCommandLineDBOpts().username();
+//	}
+//	
+//	@Deprecated
+//	public String getDatabasePassword() {
+//		return getCommandLineDBOpts().password();
+//	}
 
 }

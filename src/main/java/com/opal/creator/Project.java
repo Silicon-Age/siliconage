@@ -2,7 +2,6 @@ package com.opal.creator;
 
 import org.w3c.dom.Node;
 
-// import com.siliconage.xml.*;
 public class Project extends OpalXMLElement {
 	public Project(OpalXMLElement argParent, Node argNode) {
 		super(argParent, argNode);

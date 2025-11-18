@@ -1,7 +1,5 @@
 package com.opal.creator;
 
-//import java.util.Iterator;
-
 import org.w3c.dom.Node;
 
 public class Pool extends OpalXMLElement {
@@ -18,6 +16,5 @@ public class Pool extends OpalXMLElement {
 		String lclJNDIName = getRequiredAttributeValue("JNDIName");
 		argContext.getPoolMap().put(lclPoolName, lclJNDIName);
 		// FIXME: Make sure it didn't replace another one.
-//		argContext.getRelationalDatabaseAdapter().initialize((Element) getNode());
 	}
 }

@@ -11,11 +11,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
+import com.siliconage.util.UnimplementedOperationException;
+
 import com.opal.PersistenceException;
 import com.opal.ReferenceType;
 import com.opal.creator.database.ReferentialAction;
 import com.opal.creator.database.ForeignKey;
-import com.siliconage.util.UnimplementedOperationException;
 
 public class MappedForeignKey implements Comparable<MappedForeignKey> {
 
@@ -91,8 +92,6 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 		myTargetMappedClass = argTargetMC;
 		
 		determineSourceAndTarget();
-		
-//		myCustomCollectionName = argFK.getSpecifiedCollectionName();
 	}
 	
 	protected void determineSourceAndTarget() {
@@ -343,12 +342,8 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 		while (lclI.hasNext() && lclJ.hasNext()) {
 			ClassMember lclS = lclI.next();
 			ClassMember lclT = lclJ.next();
-//			System.out.println("Comparing " + lclS.getBaseMemberName() + " with " + lclT.getBaseMemberName());
 			
 			int lclPos = lclS.getBaseMemberName().indexOf(lclT.getBaseMemberName());
-//			if (lclPos == -1) {
-//				System.out.println("Could not find " + lclT.getBaseMemberName() + " in " + lclS.getBaseMemberName() + ".");
-//			}
 			if (lclPos > 0) {
 				String lclRolePrefix = lclS.getBaseMemberName().substring(0, lclPos);
 				
@@ -393,12 +388,8 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 			while (lclI.hasNext() && lclJ.hasNext()) {
 				ClassMember lclS = lclI.next();
 				ClassMember lclT = lclJ.next();
-	//			System.out.println("Comparing " + lclS.getBaseMemberName() + " with " + lclT.getBaseMemberName());
 				
 				int lclPos = lclS.getBaseMemberName().indexOf(lclT.getBaseMemberName());
-	//			if (lclPos == -1) {
-	//				System.out.println("Could not find " + lclT.getBaseMemberName() + " in " + lclS.getBaseMemberName() + ".");
-	//			}
 				if (lclPos > 0) {
 					String lclRolePrefix = lclS.getBaseMemberName().substring(0, lclPos);
 					
@@ -476,11 +467,6 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 			return lclS;
 		}
 		return getRoleCollectionItemName() + DEFAULT_COLLECTION_SUFFIX;
-//		lclS = getCustomCollectionItemName();
-//		if (lclS != null) {
-//			return lclS + DEFAULT_COLLECTION_SUFFIX; // THINK: Should we prependTargetRole?  Or assume that the user can manually specify it if he or she wants it?			
-//		}
-//		return prependTargetRole(getSourceMappedClass().getTypeName()) + DEFAULT_COLLECTION_SUFFIX;
 	}
 	
 	public String getRoleOpalCollectionName() {
@@ -850,14 +836,6 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 		argBW.println("\t\t\tthrow new IllegalStateException(\"argParent is null.\");");
 		argBW.println("\t\t}");
 		argBW.println("\t\tthrow new " + UnimplementedOperationException.class.getName() + "();");
-//		for (ClassMember lclCM : getSource()) {
-//			String lclV = "lcl" + lclCM.getBaseMemberName();
-//			argBW.println("\t\t" + lclCM.getMemberType().getName() + " " + lclV + " = argParent." + lclCM.getObjectAccessorName() + ";");
-//			argBW.println("\t\tif (" + lclV + " == null) { throw new IllegalStateException(\"Key value is null.\"); }");
-//		}
-//		argBW.print("\t\treturn " + getSource().generateCollectionFactoryFunctionName() + "(");
-//		argBW.print(getSource().stream().map(x -> "lcl" + x.getBaseMemberName()).collect(Collectors.joining(", "))); // Create the parameters being passed to the function
-//		argBW.println(");");
 		argBW.println("\t}");
 		argBW.println();
 	}
@@ -878,7 +856,6 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 		return ("Protected".equalsIgnoreCase(getSourceFieldAccess()) == false)
 				&& appearsInSourceUserFacing()
 				&& "".equals(getSourceRolePrefix())
-//				&& getForeignKey().getSpecifiedBaseName() == null
 				;
 	}
 

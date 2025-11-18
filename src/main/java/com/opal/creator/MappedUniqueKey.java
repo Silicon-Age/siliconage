@@ -12,7 +12,6 @@ public class MappedUniqueKey {
 	private final MappedClass myMappedClass;
 	private final Index myIndex;
 	private boolean myPrimaryKey;
-//	private boolean myUniqueStringKey;
 	private final UniqueKeyType mySpecifiedType;
 	
 	private final ArrayList<ClassMember> myClassMembers = new ArrayList<>();
@@ -30,7 +29,6 @@ public class MappedUniqueKey {
 		myMappedClass = argMC;
 		myIndex = argIndex;
 		mySpecifiedType = Validate.notNull(argSpecifiedType);
-//		setUniqueStringKey(argUniqueStringKey);
 		setPrimaryKey(argPrimaryKey);
 		
 		resolveColumnNames();
@@ -68,14 +66,12 @@ public class MappedUniqueKey {
 	}
 	
 	protected void resolveColumnNames() {
-//		System.out.println("Resolving column names for " + this);
 		Iterator<String> lclI = getIndex().getColumnNames().iterator();
 		while (lclI.hasNext()) {
 			String lclIndexColumnName = lclI.next();
 			ClassMember lclCM = getMappedClass().getClassMemberByColumnName(lclIndexColumnName);
 			Validate.notNull(lclCM, "Index uses column \"" + lclIndexColumnName + "\" which is not associated with a ClassMember");
 			addClassMember(lclCM);
-//			System.out.println("For " + this + ", " + lclIndexColumnName + " resolves to " + lclCM);
 		}
 	}
 	
@@ -102,16 +98,6 @@ public class MappedUniqueKey {
 	public String getOpalKeyClassName(/* String argTypeName */) {
 		StringBuilder lclSB = new StringBuilder(32);
 		
-		/* No longer necessary now that the keys are nested classes of the OpalFactory
-		rather than the Opal itself. */
-		
-		/*
-		if (argTypeName != null) {
-			lclSB.append(argTypeName);
-			lclSB.append('.');
-		}
-		*/
-		
 		Iterator<ClassMember> lclJ = createClassMemberIterator();
 		while (lclJ.hasNext()) {
 			lclSB.append(lclJ.next().getBaseMemberName());
@@ -132,10 +118,6 @@ public class MappedUniqueKey {
 	public boolean isUniqueStringKey() {
 		return getIndex().isUniqueStringKey();
 	}
-	
-//	public void setUniqueStringKey(boolean argUniqueStringKey) {
-//		myUniqueStringKey = argUniqueStringKey;
-//	}
 	
 	public int sizeClassMember() {
 		return getClassMembers().size();

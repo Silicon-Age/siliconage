@@ -39,21 +39,6 @@ public class XMLCreator {
 		myCLDBOpts = Validate.notNull(argCLDBOpts, "argCLDBOpts is null");
 	}
 	
-//	public XMLCreator(String argFilename, String argSourceDirectory) {
-//		this(argFilename,
-//				argSourceDirectory,
-//				new DBOpts(
-//						null,
-//						null,
-//						null,
-////						null,
-////						null,
-//						null,
-//						null
-//						)
-//				);
-//	}
-	
 	protected String getFilename() {
 		return myFilename;
 	}
@@ -66,14 +51,6 @@ public class XMLCreator {
 		return myCLDBOpts;
 	}
 	
-//	protected String getCommandLineDatabaseUsername() {
-//		return myCommandLineDatabaseUsername;
-//	}
-//	
-//	protected String getCommandLineDatabasePassword() {
-//		return myCommandLineDatabasePassword;
-//	}
-	
 	protected static Map<String, String> processCommandLine(String[] argS) {
 		Map<String, String> lclOpts = new HashMap<>();
 		
@@ -85,7 +62,6 @@ public class XMLCreator {
 					continue;
 				}
 				lclOpt = lclOpt.trim();
-//				System.out.println("Processing \"" + lclOpt + "\".");
 				final String lclOptName;
 				final String lclOptValue;
 				if ((lclOpt.length() >= 2) && (lclOpt.charAt(0) == '-') && (lclOpt.charAt(1) == '-')) {
@@ -108,7 +84,6 @@ public class XMLCreator {
 					lclOptValue = lclOpt;
 					++lclUnnamedCount;
 				}
-//				System.out.println("Opt name = " + lclOptName + " value = " + lclOptValue);
 				lclOpts.put(lclOptName, lclOptValue);
 			}
 		}

@@ -2,7 +2,7 @@ package com.opal;
 
 import org.apache.commons.lang3.Validate;
 
-public abstract class MultipleValueOpalKey<O extends Opal<? extends UserFacing>> extends OpalKey<O> {
+public abstract /* value */ class MultipleValueOpalKey<O extends Opal<? extends UserFacing>> extends OpalKey<O> {
 
 	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(MultipleValueOpalKey.class.getName());
 	

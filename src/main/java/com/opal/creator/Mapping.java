@@ -208,8 +208,6 @@ public class Mapping extends OpalXMLElement {
 		
 		TableName lclTableName = argContext.getRelationalDatabaseAdapter().createTableName((Element) getNode());
 		
-//		System.out.println("Created table name " + lclTableName);
-		
 		MappedClass lclMC = new MappedClass(
 			lclTableName,
 			lclTypeName,
@@ -332,7 +330,6 @@ public class Mapping extends OpalXMLElement {
 			if (lclCM.isMapped() && lclCM.getDatabaseColumn().getName().equalsIgnoreCase("Code") && lclCM.getMemberType() == String.class) {
 				/* We've found a suitable index to support compile-time list of objects. */
 				
-//					System.out.println("Found codes for " + getMappedClass().getOpalClassName());
 				ArrayList<String> lclCodes = new ArrayList<>();
 				
 				/* Load the alphanumeric identifiers ("codes") from the database. */
@@ -471,7 +468,6 @@ public class Mapping extends OpalXMLElement {
 		try {
 			Class<?> lclClass = Class.forName(lclDelegateClassName);
 			
-//			System.out.println("Found delegate class for " + lclMC.getTypeName() + "; checking its methods");
 			Method[] lclMethods = lclClass.getDeclaredMethods();
 			
 //			MethodLoop:

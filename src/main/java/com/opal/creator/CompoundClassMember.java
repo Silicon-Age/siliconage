@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import com.opal.creator.database.Index;
 
 public class CompoundClassMember extends ArrayList<ClassMember> {
-//	private ArrayList<ClassMember> myClassMembers = new ArrayList<>();
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -34,17 +33,9 @@ public class CompoundClassMember extends ArrayList<ClassMember> {
 		return lclSB.toString();
 	}
 	
-//	public String generateFactoryFunctionCall(boolean argUnique) {
-			
 	public String generateOpalFactoryFunctionDefinition() {
 		StringBuilder lclSB = new StringBuilder(128);
 		lclSB.append(generateCollectionFactoryFunctionName());
-//		lclSB.append("for");
-//		Iterator<ClassMember> lclI = createClassMembersIterator();
-//		while (lclI.hasNext()) {
-//			ClassMember lclCM = lclI.next();
-//			lclSB.append(lclCM.getBaseMemberName());
-//		}
 		lclSB.append('(');
 		Iterator<ClassMember> lclCMI = iterator();
 		boolean lclFirst = true;
@@ -64,23 +55,10 @@ public class CompoundClassMember extends ArrayList<ClassMember> {
 		return lclSB.toString();
 	}
 	
-//	protected ArrayList<ClassMember> getClassMembers() {
-//		return myClassMembers;
-//	}
-	
-//	protected void setClassMembers(ArrayList<ClassMember> argClassMembers) {
-//		myClassMembers = argClassMembers;
-//	}
-	
 	public boolean hasIdenticalClassMembers(CompoundClassMember argCCM) {
 		if (argCCM == null) {
 			return false;
 		}
-//		List<ClassMember> lclCM1 = this.getClassMembers();
-//		assert lclCM1 != null;
-//		
-//		List<ClassMember> lclCM2 = argCCM.getClassMembers();
-//		assert lclCM2 != null;
 				
 		if (this.size() != argCCM.size()) {
 			return false;
@@ -102,8 +80,6 @@ public class CompoundClassMember extends ArrayList<ClassMember> {
 		if (argIndex == null) {
 			return false;
 		}
-//		List<ClassMember> lclCM1 = this.getClassMembers();
-//		assert lclCM1 != null;
 		
 		List<String> lclCM2 = argIndex.getColumnNames();
 		assert lclCM2 != null;

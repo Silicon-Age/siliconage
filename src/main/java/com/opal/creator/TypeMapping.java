@@ -24,7 +24,6 @@ public class TypeMapping extends OpalXMLElement {
 			return;
 		}
 		XMLCreator.complain(MessageLevel.Info, "Type-mapping \"" + lclDatabaseType + "\" to \"" + lclJavaType + "\".");
-//		System.out.println("Mapping " + lclDatabaseType + " to " + lclJavaType);
 		argContext.getRelationalDatabaseAdapter().getUserTypeMappings().put(lclDatabaseType, lclJavaType);
 	}
 	

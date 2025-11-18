@@ -44,11 +44,6 @@ public class Column extends OpalXMLElement {
 			lclCM.setComparator("True".equalsIgnoreCase(lclComparatorString));
 		}
 		
-		/* String lclAccessorMethodName = getAttributeValue("Accessor");
-		if (lclAccessorMethodName != null) {
-			lclCM.setAccessorMethodName(lclAccessorMethodName);
-		} */
-		
 		String lclInverseString = getAttributeValue("Inverse");
 		if (lclInverseString != null) {
 			lclCM.setInverseAccessor(Trinary.fromStringCaseInsensitive(lclInverseString));
@@ -92,13 +87,6 @@ public class Column extends OpalXMLElement {
 			lclCM.setMapped(false);
 		} else if ("True".equalsIgnoreCase(lclMappedString)) {
 			lclCM.setMapped(true);
-//		} else {
-//			boolean lclIsListed = argContext.getUnmappedColumnNameList().contains(lclName);
-//			System.out.println("lclIsListed is " + lclIsListed + " for \"" + lclName + "\"");
-//			if (lclIsListed) {
-//				lclCM.setMapped(false);
-//				lclMC.complain(MessageLevel.Info, "Column " + lclName + " matches one list in the <Unmapped> element, so it will not be mapped.");
-//			}
 		}
 		
 		String lclUpdatableString = getAttributeValue("Updatable");
@@ -128,7 +116,6 @@ public class Column extends OpalXMLElement {
 			lclCM.setCached(true);
 			String lclRawComputedExpressionText = getSingleChildContent("Expression");
 			Validate.notNull(lclRawComputedExpressionText, "Expression child element missing for column that is to be computed using an expression.");
-//			lclComputedText = lclComputedText.replace("%this%", "getUserFacing()"); // THINK: Does this need to be replicated in handleComputedColumns?
 			lclMC.complain(MessageLevel.Info, "Raw expression is ["+ lclRawComputedExpressionText + "] for " + lclCM.getMemberName());
 			lclCM.setRawComputedExpressionText(lclRawComputedExpressionText);
 		} else if ("Method".equalsIgnoreCase(lclComputedString)) {
@@ -136,7 +123,6 @@ public class Column extends OpalXMLElement {
 			lclCM.setCached(true);
 			String lclComputedText = getSingleChildContent("Method");
 			Validate.notNull(lclComputedText);
-//			lclComputedText = lclComputedText.replace("%this%", "getUserFacing()"); // THINK: Does this need to be replicated in handleComputedColumns?
 			lclCM.setComputedMethod(lclComputedText);
 			/* TODO: Reformat the method; should that be done here? */
 		} else {

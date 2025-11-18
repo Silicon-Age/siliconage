@@ -3,6 +3,9 @@ package com.siliconage.web.exception;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class MethodNotAllowedException extends WebException {
+
+	private static final long serialVersionUID = 1L;
+
 	public MethodNotAllowedException() {
 		super("Impermissible Request", "The type of request you made is not permitted.");
 	}

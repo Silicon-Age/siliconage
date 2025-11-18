@@ -7,13 +7,10 @@ public class Mappings extends OpalXMLElement {
 	
 	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(Mappings.class.getName());
 
-//	private static final String DEFAULT_FACTORY_MAP_CLASS_NAME = "FactoryMap";
-	
 	private final boolean myGenerateHttpRequestFactories;
 	private final boolean myGenerateFluentMutators;
 	private final boolean mySampleCollections;
 	private final String myCollections;
-//	private final String myFactoryMapClassName;
 	
 	public Mappings(OpalXMLElement argParent, Node argNode) {
 		super(argParent, argNode);
@@ -40,13 +37,6 @@ public class Mappings extends OpalXMLElement {
 			ourLogger.error("The only allowed values of the Collections attribute on the <Mappings> element are \"Java\" and \"Trove\".");
 			myCollections = "Java";
 		}
-		
-//		String lclFMCN = ((Element) argNode).getAttribute("FactoryMapClassName");
-//		if (lclFMCN != null) {
-//			myFactoryMapClassName = lclFMCN;
-//		} else {
-//			myFactoryMapClassName = DEFAULT_FACTORY_MAP_CLASS_NAME;
-//		}
 		
 	}
 	

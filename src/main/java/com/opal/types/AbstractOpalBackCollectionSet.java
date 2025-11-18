@@ -1,7 +1,6 @@
 package com.opal.types;
 
 import com.opal.AbstractTransactionAware;
-import com.opal.Opal;
 import com.opal.TransactionalOpal;
 
 /* C = child opal (contained in the Set), P = parent opal (owner of the Set) */

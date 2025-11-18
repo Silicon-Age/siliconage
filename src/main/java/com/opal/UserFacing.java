@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 /**
  * @author topquark
  */
-public interface UserFacing /* extends Serializable */ {
+public interface UserFacing {
 	/**
 	 * outputs the internal data of the object to the specified {@link PrintStream} in lines of the form "FIELD_NAME=field_value".
 	 *
@@ -58,17 +58,5 @@ public interface UserFacing /* extends Serializable */ {
 	default public Class<?> getFieldType(String argFieldName) {
 		return getFieldType(getFieldIndex(argFieldName));
 	}
-	
-//	public void unlink();
-//	public void reload();
-	
-//	public String getUniqueString();
-	
-//	public boolean isNew();
-//	public boolean isDeleted();
-	
-//	public String toDebugString();
-	
-//	public int extendedHashCode();
 	
 }

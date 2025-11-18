@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import com.siliconage.util.Trinary;
-
 import com.opal.OpalUtility;
 import com.opal.annotation.Length;
 import com.opal.annotation.Nullability;
@@ -101,25 +100,12 @@ public class ClassMember {
 	}
 	
 	private String getBaseAccessorName() {
-		/* if (myBaseAccessorName == null) {
-			constructBaseAccessorName();
-		}
-		return myBaseAccessorName; */
 		if (myBaseMemberName == null) {
 			constructBaseMemberName(getDatabaseColumn().getName());
 		}
 		return myBaseAccessorName;
 
 	}
-	
-	/* private void constructBaseAccessorName() {
-		if (hasCustomAccessorMethodName()) {
-			myBaseAccessorName = getAccessorMethodName(); 
-		} else {
-			constructDefaultBaseAccessorName();
-		}
-		return;
-	} */
 	
 	public String getBaseMemberName() {
 		if (myBaseMemberName == null) {
@@ -198,11 +184,7 @@ public class ClassMember {
 	}
 	
 	public String getPrimitiveAccessorName() {
-//		if (TypeUtility.getPrimitiveTypeOrNull(getMemberType()) == null) {
-//			return getBaseAccessorName(); /* This originally threw an Exception, but that caused problems. */
-//		} else {
-			return getBaseAccessorName();
-//		}
+		return getBaseAccessorName();
 	}
 	
 	public String getPrimitiveMutatorArgumentName() {
@@ -526,18 +508,6 @@ public class ClassMember {
 		myPublic = argPublic;
 	}
 	
-	/* public boolean hasCustomAccessorMethodName() {
-		return getAccessorMethodName() != null;
-	}
-	
-	public String getAccessorMethodName() {
-		return myAccessorMethodName;
-	}
-	
-	public void  setAccessorMethodName(String argMethodName) {
-		myAccessorMethodName = argMethodName;
-	} */
-	
 	public Trinary hasInverseAccessor() {
 		return myInverseAccessor;
 	}
@@ -587,10 +557,6 @@ public class ClassMember {
 		}
 	}
 	
-//	protected String generateDefaultInverseObjectAccessorMethodName() {
-//		return generateInverseAccessorMethodNameOrDefault() + "AsObject";
-//	}
-	
 	public String getInverseAccessorMethodNameOrDefault() {
 		String lclS = getInverseAccessorMethodName();
 		if (lclS != null) {
@@ -633,7 +599,6 @@ public class ClassMember {
 		}
 		
 		boolean lclR = argMC.getForeignKeysFrom().stream()
-//				.filter(MappedForeignKey::isMapped)
 				.filter(x -> x.getUpdateAction() == ReferentialAction.CASCADE)
 				.map(MappedForeignKey::getSource)
 				.flatMap(CompoundClassMember::stream)
@@ -644,5 +609,16 @@ public class ClassMember {
 		}
 		
 		return lclR;
+	}
+	
+	public Class<?> getOpalFieldClass() {
+		Class<?> lclType = getMemberType();
+		if (lclType == Integer.class) {
+			return com.opal.OpalIntegerField.class;
+		} else if (lclType == String.class) {
+			return com.opal.OpalStringField.class;
+		} else {
+			return com.opal.OpalPlainField.class;
+		}
 	}
 }

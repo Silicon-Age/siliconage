@@ -42,10 +42,6 @@ public class MethodDelegation {
 		return;
 	}
 	
-//	protected MethodDelegation(String argClassName, String argMethodName, String argReturnTypeName) {
-//		this(argClassName, argMethodName, argMethodName, argReturnTypeName);
-//	}
-	
 	public String getClassName() {
 		return myClassName;
 	}

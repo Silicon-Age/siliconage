@@ -8,12 +8,15 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 public abstract class WebException extends Exception {
+
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger ourLogger = LoggerFactory.getLogger(WebException.class);
 	
 	private String myHeaderForUser;
 	private String myMessageForUser;
 	private String myHtmlMessageForUser;
-	private String myMessageForLog;
+//	private String myMessageForLog; // Ask Jonah about this?
 	
 	protected WebException(String argDefaultHeaderForUser, String argMessageForUser) {
 		super(argMessageForUser);

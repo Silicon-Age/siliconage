@@ -90,7 +90,7 @@ public class Reference extends OpalXMLElement {
 			NodeList lclList = lclSource.getElementsByTagName("Column");
 			int lclLength = lclList.getLength();
 			for (int lclI = 0; lclI < lclLength; ++lclI) {
-				lclSourceKey.getColumnNames().add(((Element) lclList.item(lclI)).getTextContent());
+				lclSourceKey.getColumnNames().add((lclList.item(lclI)).getTextContent());
 			}
 		}
 		
@@ -100,7 +100,7 @@ public class Reference extends OpalXMLElement {
 			NodeList lclList = lclTarget.getElementsByTagName("Column");
 			int lclLength = lclList.getLength();
 			for (int lclI = 0; lclI < lclLength; ++lclI) {
-				lclTargetKey.getColumnNames().add(((Element) lclList.item(lclI)).getTextContent());
+				lclTargetKey.getColumnNames().add((lclList.item(lclI)).getTextContent());
 			}
 		}
 

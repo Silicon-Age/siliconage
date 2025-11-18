@@ -53,9 +53,6 @@ public class SingleTablePolymorphicData extends PolymorphicData {
 	
 	@Override
 	public MappedClass getUltimateConcreteTypeDeterminer() {
-//		System.out.println("getDereferenceKeys() = " + getDereferenceKeys());
-//		System.out.println("getDereferenceKeys().size() = " + getDereferenceKeys().size());
-//		System.out.println("Last = " + getDereferenceKeys().get(getDereferenceKeys().size() - 1).getTargetMappedClass());
 		return getDereferenceKeys().get(getDereferenceKeys().size() - 1).getTargetMappedClass();
 	}
 }

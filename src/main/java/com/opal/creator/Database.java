@@ -1,7 +1,5 @@
 package com.opal.creator;
 
-//import java.util.Iterator;
-
 import javax.sql.DataSource;
 
 import org.w3c.dom.Element;
@@ -24,7 +22,6 @@ public class Database extends OpalXMLElement {
 			throw new IllegalArgumentException("argXMLAttributeName is null");
 		}
 		String lclS = getAttributeValue(argXMLAttributeName);
-//		System.out.println(argXMLAttributeName + " -> " + lclS);
 		String lclFS;
 		if (lclS != null) {
 			lclFS = lclS;
@@ -39,14 +36,6 @@ public class Database extends OpalXMLElement {
 	@Override
 	protected void preChildren(OpalParseContext argContext) {
 
-//		System.out.println("<Database>");
-//		var lclAttributes = getNode().getAttributes();
-//		for (int lclI = 0; lclI < lclAttributes.getLength(); ++lclI) {
-//			var lclItem = lclAttributes.item(lclI);
-//			System.out.println(lclItem.getNodeName() + " : " + lclItem.getNodeType() + " : " + lclItem.getNodeValue());
-//		}
-//		System.out.println("</Database>");
-		
 		DBOpts lclDBOpts = argContext.getCommandLineDBOpts();
 		
 		String lclDriverClassName = getValueOrCLDefault(true, "Driver", lclDBOpts.driverName());
@@ -93,8 +82,6 @@ public class Database extends OpalXMLElement {
 			argContext.getPoolMap().put(OpalParseContext.DEFAULT_POOL_NAME, lclJNDIName);
 		}
 		// TODO: Document what happens if there is no JNDI name.
-		
-//		argContext.getRelationalDatabaseAdapter().setDataSourceName(getRequiredAttributeValue("JNDIName"));
 		
 		argContext.getRelationalDatabaseAdapter().initialize((Element) getNode());
 	}

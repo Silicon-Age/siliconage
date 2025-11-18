@@ -31,15 +31,6 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		return (Set<C>) SENTINEL_OLD_SET_FOR_NEW_COLLECTIONS;
 	}
 	
-//	// FIXME: Allow this to contain sets of UserFacings to get rid of a whole bunch of Opal <-> UserFacing swaps
-//	/* THINK: Jonah suggests that we can get rid of this and instead test for myLoaded == true by checking for
-//	 * myOldSet == null.  This isn't a trivial change, but I think he's right that we can get rid of this.  I'm a
-//	 * little gun-shy of making another big change like that right now, but I'll try to include this in a future
-//	 * release.  Certainly saving another slot in every back collection allocation will make a difference in our
-//	 * memory footprint.
-//	 */ 
-//	private boolean myLoaded = false;
-	
 	/* This is the set as seen by Threads without an active TransactionContext (or whose active TransactionContext is
 	 * not the one this OpalBackCollectionSet (TransactionAware) has joined.  If the Thread asks for an Iterator,
 	 * it'll get back an Iterator on this set.  This will be null until the set is loaded.  It might also be null
@@ -79,7 +70,6 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		if (argNew) {
 			TransactionContext.assertActive();
 			joinTransactionContext(TransactionContext.getActive());
-//			myLoaded = true;
 			myOldSet = getSentinelOldSet(); // We shouldn't ever be accessing this anyway.
 			myNewSet = createSet(); // THINK: As a later optimization, it would be nice to not create this set until we know we need it.
 		}
@@ -179,7 +169,6 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 			}
 		}
 		Validate.notNull(myOldSet);
-//		myLoaded = true;
 	}
 	
 	/* This will not return null. */ 
@@ -397,7 +386,6 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 			if (ourLogger.isDebugEnabled()) {
 				ourLogger.debug(defaultToString() + " was not loaded.  Added " + argC + " to the list of cached operations (which is now size " + getNewSet().size() + ").");
 			}
-//			System.out.println(defaultToString() + " was not loaded.  Added " + argC + " to the list of cached operations (which is now size " + getNewSet().size() + ").");
 			return true; /* Quite possibly a lie. */
 		}
 	}
@@ -527,13 +515,6 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	@Override
 	public void rollbackInternal() {
 		myNewSet = null;
-		/* This condition is theoretically okay:  If we are rolling back a newly created object (i.e., we intended to insert it,
-		 * but couldn't), then it will be loaded but have no old set.  However, since it is being rolled back, no other references
-		 * to it should exist outside the creating thread (and the creating thread should know not to do anything with it).
-		 */
-		/* if (isLoaded() && (myOldSet == null)) {
-			ourLogger.warn("When rolling back " + defaultToString() + ", isLoaded() is true while myOldSet is null.");
-		} */
 		/* This probably represents a real error condition (that will manifest as an Exception as soon as something tries to
 		 * load() this collection.
 		 */
@@ -625,16 +606,6 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 			}
 		}
 	}
-	
-//	@Override
-//	public boolean isMutated() {
-//		return tryAccess();
-//	}
-//	
-//	@Override
-//	public synchronized boolean isSetLoaded() {
-//		return isLoaded();
-//	}
 	
 	/* FIXME: There's a fundamental problem-in-waiting with the (not very recent) change to this method to display the contents
 	 * of the Collection (loading them if necessary).  Namely, the debugging code in the load() method, among other places,

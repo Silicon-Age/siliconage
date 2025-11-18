@@ -65,6 +65,8 @@ public abstract class RelationalDatabaseAdapter {
 	protected static int DECIMAL_DIGITS_IN_MAX_INT = 10;
 	protected static int MAXIMUM_SAFE_DIGITS_FOR_INT = DECIMAL_DIGITS_IN_MAX_INT - 1;
 
+	private static final boolean VALUE_CLASSES = false;
+	
 	private final DataSource myDataSource;
 	
 	private ArrayList<Index> myIndexes;
@@ -142,7 +144,6 @@ public abstract class RelationalDatabaseAdapter {
 				lclBW.println("import " + OpalUtility.class.getName() + ';');
 			} else if (argMC.hasAtLeastOneUniqueKey()) {
 				lclBW.println("import " + ImplicitTableDatabaseQuery.class.getName() + ';');
-//				lclBW.println("import " + PersistenceException.class.getName() + ';');
 			}
 			lclBW.println("import " + PersistenceException.class.getName() + ';');
 			
@@ -395,7 +396,6 @@ public abstract class RelationalDatabaseAdapter {
 				MappedClass lclMappedClassWithActualTypeField = argMC;
 				for (int lclJ = 0; lclJ < lclSPD.getDereferenceKeys().size(); ++lclJ) {
 					MappedForeignKey lclMFK = lclSPD.getDereferenceKeys().get(lclJ);
-	//				System.out.println("Following dereference #" + lclJ + " (" + lclMFK.toString() + ")");
 					assert lclMFK.getSourceMappedClass() == lclMappedClassWithActualTypeField;
 					lclMappedClassWithActualTypeField = lclMFK.getTargetMappedClass();
 					String lclOV = (lclJ == 0) ? "argO" : lclNV;
@@ -413,8 +413,6 @@ public abstract class RelationalDatabaseAdapter {
 				}
 				
 				int lclFieldIndex = lclCM.getFieldIndex();
-//				lclBW.println("\t\t" + lclICN + " lclUF;");
-//				lclBW.println("\t\tClass<" + lclICN + "> lclClass;");
 				lclBW.println("\t\tObject lclV = " + lclNV + ".getField(" + lclFieldIndex + ");");
 				lclBW.println("\t\tif (lclV == null) {");
 				lclBW.println("\t\t\tthrow new IllegalStateException(\"Column that should contain information about which concrete Class to instantiate was null.\");");
@@ -436,16 +434,7 @@ public abstract class RelationalDatabaseAdapter {
 						lclBW.println("\t\t}");
 						lclBW.println("\t\t@SuppressWarnings(\"unchecked\")");
 						lclBW.println("\t\t" + JavaClass.class.getName() + "<" + lclICN + "> lclJavaClass = (" + JavaClass.class.getName() + "<" + lclICN + ">) lclV;");
-//						lclBW.println("\t\tlclClass = lclJavaClass.getJavaClass();");
-//						lclBW.println("\t\t" + Constructor.class.getName() + "<FengShui> lclCtor = null;");
-//						lclBW.println("\t\ttry {");
-//						lclBW.println("\t\t\tlclCtor = lclClass.getConstructor(argO.getClass());");
 						lclBW.println("\t\t" + lclICN + " lclUF = lclJavaClass.newInstance(argO);");
-//						lclBW.println("\t\t} catch (NoSuchMethodException lclE) {");
-//						lclBW.println("\t\t\tthrow new PersistenceException(\"Concrete class \" + lclClass.getName() + \" did not have a constructor whose single argument would accept a \" + argO.getClass().getName() + \".\");");
-//						lclBW.println("\t\t} catch (" + InvocationTargetException.class.getName() + " | " + IllegalAccessException.class.getName() + " | " + InstantiationException.class.getName() + " lclE) {");
-//						lclBW.println("\t\t\tthrow new PersistenceException(\"Could not invoke constructor \" + lclCtor + \" on \" + lclClass.getName() + \".\", lclE);");
-//						lclBW.println("\t\t}");
 					} else {
 						throw new IllegalStateException("Could not use type " + lclCM.getMemberType() + " to figure out the class to construct when doing single-table polymorphism for " + argMC);
 					}
@@ -463,7 +452,6 @@ public abstract class RelationalDatabaseAdapter {
 				MappedClass lclMappedClassWithActualTypeField = argMC;
 				for (int lclJ = 0; lclJ < lclSPD.getDereferenceKeys().size(); ++lclJ) {
 					MappedForeignKey lclMFK = lclSPD.getDereferenceKeys().get(lclJ);
-	//				System.out.println("Following dereference #" + lclJ + " (" + lclMFK.toString() + ")");
 					assert lclMFK.getSourceMappedClass() == lclMappedClassWithActualTypeField;
 					lclMappedClassWithActualTypeField = lclMFK.getTargetMappedClass();
 					String lclOV = (lclJ == 0) ? "argO" : lclNV;
@@ -509,7 +497,6 @@ public abstract class RelationalDatabaseAdapter {
 								lclBW.println("\t\t\t" + lclSubclass.getFullyQualifiedOpalFactoryInterfaceName() + " lclOF = OpalFactoryFactory.getInstance().get" + lclSubclass.getOpalFactoryInterfaceName() + "();");
 								lclBW.println("\t\t\tassert lclOF != null;");
 								lclBW.print("\t\t\t" + lclSubclass.getFullyQualifiedOpalClassName() + " lclO = lclOF.");
-		//						StringBuilder lclName = new StringBuilder(64);
 								StringBuilder lclArgs = new StringBuilder(128);
 								MappedUniqueKey lclSuperclassPK = argMC.getPrimaryKey();
 								MappedUniqueKey lclSubclassPK = lclSubclass.getPrimaryKey();
@@ -527,10 +514,8 @@ public abstract class RelationalDatabaseAdapter {
 									if (lclFirst) {
 										lclFirst = false;
 									} else {
-		//								lclName.append(", ");
 										lclArgs.append(", ");
 									}
-		//							lclName.append(lclCM2.getBaseMemberName());
 									lclArgs.append('(');
 									lclArgs.append(lclCM2.getMemberType().getName());
 									lclArgs.append(") ");
@@ -538,7 +523,7 @@ public abstract class RelationalDatabaseAdapter {
 									lclArgs.append(lclCM1.getFieldIndex());
 									lclArgs.append(')');
 								}
-								lclBW.println(/* lclName.toString() + */ "(" + lclArgs.toString() + "));");
+								lclBW.println("(" + lclArgs.toString() + "));");
 								lclBW.println("\t\t\tif (lclO == null) {");
 								lclBW.println("\t\t\t\tthrow new PersistenceException(\"Polymorphism data for \" + argO + \" suggested that there should be a subclass row in " + lclSubclass.getTableName() + ", but none was found.\");");
 								lclBW.println("\t\t\t}");
@@ -759,7 +744,6 @@ public abstract class RelationalDatabaseAdapter {
 				} else {
 					lclBW.println("\t\tObject[] lclValues = argOpal.getValues();");
 				}
-		//		MappedUniqueKey lclPK = argMC.getPrimaryKey();
 				lclBW.println("\t\treturn " + lclPK.generateOpalKeyConstructorCall("lclValues") + ';');
 				lclBW.println("\t}");
 				lclBW.println();
@@ -966,7 +950,6 @@ public abstract class RelationalDatabaseAdapter {
 					}
 					Class<?> lclMemberType = lclCM.getMemberType();
 					lclBW.print("\t\t\tOpalUtility.convertTo(" + lclMemberType.getName() + ".class, argRS.getObject(\"" + lclCM.getDatabaseColumn().getName() + "\"))");
-					/* removed cast: (" + lclMemberType.getName() + ") */
 				}
 				lclBW.println(); /* End the final line (without a comma) */
 				
@@ -980,10 +963,10 @@ public abstract class RelationalDatabaseAdapter {
 			
 			if (argMC.isEphemeral() == false) {
 				for (MappedUniqueKey lclMUK : argMC.getMappedUniqueKeys()) {
-					// System.out.println("...generating unique key " + lclMUK);
 					boolean lclSingleValue = lclMUK.getClassMembers().size() == 1;
 					Class<?> lclDOKClass = lclSingleValue  ? SingleValueDatabaseOpalKey.class : MultipleValueDatabaseOpalKey.class;
-					lclBW.println("\t/* package */ static class " + lclMUK.getOpalKeyClassName() + " extends " + lclDOKClass.getName() + "<" + lclOCN + "> {");
+					String lclValueParticle = VALUE_CLASSES ? "/* value */ " : "";
+					lclBW.println("\t/* package */ static " + lclValueParticle + "class " + lclMUK.getOpalKeyClassName() + " extends " + lclDOKClass.getName() + "<" + lclOCN + "> {");
 					
 					lclBW.print("\t\tprivate static final String[] ourKeyColumnNames = new String[] {");
 					lclJ = lclMUK.createClassMemberIterator();
@@ -1095,54 +1078,7 @@ public abstract class RelationalDatabaseAdapter {
 	protected void createForeignKeys(Map<TableName, MappedClass> argMappedClasses, MappedClass argMappedClass /*, boolean argSampleCollections */) /* throws SQLException */ {
 		/* Get foreign keys from the database */
 		Collection<ForeignKey> lclFKs = getForeignKeysFrom(argMappedClass.getTableName());
-		
-//		/* If the foreign key is to an entity (table/view) that is mapped to disallow back collections by default, set the CollectionClass
-//		 * to null.  This can be overridden later when we process the artificial foreign keys (arising from the <Reference> elements
-//		 * in the configuration file).
-//		 */
-//		for (ForeignKey lclFK : lclFKs) {
-//			MappedClass lclTarget = argMappedClasses.get(lclFK.getTargetKey().getTableName());
-//			if (lclTarget != null) {
-//				if (lclTarget.hasBackCollectionsByDefault(true) == false) {
-//					lclFK.setCollectionClass(null);
-//				}
-//			}
-//		}
-		
-//		/* Find artificial foreign keys that were created by <Reference> elements that did not specify columns as part of the
-//		 * <Source> element.  If only one foreign key exists in the database between those two tables, assume that we are
-//		 * trying to modify that one and copy its source columns into the key list for the artificial foreign key.  This will
-//		 * then immediately be used to re-match the artificial foreign key with the real one.  This is inefficient. 
-//		 */
-//		List<ForeignKey> lclPossibleCandidates = new ArrayList<>();
-//		Iterator<ForeignKey> lclI = getArtificialForeignKeys().iterator();
-//		while (lclI.hasNext()) {
-//			ForeignKey lclAFK = lclI.next();
-//			if (lclAFK.getSourceKey().getColumnNames().isEmpty()) {
-//				lclPossibleCandidates.clear();
-//				for (ForeignKey lclFK : lclFKs) {
-//					if (lclFK.getSourceKey().getTableName().equals(lclAFK.getSourceKey().getTableName())) {
-//						if (lclFK.getTargetKey().getTableName().equals(lclAFK.getTargetKey().getTableName())) {
-//							lclPossibleCandidates.add(lclFK);
-//						}
-//					}
-//				}
-//				if (lclPossibleCandidates.size() == 1) {
-//					ForeignKey lclPC = lclPossibleCandidates.get(0);
-//
-//					if (lclPC.getSourceKey().getColumnNames().size() != lclAFK.getTargetKey().getColumnNames().size()) {
-//						throw new IllegalStateException("*** <Reference> element linking " + lclAFK.getSourceKey().getTableName() + " to " + lclAFK.getTargetKey().getTableName() + " did not specify source columns, but the only database foreign key to which it can be matched has the wrong number of target columns ***");
-//					}
-//					
-//					lclAFK.getSourceKey().getColumnNames().addAll(lclPC.getSourceKey().getColumnNames());
-//				} else if (lclPossibleCandidates.isEmpty()) {
-//					System.out.println("*** <Reference> element linking " + lclAFK.getSourceKey().getTableName() + " to " + lclAFK.getTargetKey().getTableName() + " did not specify source columns, but no database foreign key exists with which it can be matched ***");
-//				} else if (lclPossibleCandidates.size() > 1) {
-//					System.out.println("*** <Reference> element linking " + lclAFK.getSourceKey().getTableName() + " to " + lclAFK.getTargetKey().getTableName() + " did not specify source columns, but multiple database foreign keys exist with which it can be matched ***");
-//				}
-//			}
-//		}
-		
+				
 		/* Modify them with the artificial foreign keys*/
 		Iterator<ForeignKey> lclI = getArtificialForeignKeys().iterator();
 		
@@ -1150,7 +1086,6 @@ public abstract class RelationalDatabaseAdapter {
 		while (lclI.hasNext()) {
 			ForeignKey lclAFK = lclI.next();
 			if (lclAFK.getSourceKey().getTableName() == argMappedClass.getTableName() ) {
-//				System.out.println("Handling artificial foreign key " + lclAFK);
 				lclI.remove();
 				Iterator<ForeignKey> lclJ = lclFKs.iterator();
 				while (lclJ.hasNext()) {
@@ -1158,7 +1093,6 @@ public abstract class RelationalDatabaseAdapter {
 					if (lclFK.getTargetKey().getTableName().equals(lclAFK.getTargetKey().getTableName())) {
 						if (lclFK.getSourceKey().getColumnNames().equals(lclAFK.getSourceKey().getColumnNames())) {
 							if (lclFK.getTargetKey().getColumnNames().equals(lclAFK.getTargetKey().getColumnNames())) {
-//								System.out.println("Matched it with " + lclFK);
 								if (lclAFK.getSourceRolePrefix() != null) {
 									lclFK.setSourceRolePrefix(lclAFK.getSourceRolePrefix());
 								}
@@ -1168,7 +1102,6 @@ public abstract class RelationalDatabaseAdapter {
 								if (lclAFK.getJoinQueryFactoryName() != null) {
 									lclFK.setJoinQueryFactoryName(lclAFK.getJoinQueryFactoryName());
 								}
-//								System.out.println("CollectionClass is " + lclAFK.getCollectionClass());
 								lclFK.setCollectionClass(lclAFK.getCollectionClass());
 								if (lclAFK.getSourceAccess() != null) {
 									lclFK.setSourceAccess(lclAFK.getSourceAccess());
@@ -1196,7 +1129,6 @@ public abstract class RelationalDatabaseAdapter {
 				}
 				/* We will only get here if we didn't find the artificial foreign key in the list of
 				 * foreign keys from the database. */
-//				System.out.println("Did not match it; adding to list of foreign keys");
 				lclFKs.add(lclAFK);
 			}
 		}
@@ -1205,10 +1137,8 @@ public abstract class RelationalDatabaseAdapter {
 			if (lclFK.isMapped() == false) {
 				continue;
 			}
-//			System.out.println("Doing " + lclFK);
 			/* This foreign key has the Table of this MappedClass as its source. */
 			TableName lclTargetTableName = lclFK.getTargetKey().getTableName();
-//			System.out.println("lclTargetTableName = " + lclTargetTableName);
 			
 			/* Find the MappedClass whose Table is its target. */
 			MappedClass lclTargetMappedClass = argMappedClasses.get(lclTargetTableName);
@@ -1246,16 +1176,6 @@ public abstract class RelationalDatabaseAdapter {
 				continue;
 			}
 			
-//			if (argMappedClass.sampleCollections() && lclFK.isCollectionClassSpecified() == false) {
-////				System.out.println("Determining collection class . . .");
-//				try {
-//					lclFK.setCollectionClass(determineCollectionClassFromStatistics(argMappedClass, lclFK));
-//				} catch (SQLException lclE) {
-//					argMappedClass.complain(MessageLevel.Error, "Could not run SQL query to get foreign key statistics.");
-//					throw lclE;
-//				}
-//			}
-			
 			MappedForeignKey lclMFK = new MappedForeignKey(lclFK, argMappedClass, lclTargetMappedClass);
 			argMappedClass.addForeignKey(lclMFK);
 			lclTargetMappedClass.addTargetForeignKey(lclMFK);
@@ -1273,9 +1193,7 @@ public abstract class RelationalDatabaseAdapter {
 				 * get any data and the database will vomit.
 				 */
 				if (lclRS.next() == true) {
-	//				final float lclMinimum = lclRS.getFloat("min");
 					final float lclAverage = lclRS.getFloat("avg");
-	//				final float lclMaximum = lclRS.getFloat("max");
 					final float lclDeviation = lclRS.getFloat("stdev");
 					
 					if (lclAverage + lclDeviation < 3.0f) {
@@ -1327,8 +1245,6 @@ public abstract class RelationalDatabaseAdapter {
 			lclBW.println();
 			lclBW.println("public class " + lclFM + " extends AbstractFactoryMap {");
 			lclBW.println();
-//			lclBW.println("\tprivate static final long serialVersionUID = 1L;");
-//			lclBW.println();
 			lclBW.println("\tprivate static final " + lclFM + " ourInstance = new " + lclFM + "();");
 			lclBW.println();
 			
@@ -1416,8 +1332,6 @@ public abstract class RelationalDatabaseAdapter {
 		
 		PrimaryKey lclPK = getPrimaryKey(argMappedClass.getTableName());
 		
-//		System.out.println("Creating primary keys for " + argMappedClass + "; lclPK = " + lclPK);
-		
 		/* Non-ephemeral entities (tables) must have a primary key. */
 		
 		if (argMappedClass.isEphemeral()) {
@@ -1446,10 +1360,8 @@ public abstract class RelationalDatabaseAdapter {
 				}
 			}
 			if (lclPK.getColumnNames().equals(lclMUK.getIndex().getColumnNames())) {
-//				System.out.println("Found primary key MUK for " + argMappedClass);
 				if (lclPMUK != null) {
 					lclMUKI.remove(); // TODO: This should probably be sorted out earlier
-					// throw new IllegalStateException("Found two primary keys for " + argMappedClass);
 				} else {
 					lclPMUK = lclMUK;
 				}
@@ -1475,7 +1387,7 @@ public abstract class RelationalDatabaseAdapter {
 					lclPK
 				)
 			);
-			System.out.println("Primary key " + lclPK + " does not have a corresponding unique index on " + argMappedClass + ".  Single-valued query methods will be created anyway.");
+			System.out.println("Primary key " + lclPK + " does not have a corresponding unique index on " + argMappedClass + ".  Single-valued query methods will be created anyway."); // FIXME
 		}
 	}
 	
@@ -1553,7 +1465,6 @@ public abstract class RelationalDatabaseAdapter {
 		if (argMC.isView() == false) {
 			return;
 		}
-//		System.out.println("### Trying to infer foreign keys for " + argMC + " ###");
 		/* FIXME Allow this to be manually disabled */
 		for (MappedClass lclTargetMC : argMCs.values()) {
 			if (argMC == lclTargetMC) {
@@ -1563,7 +1474,6 @@ public abstract class RelationalDatabaseAdapter {
 				continue;
 			}
 			
-//			System.out.println("### Checking against " + lclTargetMC + " ###");
 			// CHECK: Are there MappedUniqueKeys yet?
 			MappedUniqueKey lclPK = lclTargetMC.getPrimaryKey();
 			if (lclPK == null) {
@@ -1572,37 +1482,29 @@ public abstract class RelationalDatabaseAdapter {
 			}
 			/* FIXME: Make this work with composite foreign keys. */
 			if (lclPK.getClassMembers().size() != 1) {
-//				System.out.println("### Its PK doesn't have exactly one ClassMember ###");
 				continue;
 			}
 			ClassMember lclTargetCM = lclPK.getClassMembers().get(0);
 			DatabaseColumn lclTargetDC = lclTargetCM.getDatabaseColumn();
-			
-//			System.out.println("### Target " + lclTargetMC + " has a non-null primary key with one column (" + lclTargetCM + ") of type " + lclTargetDC.getDataType() + " ###");
 			
 			Iterator<ClassMember> lclCMI = argMC.createClassMemberIterator();
 			while (lclCMI.hasNext()) {
 				ClassMember lclCM = lclCMI.next();
 				DatabaseColumn lclDC = lclCM.getDatabaseColumn();
 				
-				
-//				System.out.println("### Class member " + lclCM + " has data type " + lclDC.getDataType() + " ###");
 				if (lclDC.getDataType().equalsIgnoreCase(lclTargetDC.getDataType())) { // Check raw type
 					if (lclDC.getDomainName().equalsIgnoreCase(lclTargetDC.getDomainName())) { // Check user-defined type
 						// CHECK: Should we also infer based on the database column name?
 						// CHECK: Should this be case-insensitive?
-	//					System.out.println("### Found member " + lclCM + " with the same data type (" + lclDC.getDataType() + ") ###");
 						
 						String lclSourceMemberName = lclCM.getBaseMemberName().toLowerCase();
 						String lclTargetMemberName = lclTargetCM.getBaseMemberName().toLowerCase();
 						String lclTargetTypeName = lclTargetMC.getTypeName().toLowerCase();
 						
-	//					System.out.println("### Source = " + lclSourceMemberName + " (" + lclCM.getBaseMemberName() + ") Target = " + lclTargetMemberName + " ###");
 						if (lclSourceMemberName.endsWith(lclTargetTypeName + lclTargetMemberName)) {
 							// CHECK: Table name?  Type name?
 							// CHECK: Case-sensitive?
 							// CHECK: What if they've already specified this reference using a <Reference> tag in the configuration file?  Does this crash and burn?
-	//						System.out.println("### The suffix check passes ###");
 							
 							Key lclSource = new Key(argMC.getTableName(), "INFERRED_KEY", lclCM.isNullAllowed() == false);  // FIXME: Name this something better
 							lclSource.getColumnNames().add(lclCM.getDatabaseColumn().getName());
@@ -1678,9 +1580,9 @@ public abstract class RelationalDatabaseAdapter {
 					
 					lclAFK.getSourceKey().getColumnNames().addAll(lclPC.getSourceKey().getColumnNames());
 				} else if (lclPossibleCandidates.isEmpty()) {
-					System.out.println("*** <Reference> element linking " + lclAFK.getSourceKey().getTableName() + " to " + lclAFK.getTargetKey().getTableName() + " did not specify source columns, but no database foreign key exists with which it can be matched ***");
+					System.out.println("*** <Reference> element linking " + lclAFK.getSourceKey().getTableName() + " to " + lclAFK.getTargetKey().getTableName() + " did not specify source columns, but no database foreign key exists with which it can be matched ***"); // FIXME
 				} else if (lclPossibleCandidates.size() > 1) {
-					System.out.println("*** <Reference> element linking " + lclAFK.getSourceKey().getTableName() + " to " + lclAFK.getTargetKey().getTableName() + " did not specify source columns, but multiple database foreign keys exist with which it can be matched ***");
+					System.out.println("*** <Reference> element linking " + lclAFK.getSourceKey().getTableName() + " to " + lclAFK.getTargetKey().getTableName() + " did not specify source columns, but multiple database foreign keys exist with which it can be matched ***"); // FIXME
 				}
 			}
 		}
@@ -1726,7 +1628,6 @@ public abstract class RelationalDatabaseAdapter {
 		
 		/* Create the classes that are independent of the actual database. */
 		for (MappedClass lclMC : lclMappedClasses.values()) {
-//			System.out.println("Generating Java code for " + lclMC.getTypeName() + " (maps " + lclMC.getTableName() + ")...");
 			lclMC.createClasses();
 		}
 		
@@ -1735,7 +1636,6 @@ public abstract class RelationalDatabaseAdapter {
 		createOpalFactoryFactory(lclMappedClasses.values(), getSpecificOpalFactoryFactoryClassName(argOPC), argOPC.getDefaultPackage(), argOPC.getSourceDirectory());
 		
 		for (MappedClass lclMC : lclMappedClasses.values()) {
-//			System.out.println("Generating Java code for " + lclMC.getTypeName() + " (maps " + lclMC.getTableName() + ")...");
 			createSpecificOpalFactory(argOPC, lclMC);
 		}
 		
@@ -1829,18 +1729,14 @@ public abstract class RelationalDatabaseAdapter {
 	
 	public PrimaryKey getPrimaryKey(TableName argT) {
 		Validate.notNull(argT);
-//		System.out.println("Looking for primary key for " + argT);
 		Iterator<PrimaryKey> lclI = getPrimaryKeys().iterator();
 		while (lclI.hasNext()) {
 			PrimaryKey lclPK = lclI.next();
 			TableName lclPKTN = lclPK.getTableName();
-//			System.out.println("Checking it against " + lclPK + " (" + lclPKTN + "/" + lclPKTN.getTableName() + ") . . . ");
 			if (argT.equals(lclPKTN)) {
-//				System.out.println("Success!");
 				return lclPK;
 			}
 		}
-//		System.out.println("Failure.");
 		return null;
 	}
 	
@@ -1962,7 +1858,6 @@ public abstract class RelationalDatabaseAdapter {
 				ClassMember lclCM = lclCMI.next();
 				if (lclCM.getDatabaseColumn().hasDatabaseGeneratedNumber()) { // Is this right?
 					generateGeneratedKeysMethodInternal(argPW, lclCM);
-//					argPW.println("\t\t\targOpal." + lclCM.getObjectMutatorName() + "(argRS.getInt(\"" + lclCM.getDatabaseColumn().getName() + "\"));");
 				}
 			}
 			argPW.println("\t\t} catch (SQLException lclE) {");
@@ -2008,7 +1903,6 @@ public abstract class RelationalDatabaseAdapter {
 					ClassMember lclCM = lclCMI.next();
 					if (lclCM.getDatabaseColumn().hasComplicatedDefault()) { // Is this right?
 						generateGeneratedKeysMethodInternal(argPW, lclCM);
-	//					argPW.println("\t\t\targOpal." + lclCM.getObjectMutatorName() + "(argRS.getInt(\"" + lclCM.getDatabaseColumn().getName() + "\"));");
 					}
 				}
 				argPW.println("\t\t} catch (SQLException lclE) {");

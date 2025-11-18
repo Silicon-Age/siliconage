@@ -1,6 +1,6 @@
 package com.opal;
 
-public abstract class MultipleValueDatabaseOpalKey<O extends IdentityOpal<? extends IdentityUserFacing>> extends MultipleValueOpalKey<O> implements DatabaseOpalKey<O> {
+public abstract /* value */ class MultipleValueDatabaseOpalKey<O extends IdentityOpal<? extends IdentityUserFacing>> extends MultipleValueOpalKey<O> implements DatabaseOpalKey<O> {
 	
 	protected MultipleValueDatabaseOpalKey(Object[] argValues) {
 		super(argValues);

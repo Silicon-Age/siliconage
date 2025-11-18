@@ -56,7 +56,9 @@ import com.opal.OpalCache;
 import com.opal.OpalFactory;
 import com.opal.OpalFactoryCreator;
 import com.opal.OpalFactoryPolymorphicCreator;
+import com.opal.OpalField;
 import com.opal.OpalKey;
+import com.opal.OpalPlainField;
 import com.opal.OpalUtility;
 import com.opal.PersistenceException;
 import com.opal.ReferenceType;
@@ -86,6 +88,8 @@ import com.opal.types.OpalBackCollectionSet;
 
 public class MappedClass {
 	private static final String NOT_YET_LOADED_STATIC_MEMBER_NAME = "NOT_YET_LOADED";
+	
+	private static final boolean GENERATE_FIELD_CLASS = false;
 	
 	public static final String USER_FACING_SUFFIX = "UserFacing";
 	public static final String FACTORY_SUFFIX = "Factory";
@@ -419,35 +423,16 @@ public class MappedClass {
 				lclBW.println("\t@Override");
 				lclBW.println("\tprotected " + lclSC.getOpalClassName() + ' ' + lclIOAN + " {");
 				lclBW.println("\t\treturn " + lclIOAN + ".get" + lclSK.getSourceOpalFieldName() + "();");
-				/* lclBW.println("\t\t" + lclSC.getOpalClassName() + " lclO = super." + lclSC.getImplOpalAccessorName() + "();");
-				lclBW.println("\t\tif (lclO == " + lclSC.getOpalClassName() + ".NOT_YET_LOADED) {");
-				lclBW.print("\t\t\tlclO = " + lclSC.getFactoryClassName() + ".for");
-				StringBuilder lclMethod = new StringBuilder();
-				StringBuilder lclArgs = new StringBuilder();
-				for (int lclI = 0; lclI < lclSK.getSource().getClassMembers().size(); ++lclI) {
-					if (lclI > 0) {
-						lclMethod.append(", ");
-						lclArgs.append(", ");
-					}
-					lclMethod.append(lclSK.getTarget().getClassMembers().get(lclI).getBaseMemberName());
-					lclArgs.append(lclSK.getSource().getClassMembers().get(lclI).getPrimitiveAccessorName());
-					lclArgs.append("()");
-				} */
 				lclBW.println("\t}");
 				lclBW.println();
 			}
 			
 			lclBW.println("\t@Override");
-			/* if (isEphemeral() == false) {
-				lclBW.println("\tpublic " + IdentityOpal.class.getName() + "<? extends " + lclICN + "> getOpal() {"); // xyzzy
-			} else {
-				lclBW.println("\tpublic " + EphemeralOpal.class.getName() + "<? extends " + lclICN + "> getOpal() {");
-			} */
-			if (isEphemeral() == false) {
-				lclBW.println("\tpublic " + lclOCN + " getOpal() {"); // xyzzy
-			} else {
+//			if (isEphemeral() == false) {
+//				lclBW.println("\tpublic " + lclOCN + " getOpal() {"); // xyzzy
+//			} else {
 				lclBW.println("\tpublic " + lclOCN + " getOpal() {");
-			}
+//			}
 			lclBW.println("\t\treturn " + lclIOAN + ';');
 			lclBW.println("\t}");
 			lclBW.println();
@@ -466,42 +451,14 @@ public class MappedClass {
 			
 			if (doesImplHaveOpalReference()) {
 				lclBW.println("\t@Override");
-				/* if (isEphemeral() == false) {
-					lclBW.println("\tpublic " + IdentityOpal.class.getName() + "<? extends " + lclICN + "> getBottomOpal() {");
-				} else {
-					lclBW.println("\tpublic " + EphemeralOpal.class.getName() + "<? extends " + lclICN + "> getBottomOpal() {");
-				} */
-				if (isEphemeral() == false) {
+//				if (isEphemeral() == false) {
+//					lclBW.println("\tpublic " + lclOCN + " getBottomOpal() {");
+//				} else {
 					lclBW.println("\tpublic " + lclOCN + " getBottomOpal() {");
-				} else {
-					lclBW.println("\tpublic " + lclOCN + " getBottomOpal() {");
-				}
+//				}
 				lclBW.println("\t\treturn " + lclIOAN + ';');
 				lclBW.println("\t}");
 				lclBW.println();
-				/* lclBW.println("\t@Override");
-				lclBW.println("\tprotected Opal<? extends UserFacing>[] getOpalArray() {"); // FIXME: lclOCN?
-				lclBW.println("\tprotected " + lclOCN + "[] getOpalArray() {");
-				String lclSCN;
-				if (hasSuperclass()) {
-					lclSCN = getRootSuperclass().getInterfaceClassName();
-				} else {
-					lclSCN = lclICN;
-				}
-				
-				lclBW.println("\tprotected Opal<? super " + lclSCN + ">[] getOpalArray() {");
-				lclBW.println("\t\treturn (Opal<? super " + lclSCN + ">[]) new Opal<?>[] {"); // Why can't this be new Opal<? extends UserFacing>?
-				lclBW.println("\t\t\t" + lclIOAN + ',');
-				{
-					MappedClass lclMC = this;
-					while (lclMC.hasSuperclass()) {
-						lclMC = lclMC.getSuperclassKey().getTargetMappedClass();
-						lclBW.println("\t\t\t" + lclMC.getImplOpalAccessorName() + "(),");
-					}
-				}
-				lclBW.println("\t\t};");
-				lclBW.println("\t}");
-				lclBW.println(); */
 			}
 			
 			{
@@ -725,50 +682,12 @@ public class MappedClass {
 				
 				String lclDeprecated = lclSMC.isDeprecated() && (isDeprecated() == false) ? "\t@Deprecated" + System.lineSeparator() : "";
 				
-				// String lclA = "arg" + lclSMC.getTypeName();
-				
 				lclBW.println("\t@Override");
 				lclBW.print(lclDeprecated);
 				lclBW.println("\t" + lclAccess + ' ' + USER_FACING_SET_CLASS.getName() + "<" + lclSMC.getFullyQualifiedTypeName() + "> " + lclMFK.getRoleCollectionAccessorName() +"() {");
 				lclBW.println("\t\treturn new " + UserFacingBackCollectionSet.class.getName() + "<>(" + lclIOAN + "." + lclMFK.getRoleOpalCollectionAccessorName() + "());");
 				lclBW.println("\t}");
-				lclBW.println();
-				
-				/* if (lclSMC.isEphemeral() == false) {
-					
-					lclBW.println("\t@Override"); // THINK: Do these methods actually override anything if the access is protected?
-					lclBW.print(lclDeprecated);
-					lclBW.println("\t" + lclAccess + ' ' + determineMutatorReturnType(getFullyQualifiedInterfaceClassName()) + ' ' + lclMFK.getAddMethodName() + "(" + lclSMC.getFullyQualifiedTypeName() + ' ' + lclA + ") {");
-					lclBW.println("\t\t" + lclIOAN + '.' + lclMFK.getAddOpalMethodName() + "(((" + lclSMC.getImplementationClassName() + ") " + lclA + ")." + lclSMC.getImplOpalAccessorName() + "());");
-					lclBW.println("\t\t" + getMutatorReturnValue());
-					lclBW.println("\t}");
-					lclBW.println();
-					lclBW.println("\t@Override");
-					lclBW.print(lclDeprecated);
-					lclBW.println("\t" + lclAccess + ' ' + determineMutatorReturnType(getFullyQualifiedInterfaceClassName()) + ' ' + lclMFK.getRemoveMethodName() + "(" + lclSMC.getFullyQualifiedTypeName() + ' ' + lclA + ") {");
-					lclBW.println("\t\t" + lclIOAN + '.' + lclMFK.getRemoveOpalMethodName() + "(((" + lclSMC.getImplementationClassName() + ") " + lclA + ")." + lclSMC.getImplOpalAccessorName() + "());");
-					lclBW.println("\t\t" + getMutatorReturnValue());
-					lclBW.println("\t}");
-					lclBW.println();
-					lclBW.println("\t@Override");
-					lclBW.print(lclDeprecated);
-					lclBW.println("\t" + lclAccess + " int " + lclMFK.getCountMethodName() + "() {");
-					lclBW.println("\t\treturn " + lclIOAN + '.' + lclMFK.getCountOpalMethodName() + "();");
-					lclBW.println("\t}");
-					lclBW.println();
-				}
-				lclBW.println("\t@Override");
-				lclBW.print(lclDeprecated);
-				lclBW.println("\t" + lclAccess + ' ' + INTERNAL_STREAM_CLASS.getName() + '<' + lclSMC.getFullyQualifiedTypeName() + "> " + lclMFK.getStreamMethodName() + "() {");
-				lclBW.println("\t\treturn " + lclIOAN + '.' + lclMFK.getStreamOpalMethodName() + "().map(" + Opal.class.getName() + "::getUserFacing);");
-				lclBW.println("\t}");
-				lclBW.println();
-				lclBW.println("\t@Override");
-				lclBW.print(lclDeprecated);
-				lclBW.println("\t" + lclAccess + ' ' + USER_FACING_ITERATOR_CLASS.getName() + '<' + lclSMC.getFullyQualifiedTypeName() + "> " + lclMFK.getIteratorMethodName() + "() {");
-				lclBW.println("\t\treturn new " + OpalIterator.class.getName() + "<> (" + lclIOAN + '.' + lclMFK.getIteratorOpalMethodName() + "());");
-				lclBW.println("\t}");
-				lclBW.println(); */
+				lclBW.println();				
 			}
 			
 			/* Done with superclasses. */
@@ -826,7 +745,6 @@ public class MappedClass {
 	public void createClasses() throws IOException {
 		ensureDirectoryExists(new File(StringUtility.makeDirectoryName(getSourceDirectory(), getApplicationPackage())));
 		
-		// System.out.println("Creating classes for " + getInterfaceClassName() + "; polymorphic = " + isPolymorphic());
 		createFactory();
 		createUserFacing();
 		createInterface();
@@ -840,13 +758,6 @@ public class MappedClass {
 			createMoneOpalFactory();
 		}
 		
-		/* TODO: Need a way to turn off creation of Updater classes. */
-		/* if (isCreatable() || isUpdatable()) {
-			if (hasUpdater()) {
-				ensureDirectoryExists(new File(StringUtility.makeDirectoryName(getSourceDirectory(), getCMAPackage())));
-				createUpdater();
-			}
-		} */
 	}
 	
 	public Iterator<ClassMember> createClassMemberIterator() {
@@ -857,54 +768,6 @@ public class MappedClass {
 		return getLargeClassMembers().iterator();
 	}
 	
-	/* protected void createConcreteStub() throws IOException {
-		String lclConcreteClassFileName = StringUtility.makeFilename(getSourceDirectory(), getConcretePackageName(), getConcreteClassName());
-
-		File lclConcreteClassFile = new File(lclConcreteClassFileName);
-
-		PrintWriter lclBW = new PrintWriter(new BufferedWriter(new FileWriter(lclConcreteClassFile)));
-		
-		Iterator lclI;
-		
-		lclBW.println("package " + getConcretePackageName() + ';');
-
-		HashSet lclImports = new HashSet();
-		lclI = createForeignKeyIterator();
-		while (lclI.hasNext()) {
-			MappedForeignKey lclMFK = (MappedForeignKey) lclI.next();
-			lclImports.add(lclMFK.getTargetMappedClass());
-		}
-		lclI = createTargetForeignKeyIterator();
-		while (lclI.hasNext()) {
-			MappedForeignKey lclMFK = (MappedForeignKey) lclI.next();
-			lclImports.add(lclMFK.getSourceMappedClass());
-		}
-		
-		lclI = lclImports.iterator();
-		while (lclI.hasNext()) {
-			MappedClass lclMC = (MappedClass) lclI.next();
-			lclBW.println("import " + lclMC.getFullyQualieidInterfaceClassName() +';');
-		}
-		
-		// lclBW.println("import " + getApplicationPackage() + ".*;");
-		lclBW.println();
-		lclBW.println("public class " + getConcreteClassName() + " extends " + getImplementationClassName() + " {");
-		lclBW.println("\tprotected " + getConcreteClassName() + "(" + getOpalClassName() + " arg" + getOpalClassName() + ") {");
-		lclBW.println("\t\tsuper(arg" + getOpalClassName() + ");");
-		// lclBW.println("\t\tset" + getOpalClassName() + "(arg" + getOpalClassName() + ");");
-		lclBW.println("\t}");
-		lclBW.println();
-		
-		
-		lclBW.println("}");
-		
-		lclBW.close();
-	} */
-	
-	/* protected Iterator createDatabaseColumnsIterator() {
-		return getDatabaseColumns().iterator();
-	} */
-	
 	protected void createFactory() throws IOException {
 		String lclFactoryClassFileName = StringUtility.makeFilename(getSourceDirectory(), getFactoryPackageName(), getFactoryClassName());
 		
@@ -913,7 +776,7 @@ public class MappedClass {
 		try (PrintWriter lclBW = new PrintWriter(new BufferedWriter(new FileWriter(lclFactoryClassFile)))) {
 			lclBW.println("package " + getFactoryPackageName() + ';');
 			lclBW.println();
-			// lclBW.println("import com.opal.*;");
+
 			lclBW.println("import " + getFullyQualifiedOpalFactoryInterfaceName() + ';');
 			lclBW.println("import " + getFullyQualifiedOpalClassName() + ';');
 			lclBW.println("import " + getOpalFactoryPackageName() + ".OpalFactoryFactory;");
@@ -963,11 +826,6 @@ public class MappedClass {
 			lclBW.println("\tpublic static " + getFactoryClassName() + ' ' + getFactorySingletonAccessorName() + "() { return " + getFactorySingletonInstanceName() + "; }");
 			lclBW.println();
 			
-			/* lclBW.println("\tprivate final " + getOpalFactoryInterfaceName() + " myOpalFactory;");
-			lclBW.println(); */
-			
-			// String lclFactoryAccessorName = getOpalFactoryAccessorName();
-			
 			lclBW.println("\tpublic " + getOpalFactoryInterfaceName() + ' ' + getOpalFactoryAccessorName() + "() { return (" + getOpalFactoryInterfaceName() + ") getOpalFactory(); }");
 			lclBW.println();
 			
@@ -982,9 +840,6 @@ public class MappedClass {
 			
 			lclBW.println("\tprotected " + getFactoryClassName() +"(" + lclOpalFactoryClass.getName() + '<' + lclICN + ", "+ lclOCN + "> argOpalFactory) {");
 			lclBW.println("\t\tsuper(argOpalFactory);");
-	/* 		lclBW.println("\t\tif (argOpalFactory == null) { throw new IllegalArgumentException(\"argOpalFactory is null\"); }");
-			lclBW.println("\t\tmyOpalFactory = argOpalFactory;");
-			lclBW.println("\t\treturn;"); */
 			lclBW.println("\t}");
 			lclBW.println();
 			
@@ -1384,6 +1239,7 @@ public class MappedClass {
 			lclJD.end();
 			
 			final String lclUFCN = getUserFacingClassName();
+			final String lclOCN = getOpalClassName();
 			
 			lclBW.println("@javax.annotation.Generated(\"com.opal\")");
 			if (isDeprecated()) {
@@ -1443,6 +1299,11 @@ public class MappedClass {
 			lclJD.end();
 			lclBW.println("\tpublic void output(PrintWriter argPW) throws IOException;");
 			lclBW.println(); */
+
+			if (GENERATE_FIELD_CLASS) {
+				lclBW.println("\tpublic static class FIELD extends " + lclOCN + ".FIELD {}");
+				lclBW.println();
+			}
 			
 			/* Create the appropriate accessors and mutators for the internal data */
 			if (getClassMemberCount() == 0) {
@@ -1608,26 +1469,17 @@ public class MappedClass {
 							}
 							
 							/* A primitive-valued accessor has no way to return the correct value if the internal
-							 * value is null; they will throw a
-							 * NullValueException if they are asked to do so.  This is a checked exception since
-							 * applications should always deal properly with missing data.  If the underlying
-							 * persistent store does does not allow null data (like a NOT NULL column in a 
-							 * relational database) then the method will never throw a NullValueException and
-							 * it will not be marked as such.
+							 * value is null; they will throw a NullValueException if they are asked to do so.  This
+							 * is a checked exception since applications should always deal properly with missing data.
+							 * If the underlying persistent store does does not allow null data (like a NOT NULL
+							 * column in a  relational database) then the method will never throw a NullValueException
+							 * and it will not be marked as such.
 							 */
-							/* if (lclCM.isNullAllowed()) {
-								lclBW.print(" throws com.opal.NullValueException");
-							}
-							lclBW.println(';');
-							
-							if (lclCM.isNullAllowed()) {
-								lclBW.println("\tpublic " + lclPrimitiveType.getName() + ' ' + lclCM.getPrimitiveAccessorName() + "(" + lclPrimitiveType.getName() + " argStringToSubstituteIfNull);");
-								lclBW.println("\tpublic java.lang.String " + lclCM.getPrimitiveAccessorName() + "(java.lang.String argStringToSubstituteIfNull);");
-							} */
 						}
 						
 						/* If the mapped class as a whole is updatable and the field itself is updatable then
-						 * we generate a mutator for the field. */
+						 * we generate a mutator for the field.
+						 */
 						if ((isCreatable() || (isUpdatable() && lclCM.isUpdatable())) && (lclCM.isComputed() == false)) {
 							/* First we generate the version that takes an Object. */
 							lclJD.start(1);
@@ -1945,7 +1797,6 @@ public class MappedClass {
 			
 			// TODO: Copy annotations
 			for (MethodDelegation lclMD : getMethodDelegations()) {
-				// lclBW.println("\t@Override");
 				lclBW.print("\tdefault " + OpalUtility.generateJavaDeclaration(lclMD.getReturnType()) + ' ' + lclMD.getLocalMethodName() + "(");
 				Type[] lclParameters = lclMD.getParameters();
 				if (lclParameters != null) {
@@ -2008,43 +1859,36 @@ public class MappedClass {
 				if (lclMFK1.representsManyToOneRelationship() && (lclMFK1.getSourceRolePrefix().equals(""))) {
 					lclSecondKeysAlreadyUsed.clear();
 					MappedClass lclMiddleMC = lclMFK1.getSourceMappedClass();
-//					System.out.println("Checking for a find method in " + this.getTypeName() + " for " + lclMiddleMC.getTypeName() + ".");
 					for (MappedUniqueKey lclMUK : lclMiddleMC.getMappedUniqueKeys()) {
-//						if (lclMUK.isMapped()) {
-//							System.out.println("Checking the mapped key with key class " + lclMUK.getOpalKeyClassName() + ".");
-							for (MappedForeignKey lclMFK2 : lclMiddleMC.getForeignKeysFrom()) {
-								if ((lclMFK1 != lclMFK2) && lclMFK2.representsManyToOneRelationship() && (lclMFK2.getSourceRolePrefix().equals(""))) {
-									if ((lclMFK1.hasBackCollection() == false) && (lclMFK2.hasBackCollection() == false)) {
-										continue;
-									}
-									MappedClass lclSecondKeyMC = lclMFK2.getTargetMappedClass();
-									if (lclSecondKeysAlreadyUsed.contains(lclSecondKeyMC)) {
-										continue;
-									}
-//									System.out.println("Checking the second key " + lclSecondKeyMC.getTypeName() + ".");
-									boolean lclEligible = true;
-									for (ClassMember lclCM : lclMUK.getClassMembers()) {
-										if ((lclMFK1.getSource().contains(lclCM) == false) && (lclMFK2.getSource().contains(lclCM) == false)) {
-//											System.out.println("The column " + lclCM.getBaseMemberName() + " caused it to fail.");
-											lclEligible = false;
-										}
-									}
-									if (lclEligible) {
-//										System.out.println("We can create a find method for this combination.");
-										lclSecondKeysAlreadyUsed.add(lclSecondKeyMC);
-										lclBW.println("\tdefault " + lclMiddleMC.getFullyQualifiedInterfaceClassName() + " find" + lclMiddleMC.getInterfaceClassName() + "(" + lclSecondKeyMC.getFullyQualifiedInterfaceClassName() + " argK) {");
-										lclBW.println("\t\tif (argK == null) { return null; }");
-										if (lclMFK2.hasBackCollection()) {
-											lclBW.println("\t\treturn argK." + lclMFK2.getStreamMethodName() + "().filter(this::matches).findAny().orElse(null);");
-										} else {
-											lclBW.println("\t\treturn this." + lclMFK1.getStreamMethodName() + "().filter(argK::matches).findAny().orElse(null);");
-										}
-										lclBW.println("\t}");
-										lclBW.println();
+						for (MappedForeignKey lclMFK2 : lclMiddleMC.getForeignKeysFrom()) {
+							if ((lclMFK1 != lclMFK2) && lclMFK2.representsManyToOneRelationship() && (lclMFK2.getSourceRolePrefix().equals(""))) {
+								if ((lclMFK1.hasBackCollection() == false) && (lclMFK2.hasBackCollection() == false)) {
+									continue;
+								}
+								MappedClass lclSecondKeyMC = lclMFK2.getTargetMappedClass();
+								if (lclSecondKeysAlreadyUsed.contains(lclSecondKeyMC)) {
+									continue;
+								}
+								boolean lclEligible = true;
+								for (ClassMember lclCM : lclMUK.getClassMembers()) {
+									if ((lclMFK1.getSource().contains(lclCM) == false) && (lclMFK2.getSource().contains(lclCM) == false)) {
+										lclEligible = false;
 									}
 								}
+								if (lclEligible) {
+									lclSecondKeysAlreadyUsed.add(lclSecondKeyMC);
+									lclBW.println("\tdefault " + lclMiddleMC.getFullyQualifiedInterfaceClassName() + " find" + lclMiddleMC.getInterfaceClassName() + "(" + lclSecondKeyMC.getFullyQualifiedInterfaceClassName() + " argK) {");
+									lclBW.println("\t\tif (argK == null) { return null; }");
+									if (lclMFK2.hasBackCollection()) {
+										lclBW.println("\t\treturn argK." + lclMFK2.getStreamMethodName() + "().filter(this::matches).findAny().orElse(null);");
+									} else {
+										lclBW.println("\t\treturn this." + lclMFK1.getStreamMethodName() + "().filter(argK::matches).findAny().orElse(null);");
+									}
+									lclBW.println("\t}");
+									lclBW.println();
+								}
 							}
-//						}
+						}
 					}
 				}
 			}
@@ -2060,7 +1904,6 @@ public class MappedClass {
 					lclBW.println();
 					String lclComparatorClassName = lclCM.getBaseMemberName() + "Comparator";
 					lclBW.println("\tpublic static class " + lclComparatorClassName + " extends com.siliconage.util.NullSafeComparator<" + lclFQICN + "> {");
-					// lclBW.println("\t\tprivate static final long serialVersionUID = 1L;");
 					lclBW.println("\t\tprivate static final " + lclComparatorClassName + " ourInstance = new " + lclComparatorClassName + "();");
 					lclBW.println("\t\tpublic static final " + lclComparatorClassName + " getInstance() { return ourInstance; }");
 					lclBW.println();
@@ -2111,7 +1954,6 @@ public class MappedClass {
 				String lclComparatorClassName = lclCS.generateClassName();
 				String lclFQICN = getFullyQualifiedInterfaceClassName();
 				lclBW.println("\tpublic static class " + lclComparatorClassName + " extends com.siliconage.util.NullSafeComparator<" + lclFQICN + "> {");
-				// lclBW.println("\t\tprivate static final long serialVersionUID = 1L;");
 				lclBW.println("\t\tprivate static final " + lclComparatorClassName + " ourInstance = new " + lclComparatorClassName + "();");
 				lclBW.println("\t\tpublic static final " + lclComparatorClassName + " getInstance() { return ourInstance; }");
 				lclBW.println();
@@ -2135,32 +1977,6 @@ public class MappedClass {
 				lclBW.println("\t}");
 				lclBW.println();
 			}
-			
-//			for (ClassMember lclCM : getClassMembers()) {
-//				if (lclCM.isFilter()) {
-//					String lclFQICN = getFullyQualifiedInterfaceClassName();
-//					lclBW.println("\t/** This is a Filter that will pass " + getInterfaceClassName() + " objects if their {@code " + lclCM.getBaseMemberName() + "} value is {@code true}. */");
-//					lclBW.println();
-//					String lclFilterClassName = lclCM.getBaseMemberName() + "Filter";
-//					lclBW.println("\tpublic static class " + lclFilterClassName + " extends com.siliconage.util.Filter<" + lclFQICN + "> {");
-//					lclBW.println("\t\tprivate static final long serialVersionUID = 1L;");
-//					lclBW.println("\t\tprivate static final " + lclFilterClassName + " ourInstance = new " + lclFilterClassName + "();");
-//					lclBW.println("\t\tpublic static final " + lclFilterClassName + " getInstance() { return ourInstance; }");
-//					lclBW.println();
-//					lclBW.println("\t\tprivate " + lclFilterClassName + "() { super(); }");
-//					lclBW.println();
-//					lclBW.println("\t\t@Override");
-//					lclBW.println("\t\tpublic boolean accept(" + lclFQICN + " argObject) {");
-//					lclBW.println("\t\t\tif (argObject == null) {");
-//					lclBW.println("\t\t\t\treturn false;");
-//					lclBW.println("\t\t\t} else {");
-//					lclBW.println("\t\t\t\treturn Boolean.TRUE.equals(argObject." + lclCM.getObjectAccessorName() + "());");
-//					lclBW.println("\t\t\t}"); // End if
-//					lclBW.println("\t\t}"); // End method
-//					lclBW.println("\t}"); // End class
-//					lclBW.println();
-//				}
-//			}
 			
 			if (isTree()) {
 				MappedForeignKey lclMFK = getTreeParentKey();
@@ -2220,8 +2036,6 @@ public class MappedClass {
 		try (PrintWriter lclBW = new PrintWriter(new BufferedWriter(new FileWriter(lclOpalClassFile)))) {
 			lclBW.println("package " + getOpalPackageName() + ';');
 			lclBW.println();
-			// lclBW.println("import com.opal.*;");
-			// lclBW.println();
 			lclBW.println("import " + getFullyQualifiedInterfaceClassName() + ';');
 			lclBW.println();
 			
@@ -2259,9 +2073,6 @@ public class MappedClass {
 				}
 			}
 			lclBW.print("public final class " + lclOCN + " extends " + lclSuperClassName + "<" + lclICN + ">");
-//			if (isEphemeral() /* && hasPublicFields */) {
-//				lclBW.print(" implements " + com.opal.PublicFields.class.getName());
-//			}
 			lclBW.println(" {");
 			
 			lclBW.println();
@@ -2294,7 +2105,6 @@ public class MappedClass {
 			if (isEphemeral() == false) {
 				lclBW.println("\tpublic " + getOpalClassName() + "(" + lclOpalFactoryClass.getName() + '<' + lclICN + ", " + lclOCN + "> argOpalFactory, Object[] argValues) {");
 			} else {
-//				lclBW.println("\tpublic " + getOpalClassName() + "(@SuppressWarnings(\"unused\") " + lclOpalFactoryClass.getName() + '<' + lclICN + ", " + lclOCN + "> argOpalFactory, Object[] argValues) {");
 				lclBW.println("\tpublic " + getOpalClassName() + "(Object[] argValues) {");
 			}
 			if (isEphemeral() == false) {
@@ -2305,6 +2115,63 @@ public class MappedClass {
 			}
 			lclBW.println("\t}");
 			lclBW.println();
+			
+			// TODO: Explain what this is.
+			if (GENERATE_FIELD_CLASS) {
+				lclBW.println("\tpublic static class FIELD {");
+				int lclIndex = 0;
+				final String lclFQICN = getFullyQualifiedInterfaceClassName();
+				for (ClassMember lclCM : getClassMembers()) { // Do we need to skip unmapped ones or anything?
+					Class<?> lclOFC = lclCM.getOpalFieldClass();
+					String lclOFTypeArgument;
+					if (lclOFC == OpalPlainField.class) { // FIXME: Fix this
+						lclOFTypeArgument = "<" + lclICN + ", " + lclCM.getMemberType().getName() + ">";
+					} else {
+						lclOFTypeArgument = "<" + lclICN + ">";
+					}
+					String lclOFN = lclOFC.getName();
+					boolean lclUseMutableOpalFieldCtor = isUpdatable() && lclCM.isUpdatable() && (lclCM.isComputed() == false); // Or Creatable?  How did that work?
+					// FIXME: Why aren't computed fields automatically non-updatable?
+					
+					lclBW.println("\t\tpublic static final " + lclOFN + lclOFTypeArgument + " " + lclCM.getBaseMemberName() + " = new " + lclOFN + "<>(");
+					lclBW.println("\t\t\t\tnew " + com.opal.OpalBaseField.class.getName() + "<>(");
+					lclBW.println("\t\t\t\t\t\t" + lclIndex + ",");
+					lclBW.println("\t\t\t\t\t\t\"" + lclCM.getBaseMemberName() + "\",");
+					lclBW.println("\t\t\t\t\t\t" + lclCM.getMemberType().getName() + ".class,");
+					if (lclUseMutableOpalFieldCtor) {
+						lclBW.println("\t\t\t\t\t\t" + lclCM.isUpdatable() + ",");
+					}
+					lclBW.println("\t\t\t\t\t\t" + lclCM.isNullAllowed() + ",");
+					lclBW.println("\t\t\t\t\t\t" + "null" + ","); // Supplier<> for default value
+					lclBW.println("\t\t\t\t\t\t" + "null" + ","); // Validator
+					lclBW.println("\t\t\t\t\t\t" + lclFQICN + "::" + lclCM.getObjectAccessorName() + ","); // If not qualified, problems occur if the UserFacing name overlaps with a column name
+					if (lclUseMutableOpalFieldCtor) {
+						lclBW.println("\t\t\t\t\t\t" + lclFQICN + "::" + lclCM.getObjectMutatorName() + ",");
+					}
+					lclBW.println("\t\t\t\t\t\t\"" + lclCM.getDatabaseColumn().getName() + "\"");
+					lclBW.println("\t\t\t\t\t\t)");
+					lclBW.println("\t\t\t\t);");
+					lclBW.println();
+					++lclIndex;
+				}
+				if (getClassMemberCount() == 0) {
+					lclBW.println("\t\tpublic static final " + List.class.getName() + "<" + OpalField.class.getName() + "<" + lclICN + ", ?>> ALL = " + List.class.getName() + ".of();");
+				} else {				
+					lclBW.println("\t\tpublic static final " + List.class.getName() + "<" + OpalField.class.getName() + "<" + lclICN + ", ?>> ALL = " + List.class.getName() + ".of(");
+					lclCMI = createClassMemberIterator();
+					while (lclCMI.hasNext()) {
+						ClassMember lclCM = lclCMI.next();
+						lclBW.print("\t\t\t\t" + lclCM.getBaseMemberName());
+						if (lclCMI.hasNext()) {
+							lclBW.print(",");
+						}
+						lclBW.println();
+					}
+					lclBW.println("\t\t\t\t);");
+				}
+				lclBW.println("\t}"); // end of FIELD class definition
+				lclBW.println();
+			}
 			
 			/* Apply Defaults */
 			
@@ -2381,9 +2248,6 @@ public class MappedClass {
 				}
 				lclBW.println("\tprotected void initializeReferences() {");
 				for (MappedForeignKey lclMFK : getForeignKeysFrom()) {
-					/* if (lclMFK.representsPolymorphism()) {
-						continue;
-					} */
 					String lclON = lclMFK.getTargetOpalClassName();
 					lclBW.println("\t\t" + lclMFK.getOldRoleSourceOpalFieldName() + " = " + lclON + '.' + NOT_YET_LOADED_STATIC_MEMBER_NAME + ';');
 				}
@@ -2562,10 +2426,6 @@ public class MappedClass {
 					if (!lclCM.isMapped()) {
 						continue;
 					}
-					
-					/* if (!lclCM.isUpdatable()) {
-						continue;
-					} */
 					
 					/* We don't generate mutators for computed fields.  This will fail if one tries to have chained
 					 * computed fields; for instance myB = myA + 1 and myC = myB + 1.  FIXME: Come back and make that
@@ -2754,18 +2614,6 @@ public class MappedClass {
 					}
 				}
 				
-				/* Collections created by another table having a "normal" (many-to-one) foreign key to this table. */
-				// for (MappedForeignKey lclMFK : getForeignKeysTo()) {
-					// if (lclMFK.representsManyToOneRelationship()) {
-						// if (lclMFK.getForeignKey().getCollectionClass() != null) {
-							// if (lclMFK.getSourceMappedClass().isEphemeral() == false) {
-								// lclBW.println("\t\t" + lclMFK.getNewRoleCollectionMemberName() + " = null; /* Necessary if it has been rolled back */");
-								// lclBW.println("\t\t" + lclMFK.getRoleCachedOperationCollectionMemberName() + " = null; /* Ditto */");
-							// }
-						// }
-					// }
-				// }
-				
 				/* Copy collections that this Opal has of other Opals */
 				
 				lclBW.println("\t\t/* We don't copy Collections of other Opals; they will be cloned as needed. */");
@@ -2778,9 +2626,6 @@ public class MappedClass {
 				 * updated ("new") values to the shared, "old" fields. */
 				
 				lclBW.println("\t@Override");
-				/* if (hasAtLeastOneDeprecatedLink()) {
-					lclBW.println("\t@SuppressWarnings(\"deprecation\")");
-				} */
 				lclBW.println("\tprotected /* synchronized */ void copyNewValuesToOldInternal() {");
 				
 				/* Copy references that this Opal has to other Opals */
@@ -2804,41 +2649,6 @@ public class MappedClass {
 					}
 				}
 				
-				/* Copy collections that this Opal has of other Opals */
-				/* if (hasAtLeastOneBackCollection()) {
-					lclBW.println("\t\tif (needsToClearOldCollections()) {");
-					for (MappedForeignKey lclMFK : getForeignKeysTo()) {
-						if (lclMFK.representsManyToOneRelationship()) {
-							if (lclMFK.getCollectionType() != null) {
-								if (lclMFK.getSourceMappedClass().isEphemeral() == false) {
-									lclBW.println("\t\t\t" + lclMFK.getOldRoleCollectionMemberName() + " = null;");
-								}
-							}
-						}
-					}
-					lclBW.println("\t\t} else {");
-					for (MappedForeignKey lclMFK : getForeignKeysTo()) {
-						if (lclMFK.representsManyToOneRelationship()) {
-							if (lclMFK.getCollectionType() != null) {
-								if (lclMFK.getSourceMappedClass().isEphemeral() == false) {
-									lclBW.println("\t\t\tif (" + lclMFK.getNewRoleCollectionMemberName() + " != null) {");
-									lclBW.println("\t\t\t\tif (" + lclMFK.getNewRoleCollectionMemberName() + ".size() > 0) {");
-									lclBW.println("\t\t\t\t\t" + lclMFK.getOldRoleCollectionMemberName() + " = " + lclMFK.getNewRoleCollectionMemberName() + ';');
-									lclBW.println("\t\t\t\t} else {");
-									lclBW.println("\t\t\t\t\t" + lclMFK.getOldRoleCollectionMemberName() + " = " + Collections.class.getName() + ".emptySet();");
-									lclBW.println("\t\t\t\t}");
-									lclBW.println("\t\t\t\t" + lclMFK.getNewRoleCollectionMemberName() + " = null;");
-									lclBW.println("\t\t\t} else {");
-									lclBW.println("\t\t\t\t" + lclMFK.getRoleCachedOperationCollectionMemberName() + " = null;");
-									lclBW.println("\t\t\t}");
-								}
-							}
-						}
-					}
-					lclBW.println("\t\t}");
-					lclBW.println("\t\tsetClearOldCollections(false);");
-				} */
-				
 				lclBW.println("\t\treturn;");
 				lclBW.println("\t}");
 				lclBW.println();
@@ -2853,7 +2663,6 @@ public class MappedClass {
 				}
 				lclBW.println("\tprotected void unlinkInternal() {");
 				if (getActualTargetForeignKeyCount() > 0) {
-					// lclBW.println("\t\t" + INTERNAL_ITERATOR_CLASS.getName() + "<?> lclI;"); /* FIXME:  This iterator is used in different loops, so we can't give it a specific type.  Argh. */
 					for (MappedForeignKey lclMFK : getForeignKeysTo()) {
 						if (lclMFK.representsManyToOneRelationship()) {
 							if (lclMFK.hasBackCollection()) {
@@ -2863,14 +2672,6 @@ public class MappedClass {
 									 * To be clear, if the Collections are already loaded, we do loop through them, even though setting the reference to NULL is probably
 									 * going to fail for most keys (because their columns are NOT NULL).  I'm not really sure what the proper behavior is.
 									 */
-									// lclBW.println("\t\t" + lclMFK.getRoleOpalCollectionAccessorName() + "().clear();");
-									/* lclBW.println("\t\tif (" + lclMFK.getNewRoleCollectionMemberName() + " != null || " + lclMFK.getRoleCachedOperationCollectionMemberName() + " != null) {");
-									lclBW.println("\t\t\tlclI = " + lclMFK.getIteratorOpalMethodName() + "();");
-									lclBW.println("\t\t\twhile (lclI.hasNext()) {");
-									lclBW.println("\t\t\t\t((" + lclMFK.getSourceOpalClassName() + ") lclI.next()).set" + lclMFK.getRoleSourceOpalFieldName() + "Internal(null);");
-									lclBW.println("\t\t\t}");
-									lclBW.println("\t\t}"); */
-									
 									
 									// Well, that was causing everything to be loaded and deleted, even if we didn't want it to be deleted!  I'm leaving the above code in case R. comes back to it later, but right now I think we're better off checking that the collection isEmpty(), and complaining if it's not. --JHG
 									lclBW.println("\t\t" + Validate.class.getName() + ".isTrue(" + lclMFK.getRoleOpalCollectionAccessorName() + "().isEmpty(), \"This object has " + lclMFK.getRoleCollectionItemName() + " children, so it cannot be unlinked.\");");
@@ -3067,7 +2868,6 @@ public class MappedClass {
 					lclBW.println("\t\t" + UpdatableOpal.class.getName() + "<?> lclUO;");
 					boolean lclFirst = true;
 					for (MappedForeignKey lclMFK : lclFromKeys) {
-						// lclBW.println("\t\tlclUO = " + lclMFK.getOldRoleSourceOpalFieldName() + ';');
 						lclBW.println("\t\tif ((lclUO = " + lclMFK.getOldRoleSourceOpalFieldName() + ") == " + lclMFK.getTargetMappedClass().getOpalClassName() + '.' + NOT_YET_LOADED_STATIC_MEMBER_NAME + ") {");
 						lclBW.println("\t\t\tlclUO = " + lclMFK.getOldRoleSourceOpalFieldName() + " = " + lclMFK.getRetrieveOpalMethodName() + "(getOldValues());");
 						lclBW.println("\t\t}");
@@ -3234,9 +3034,6 @@ public class MappedClass {
 				lclBW.println();
 				
 				lclBW.print(lclMFK.sourceMethodDeprecation());
-				/* if (lclMFK.getTarget().hasStoreGeneratedClassMember()) {
-					lclBW.println("\t@" + com.opal.CommitTargetFirstIfNew.class.getName());
-				} */
 				lclBW.println("\tpublic synchronized " + lclON + " get" + lclMFK.getRoleSourceOpalFieldName() + "() {");
 				lclBW.println("\t\t" + lclON + ' ' + lclV + ';');
 				if (isEphemeral() == false) {
@@ -3325,13 +3122,10 @@ public class MappedClass {
 					String lclON = lclSMC.getOpalClassName();
 					String lclA = "arg" + lclON;
 					
-					/* The old one is NOT_YET_LOADED to allow for lazy evaluation */ /* FIXME: No longer true */ /* FIXME: Copy above comment */ /* What? */
-					// lclBW.print(lclMFK.targetMethodDeprecation());
-					lclBW.println("\tprivate " + lclON + ' ' + lclMFK.getOldRoleTargetOpalFieldName() + ';'); // " + lclON + ".NOT_YET_LOADED;");
+					lclBW.println("\tprivate " + lclON + ' ' + lclMFK.getOldRoleTargetOpalFieldName() + ';');
 					
 					/* The new one is null so that new objects do not try lazy evaluation */
 					
-					// lclBW.print(lclMFK.targetMethodDeprecation());
 					lclBW.println("\tprivate " + lclON + ' ' + lclMFK.getNewRoleTargetOpalFieldName() + ';');
 					lclBW.println();
 					
@@ -3365,9 +3159,6 @@ public class MappedClass {
 					String lclV = "lcl" + lclON;
 		
 					lclBW.print(lclMFK.targetMethodDeprecation());
-					/* if (lclMFK.getSource().hasStoreGeneratedClassMember()) {
-						lclBW.println("\t@" + com.opal.CommitSourceFirstIfDeleted.class.getName());
-					} */
 					lclBW.println("\tpublic synchronized " + lclON + " get" + lclMFK.getRoleTargetOpalFieldName() + "() {");
 					lclBW.println("\t\t" + lclON + ' ' + lclV + ';');
 					lclBW.println("\t\tboolean lclAccess = tryAccess();");
@@ -3416,7 +3207,6 @@ public class MappedClass {
 			
 			if (isEphemeral() == false) {
 				for (MappedForeignKey lclMFK : getForeignKeysTo()) {
-					// System.out.println("...generating member Collection for incoming foreign key " + lclFK);
 					MappedClass lclSMC = lclMFK.getSourceMappedClass();
 					
 					if (lclMFK.representsManyToOneRelationship()) {
@@ -3527,14 +3317,6 @@ public class MappedClass {
 					lclBW.println("\t\tlclSB.append(toStringField(" + lclCM.getFieldIndex() + "));");
 				}
 				
-				// This is a more verbose version
-				/* lclBW.println("\t\tfor (int lclI = 0; lclI < getFieldCountInternal(); ++lclI) {");
-				lclBW.println("\t\t\tlclSB.append(getFieldName(lclI) + '=' + toStringField(lclI));");
-				lclBW.println("\t\t\tif (lclI < getFieldCountInternal() - 1) {");
-				lclBW.println("\t\t\t\tlclSB.append(',');");
-				lclBW.println("\t\t\t}");
-				lclBW.println("\t\t}"); */
-				
 				lclBW.println("\t\tlclSB.append(']');");
 				lclBW.println("\t\treturn lclSB.toString();");
 				lclBW.println("\t}");
@@ -3568,12 +3350,6 @@ public class MappedClass {
 					lclBW.println("\tprotected void updateCollectionsAfterReload() {");
 					lclBW.println("\t\tassert needsToClearOldCollections() == false;");
 					lclBW.println("\t\tsetClearOldCollections(true);");
-					/* for (MappedForeignKey lclMFK : getForeignKeysTo()) {
-						if (lclMFK.getForeignKey().getCollectionClass() != null) {
-							String lclNewMember = lclMFK.getNewSourceCollectionMemberName();
-							lclBW.println("\t\t" + lclNewMember + " = " + lclMFK.getSourceMappedClass().getOpalClassName() + ".CLEAR_OLD_HASHSET;");
-						}
-					} */
 					lclBW.println("\t}");
 					lclBW.println();
 				}
@@ -3730,12 +3506,8 @@ public class MappedClass {
 			if (isEphemeral() == false) {
 				lclBW.println("import " + OpalCache.class.getName() + ';');
 				lclBW.println("import " + OpalKey.class.getName() + ';');
-				// lclBW.println("import " + OpalUtility.class.getName() + ';');
 				lclBW.println("import " + PersistenceException.class.getName() + ';');
 				lclBW.println("import " + TransactionParameter.class.getName() + ';');
-			/* } else if (hasAtLeastOneUniqueKey()) {
-				lclBW.println("import " + ImplicitTableDatabaseQuery.class.getName() + ';');
-				lclBW.println("import " + PersistenceException.class.getName() + ';'); */
 			}
 			
 			lclBW.println();
@@ -3758,7 +3530,7 @@ public class MappedClass {
 			}
 			
 			/* At some point, we need to figure out whether ephemeral Mone opals are allowed. */
-			Class<?> lclFactoryClass = isEphemeral() ? null /* AbstractMoneEphemeralOpalFactory.class */ : AbstractMoneIdentityOpalFactory.class; 
+			Class<?> lclFactoryClass = isEphemeral() ? null : AbstractMoneIdentityOpalFactory.class; 
 			assert lclFactoryClass != null;
 			
 			lclBW.println("public class " + lclMoneOpalFactoryClassName + " extends " + lclFactoryClass.getName() + "<" + lclICN + ", " + lclOCN + "> implements " + getOpalFactoryInterfaceName() + " {");
@@ -3776,47 +3548,8 @@ public class MappedClass {
 			
 			Iterator<ClassMember> lclI;
 			
-			/* Database column names */
-			/* lclBW.println("\tprivate static final String[] ourColumnNames = new String[] {");
-			lclI = createClassMemberIterator();
-			while (lclI.hasNext()) {
-				ClassMember lclCM = lclI.next();
-				if (!lclCM.isMapped()) {
-					continue;
-				}
-				lclBW.print("\t\t\"");
-				lclBW.print(lclCM.getDatabaseColumn().getName());
-				lclBW.println("\", ");
-			}
-			lclBW.println("\t};");
-			lclBW.println(); */
-			
-			/* lclBW.println("\tprotected static String[] getStaticColumnNames() { return ourColumnNames; }");
-			lclBW.println();
-			lclBW.println("\t@Override");
-			lclBW.println("\tprotected String[] getColumnNames() { return ourColumnNames; }");
-			lclBW.println(); */
-			
 			MappedUniqueKey lclPK = getPrimaryKey();
 			
-//			if (isEphemeral() == false) {
-//				/* Database columns for the primary key; this will overlap with one of the inner classes.
-//				They should be consolidated.  It would also be nice to "reuse" the Strings from the other
-//				array, just for show. */
-//				lclBW.print("\tprivate static final String[] ourPrimaryKeyWhereClauseColumns = new String[] {");
-//				
-//				Validate.notNull(lclPK);
-//				lclI = lclPK.createClassMemberIterator();
-//				while (lclI.hasNext()) {
-//					ClassMember lclCM = lclI.next();
-//					lclBW.print('\"');
-//					lclBW.print(lclCM.getDatabaseColumn().getName());
-//					lclBW.print("\",");
-//				}
-//				lclBW.println("};");
-//				lclBW.println();
-//			}
-	
 			lclBW.println("\t@Override");
 			lclBW.println("\tprotected String[] getFieldNames() { return " + getOpalClassName() + ".getStaticFieldNames(); }");
 			lclBW.println();
@@ -3832,13 +3565,6 @@ public class MappedClass {
 			lclBW.println("\t@Override");
 			lclBW.println("\tprotected com.opal.FieldValidator[] getFieldValidators() { return " + getOpalClassName() + ".getStaticFieldValidators(); }");
 			lclBW.println();
-			
-			/* getDataSource */
-			/* lclBW.println("\t@Override");
-			lclBW.println("\tprotected " + DataSource.class.getName() + " getDataSource() {");
-			lclBW.println("\t\treturn " + getOpalFactoryFactoryClassName() + ".getSpecificInstance().getDataSource();");
-			lclBW.println("\t}");
-			lclBW.println(); */
 			
 			lclBW.println("\t@Override");
 			lclBW.println("\tprotected " + lclOCN + " instantiate(Object[] argValues) {");
@@ -3960,7 +3686,6 @@ public class MappedClass {
 				MappedClass lclMappedClassWithActualTypeField = this;
 				for (int lclJ = 0; lclJ < lclSPD.getDereferenceKeys().size(); ++lclJ) {
 					MappedForeignKey lclMFK = lclSPD.getDereferenceKeys().get(lclJ);
-					// System.out.println("Following dereference #" + lclJ + " (" + lclMFK.toString() + ")");
 					assert lclMFK.getSourceMappedClass() == lclMappedClassWithActualTypeField;
 					lclMappedClassWithActualTypeField = lclMFK.getTargetMappedClass();
 					String lclOV = (lclJ == 0) ? "argO" : lclNV;
@@ -3978,8 +3703,6 @@ public class MappedClass {
 				}
 				
 				int lclFieldIndex = lclCM.getFieldIndex();
-				// lclBW.println("\t\t" + lclICN + " lclUF;");
-				// lclBW.println("\t\tClass<" + lclICN + "> lclClass;");
 				lclBW.println("\t\tObject lclV = " + lclNV + ".getField(" + lclFieldIndex + ");");
 				lclBW.println("\t\tif (lclV == null) {");
 				lclBW.println("\t\t\tthrow new IllegalStateException(\"Column that should contain information about which concrete Class to instantiate was null.\");");
@@ -4001,16 +3724,6 @@ public class MappedClass {
 						lclBW.println("\t\t}");
 						lclBW.println("\t\t@SuppressWarnings(\"unchecked\")");
 						lclBW.println("\t\t" + JavaClass.class.getName() + "<" + lclICN + "> lclJavaClass = (" + JavaClass.class.getName() + "<" + lclICN + ">) lclV;");
-							/* lclBW.println("\t\tlclClass = lclJavaClass.getJavaClass();");
-							lclBW.println("\t\t" + Constructor.class.getName() + "<FengShui> lclCtor = null;");
-							lclBW.println("\t\ttry {");
-							lclBW.println("\t\t\tlclCtor = lclClass.getConstructor(argO.getClass());");
-							// lclBW.println("\t\t" + lclICN + " lclUF = lclJavaClass.newInstance(argO);");
-							lclBW.println("\t\t} catch (NoSuchMethodException lclE) {");
-							lclBW.println("\t\t\tthrow new PersistenceException(\"Concrete class \" + lclClass.getName() + \" did not have a constructor whose single argument would accept a \" + argO.getClass().getName() + \".\");");
-							lclBW.println("\t\t} catch (" + InvocationTargetException.class.getName() + " | " + IllegalAccessException.class.getName() + " | " + InstantiationException.class.getName() + " lclE) {");
-							lclBW.println("\t\t\tthrow new PersistenceException(\"Could not invoke constructor \" + lclCtor + \" on \" + lclClass.getName() + \".\", lclE);");
-							lclBW.println("\t\t}"); */
 					} else {
 						throw new IllegalStateException("Could not use type " + lclCM.getMemberType() + " to figure out the class to construct when doing single-table polymorphism for " + this);
 					}
@@ -4028,7 +3741,6 @@ public class MappedClass {
 				MappedClass lclMappedClassWithActualTypeField = this;
 				for (int lclJ = 0; lclJ < lclSPD.getDereferenceKeys().size(); ++lclJ) {
 					MappedForeignKey lclMFK = lclSPD.getDereferenceKeys().get(lclJ);
-					// System.out.println("Following dereference #" + lclJ + " (" + lclMFK.toString() + ")");
 					assert lclMFK.getSourceMappedClass() == lclMappedClassWithActualTypeField;
 					lclMappedClassWithActualTypeField = lclMFK.getTargetMappedClass();
 					String lclOV = (lclJ == 0) ? "argO" : lclNV;
@@ -4074,7 +3786,6 @@ public class MappedClass {
 								lclBW.println("\t\t\t" + lclSubclass.getOpalFactoryPackageName() + '.' + lclSubclass.getOpalFactoryInterfaceName() + " lclOF = OpalFactoryFactory.getInstance().get" + lclSubclass.getOpalFactoryInterfaceName() + "();");
 								lclBW.println("\t\t\tassert lclOF != null;");
 								lclBW.print("\t\t\t" + lclSubclass.getFullyQualifiedOpalClassName() + " lclO = lclOF.");
-								// StringBuilder lclName = new StringBuilder(64);
 								StringBuilder lclArgs = new StringBuilder(128);
 								MappedUniqueKey lclSuperclassPK = getPrimaryKey();
 								MappedUniqueKey lclSubclassPK = lclSubclass.getPrimaryKey();
@@ -4092,10 +3803,8 @@ public class MappedClass {
 									if (lclFirst) {
 										lclFirst = false;
 									} else {
-										// lclName.append(", ");
 										lclArgs.append(", ");
 									}
-									// lclName.append(lclCM2.getBaseMemberName());
 									lclArgs.append('(');
 									lclArgs.append(lclCM2.getMemberType().getName());
 									lclArgs.append(") ");
@@ -4103,7 +3812,7 @@ public class MappedClass {
 									lclArgs.append(lclCM1.getFieldIndex());
 									lclArgs.append(')');
 								}
-								lclBW.println(/* lclName.toString() + */ "(" + lclArgs.toString() + "));");
+								lclBW.println("(" + lclArgs.toString() + "));");
 								lclBW.println("\t\t\tif (lclO == null) {");
 								lclBW.println("\t\t\t\tthrow new PersistenceException(\"Polymorphism data for \" + argO + \" suggested that there should be a subclass row in " + lclSubclass.getTableName() + ", but none was found.\");");
 								lclBW.println("\t\t\t}");
@@ -4172,9 +3881,6 @@ public class MappedClass {
 				lclBW.println();
 			}
 			
-			/* getFullyQualifiedTableName() */
-			// createGetFullyQualifiedTableNameMethod(lclBW, argMC);
-			
 			if (isEphemeral() == false) {
 				/* As in the case of the afterInsert method, this is expected to be delegated to a concrete
 				 * subclass that will know how to interpret the concrete Table class to generate a FQTN. */
@@ -4199,6 +3905,7 @@ public class MappedClass {
 				lclBW.println("\t}");
 				lclBW.println();
 				
+				/* registerOpal */
 				lclBW.println("\tprotected void registerOpal(" + lclOCN + " argOpal, Object[] argValues) {");
 				lclBW.println("\t\tif (argValues == null) { throw new IllegalStateException(); }");
 				lclBW.println("\t\tif (argValues.length != " + getClassMemberCount() + ") { throw new IllegalStateException(); }");
@@ -4221,10 +3928,7 @@ public class MappedClass {
 				lclBW.println("\t}");
 				lclBW.println();
 		
-				/* unregisterOpal */
-				/* lclBW.println("\tprotected void unregisterOpal(O argOpal) { unregisterOpal(argOpal); }");
-				lclBW.println(); */
-				
+				/* unregisterOpal */				
 				lclBW.println("\t@Override");
 				lclBW.println("\tprotected void unregisterOpal(" + lclOCN + " argOpal) {");
 				if (isCreatable() || isUpdatable()) {
@@ -4311,14 +4015,7 @@ public class MappedClass {
 			}
 			
 			if (isEphemeral() == false) {
-				// Validate.notNull(lclPK);
-				
 				/* getPrimaryKeyWhereClauseColumns() */
-				/* lclBW.println("\t@Override");
-				lclBW.println("\tprotected String[] getPrimaryKeyWhereClauseColumns() {");
-				lclBW.println("\t\treturn ourPrimaryKeyWhereClauseColumns;");
-				lclBW.println("\t}");
-				lclBW.println(); */
 				
 				lclBW.println("\t@Override");
 				lclBW.println("\tprotected OpalKey<" + lclOCN +"> createOpalKeyForReloading(" + lclOCN + " argOpal) {");
@@ -4346,40 +4043,6 @@ public class MappedClass {
 				lclBW.println("\t@Override");
 				lclBW.println("\tpublic " + lclFK.getCollectionType().getName() + "<" + lclOCN + "> " + lclFK.getSource().generateOpalFactoryFunctionDefinition() + " /* throws PersistenceException */ {");
 				lclBW.println("\t\treturn new " + lclFK.getCollectionType().getName() + "<>();");
-//				Iterator<ClassMember> lclJ;
-//				boolean lclFirst;
-//				
-//				lclBW.print("\t\tfinal Object[] lclParameters = new Object[] { ");
-//				lclJ = lclFK.getSource().iterator();
-//				lclFirst = true;
-//				while (lclJ.hasNext()) {
-//					ClassMember lclCM = lclJ.next();
-//					if (lclFirst) {
-//						lclFirst = false;
-//					} else {
-//						lclBW.print(", ");
-//					}
-//					lclBW.print(lclCM.getObjectMutatorArgumentName());
-//				}
-//				lclBW.println(" };");
-//				
-//				lclBW.print("\t\tfinal String[] lclFieldNames = new String[] { ");
-//				lclJ = lclFK.getSource().iterator();
-//				lclFirst = true;
-//				while (lclJ.hasNext()) {
-//					ClassMember lclCM = lclJ.next();
-//					if (lclFirst) {
-//						lclFirst = false;
-//					} else {
-//						lclBW.print(", ");
-//					}
-//					lclBW.print("\"" + lclCM.getDatabaseColumn().getName() + "\"");
-//				}
-//				lclBW.println(" };");
-//				lclBW.println("\t\t" + lclFK.getCollectionType().getName() + "<" + lclOCN + "> lclCollection = new " + lclFK.getCollectionType().getName() + "<" /* + lclOCN */ + ">();");
-//				
-//				lclBW.println("\t\tload(getFullyQualifiedTableName(), lclFieldNames, lclParameters, null, lclCollection);");
-//				lclBW.println("\t\treturn lclCollection;");
 				lclBW.println("\t}");
 				lclBW.println();
 			}
@@ -4487,70 +4150,11 @@ public class MappedClass {
 				}
 			}
 			
-			/* Get all.  FIXME: I don't think this actually tracks newly created instances. */
-			/* if (isGetAll()) {
-				String lclAll = "myAll" + lclOCN;
-				
-				lclBW.println("\tprivate java.util.ArrayList<" + lclOCN + "> " + lclAll + " = null;");
-				lclBW.println();
-				lclBW.println("\tprotected java.util.ArrayList<" + lclOCN + "> getAll" + lclOCN + "() {");
-				lclBW.println("\t\tif (" + lclAll + " == null) {");
-				lclBW.println("\t\t\t" + lclAll + " = loadAll(getFullyQualifiedTableName());");
-				lclBW.println("\t\t}");
-				lclBW.println("\t\treturn " + lclAll + ';');
-				lclBW.println("\t}");
-				lclBW.println();
-				lclBW.println("\tpublic synchronized void acquireAll" + lclOCN + "(java.util.Collection<" + lclOCN + "> argCollection) {");
-				lclBW.println("\t\tif (argCollection != null) {");
-				lclBW.println("\t\t\targCollection.addAll(getAll" + lclOCN + "());");
-				lclBW.println("\t\t}");
-				lclBW.println("\t}");
-				lclBW.println();
-				lclBW.println("\tpublic synchronized java.util.Iterator createAll" + lclOCN + "Iterator() {");
-				lclBW.println("\t\treturn getAll" + lclOCN + "().iterator();");
-				lclBW.println("\t}");
-				lclBW.println();
-				lclBW.println("\tpublic synchronized int getAll" + lclOCN + "Count() {");
-				lclBW.println("\t\treturn getAll" + lclOCN + "().size();");
-				lclBW.println("\t}");
-				lclBW.println();
-			} */
-			
-//			/* Create an OpalKey representing the primary key for the row.  These are constructed to
-//			determine if the object already exists in the cache so we can return an existing instance rather
-//			than a new one. */
-//			if (isEphemeral() == false) {
-//				lclBW.println("\t@Override");
-//				lclBW.println("\tprotected OpalKey<" + lclOCN + "> createOpalKeyForRow(ResultSet argRS) throws SQLException {");
-//				MappedUniqueKey lclMUK = getPrimaryKey();
-//				
-//				lclBW.println("\t\treturn new " + lclMUK.getOpalKeyClassName() + "(");
-//				lclI = lclMUK.createClassMemberIterator();
-//				boolean lclFirst = true;
-//				while (lclI.hasNext()) {
-//					ClassMember lclCM = lclI.next();
-//					if (lclFirst) {
-//						lclFirst = false;
-//					} else {
-//						lclBW.println(','); /* End the previous line with a comma */
-//					}
-//					Class<?> lclMemberType = lclCM.getMemberType();
-//					lclBW.print("\t\t\tOpalUtility.convertTo(" + lclMemberType.getName() + ".class, argRS.getObject(\"" + lclCM.getDatabaseColumn().getName() + "\"))");
-//					/* removed cast: (" + lclMemberType.getName() + ") */
-//				}
-//				lclBW.println(); /* End the final line (without a comma) */
-//				
-//				lclBW.println("\t\t);");
-//				lclBW.println("\t}");
-//				lclBW.println();
-//			}
-	
 			/* Static nested classes for representing keys for this object */
 			Iterator<ClassMember> lclJ;
 			
 			if (isEphemeral() == false) {
 				for (MappedUniqueKey lclMUK : getMappedUniqueKeys()) {
-					// System.out.println("...generating unique key " + lclMUK);
 					boolean lclSingleValue = lclMUK.getClassMembers().size() == 1;
 					Class<?> lclDOKClass = lclSingleValue  ? SingleValueDatabaseOpalKey.class : MultipleValueDatabaseOpalKey.class;
 					lclBW.println("\t/* package */ static class " + lclMUK.getOpalKeyClassName() + " extends " + lclDOKClass.getName() + "<" + lclOCN + "> {");
@@ -4875,7 +4479,7 @@ public class MappedClass {
 			return true;
 		}
 		for (MappedForeignKey lclMFK : getForeignKeysTo()) {
-			if (/* lclMFK.representsPolymorphism() == false && */ lclMFK.representsOneToOneRelationship() == true) {
+			if (lclMFK.representsOneToOneRelationship() == true) {
 				return true;
 			}
 		}
@@ -5035,10 +4639,6 @@ public class MappedClass {
 	
 	public void determineUniqueForeignKeys() {
 		for (MappedForeignKey lclMFK : getForeignKeysFrom()) {
-			// System.out.println("Checking foreign key " + lclMFK + " to see if it is a one-to-one relationship.");
-			// System.out.println("Source: " + lclMFK.getSource().toString());
-			// System.out.println("Target: " + lclMFK.getTarget().toString());
-			
 			if (lclMFK.getForeignKey().isOneToOne()) {
 				lclMFK.setUnique(true);
 			} else {
@@ -5107,12 +4707,6 @@ public class MappedClass {
 		 * we don't need one that involves the foreign keys as that prevents it from 
 		 * joining two rows twice.  We should think about this some more. */
 		
-		/* MappedUniqueKey lclMUK = getPrimaryKey();
-		if (lclMUK == null) {
-			setAssociation(false);
-			return;
-		} */
-		
 		/* We must have exactly two foreign keys to be an association table. */
 		
 		if (getForeignKeyCount() != 2) {
@@ -5120,51 +4714,29 @@ public class MappedClass {
 			return;
 		}
 		
-		// HashSet lclColumns = new HashSet(lclMUK.getIndex().getColumnNameList());
 		HashSet<ClassMember> lclColumns = new HashSet<>(getClassMembers());
-		
-		/* Iterator lclI = createClassMemberIterator();
-		while (lclI.hasNext()) {
-			lclColumns.add(((ClassMember) lclI.next()).getDatabaseColumn());
-		} */
-		
-		// System.out.println("Count = " + lclColumns.size());
 		
 		Iterator<MappedForeignKey> lclI = createForeignKeyIterator();
 		while (lclI.hasNext()) {
 			MappedForeignKey lclMFK = lclI.next();
-			// lclPrimaryKeyColumns.removeAll(lclMFK.getForeignKey().getSourceKey().getColumnNameList());
-			// System.out.println("Removing columns from " + lclMFK);
 			lclColumns.removeAll(lclMFK.getSource());
-			// System.out.println("Count = " + lclColumns.size());
 		}
-		
-		/* If those two foreign keys didn't exhaust this table's primary key, then we
-		 * aren't dealing with an association table. */
-		/* if (lclPrimaryKeyColumns.size() != 0) {
-			setAssociation(false);
-			return;
-		} */
 		
 		/* Every column not involved in those two primary keys must have a sequence/identity, have a
 		 * default and not be updatable, or must be a sequence (ordering) column. */
 		
 		Iterator<ClassMember> lclCI = lclColumns.iterator();
 		while (lclCI.hasNext()) {
-			ClassMember lclCM = lclCI.next(); //getClassMemberByColumnName(lclDC.getName());
-			DatabaseColumn lclDC = lclCM.getDatabaseColumn(); // (DatabaseColumn) lclI.next();
-			// System.out.println("Checking " + lclCM);
+			ClassMember lclCM = lclCI.next();
+			DatabaseColumn lclDC = lclCM.getDatabaseColumn();
 			
 			if (!lclCM.isMapped()) {
-				// System.out.println(lclCM + " is not mapped.");
 				continue;
 			}
 			if (lclDC.hasDatabaseGeneratedNumber()) {
-				// System.out.println(lclCM + " has a databased-generated number.");
 				continue;
 			}
 			if (lclCM.isOrdering()) {
-				// System.out.println(lclCM + " is an ordering column.");
 				continue;
 			}
 			// System.out.println("The column " + lclCM + " means that " + this + " cannot be hidden as a many-to-many table.");
@@ -5312,14 +4884,6 @@ public class MappedClass {
 		return null;
 	}
 	
-	/* public boolean hasUpdater() {
-		return myUpdater;
-	} */
-	
-	/* public void setUpdater(boolean argUpdater) {
-		myUpdated = argUpdater;
-	} */
-	
 	public List<ComparatorSpecification> getComparatorSpecifications() {
 		return myComparatorSpecifications;
 	}
@@ -5362,7 +4926,7 @@ public class MappedClass {
 		return getSuperclassKey() != null && getSuperclassKey().representsPolymorphism();
 	}
 	
-	/* Note that this returns null if the class is not participating in subtable polymorphisms even if, trivially, it still seems like
+	/* Note that this returns null if the class is not participating in subtable polymorphism even if, trivially, it still seems like
 	 * it is its own root superclass.
 	 */
 	public MappedClass getRootSuperclass() {
@@ -5397,7 +4961,6 @@ public class MappedClass {
 				/* This is apparently the ultimate superclass.  FIXME: We should verify, however, that it actually has subclasses. */
 				getSubclasses().add(this);
 				validateAndResolveSubtablePolymorphicData();
-				// throw new IllegalStateException("Table " + this.getTableName() + " was configured for Subtable polymorphism, but it is not linked to a supertable by havings its primary key be a foreign key to the supertable.  This is 
 			}
 		} else {
 			if (lclPD != null) {
@@ -5414,7 +4977,6 @@ public class MappedClass {
 					lclSK2 = lclRootSupertable.getSuperclassKey();
 				}
 				
-//				assert lclSK2 == null;
 				assert lclRootSupertable != null;
 				assert lclRootSupertable != this;
 				
@@ -5485,16 +5047,6 @@ public class MappedClass {
 		/* FIXME: At some point in here should we verify that the classes listed in that column exist and are are of the
 		 * proper interface?  
 		 */
-		/* MappedClass lclMC = getSuperclass();
-		if (lclMC != null) {
-			if (isCreatable() && lclMC.isCreatable() == false) {
-				throw new IllegalStateException("The type " + getTypeName() + " from table " + getTableName() + " is creatable, but the parent type " + lclMC.getTypeName() + " from table " + lclMC.getTableName() + " is not.");
-			}
-			if (isUpdatable() && lclMC.isUpdatable() == false) {
-				throw new IllegalStateException("The type " + getTypeName() + " from table " + getTableName() + " is updatable, but the parent type " + lclMC.getTypeName() + " from table " + lclMC.getTableName() + " is not.");
-			}
-		} */
-		
 		return;
 	}
 	
@@ -5684,18 +5236,12 @@ public class MappedClass {
 		} else {
 			MappedForeignKey lclTreeParentKey = null;
 			for (MappedForeignKey lclMFK : getForeignKeysFrom()) {
-				// System.out.println("Checking " + lclMFK);
 				if (lclMFK.getSourceMappedClass() == lclMFK.getTargetMappedClass()) {
-					// System.out.println("It is self-referential");
 					if (lclMFK.isUnique() == false) {
-						// System.out.println("It is not unique.");
 						if (lclMFK.getTargetMappedClass().hasIntrinsicOrdering()) {
-							// System.out.println("It is easy to order the children.");
 							if (lclTreeParentKey == null) {
-								// System.out.println("And it is the first one we've found.");
 								lclTreeParentKey = lclMFK;
 							} else {
-								// System.out.println("But it is the second one we've found.");
 								lclTreeParentKey = null;
 								break;
 							}
@@ -5712,10 +5258,6 @@ public class MappedClass {
 				/* FIXME: Only fiddle with these if they have not already been manually specified.  If they have been manually specified,
 				 * we'll need to know to generate versions with the proper name on the Interface.
 				 */
-				// lclTreeParentKey.getForeignKey().setSpecifiedSourceBaseName("Parent"); /* FIXME: Move to constant */
-				// lclTreeParentKey.getForeignKey().setSourceRolePrefix("");
-				// lclTreeParentKey.getForeignKey().setSpecifiedTargetBaseName("Child"); /* FIXME: Move to constant */
-				// lclTreeParentKey.getForeignKey().setTargetRolePrefix("");
 			}
 		}
 	}
@@ -6065,6 +5607,7 @@ public class MappedClass {
 		myPoolName = argPoolName;
 	}
 	
+	@SuppressWarnings("resource")
 	protected void printRequiresActiveTransactionAnnotation(PrintWriter argW, int argIndentations) {
 		Validate.notNull(argW);
 		Validate.isTrue(argIndentations >= 0);

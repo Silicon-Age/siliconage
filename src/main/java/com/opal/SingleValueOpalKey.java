@@ -1,6 +1,6 @@
 package com.opal;
 
-public abstract class SingleValueOpalKey<O extends Opal<? extends UserFacing>> extends OpalKey<O> {
+public abstract /* value */ class SingleValueOpalKey<O extends Opal<? extends UserFacing>> extends OpalKey<O> {
 
 	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(SingleValueOpalKey.class.getName());
 	

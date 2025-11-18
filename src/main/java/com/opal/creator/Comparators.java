@@ -18,7 +18,6 @@ public class Comparators extends OpalXMLElement {
 	protected void preChildren(OpalParseContext argContext) {
 		List<Element> lclList = getChildElements("Column");
 		for (Element lclE : lclList) {
-//			System.out.println("Adding " + lclE.getText() + " to default comparator column name list");
 			argContext.getComparatorColumnNameList().add(lclE.getTextContent());
 		}
 	}
