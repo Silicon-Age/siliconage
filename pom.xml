@@ -3,13 +3,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 >
-	<!-- As far as I (Jonah) know, the most relevant Maven commands for this project are `mvn compile` (exactly what it sounds like), `mvn package` (build the executable jar), and `mvn source:jar` (build the source jar used to create Javadoc). -->
+	<!-- As far as I (Jonah) know, the most relevant Maven commands for this project are `mvn clean`, `mvn compile` (exactly what they sound like), `mvn package` (build the executable jar), and `mvn source:jar` (build the source jar used to create Javadoc). -->
 	
 	<modelVersion>4.0.0</modelVersion>
 	
 	<groupId>com.siliconage</groupId>
 	<artifactId>siliconage</artifactId>
-	<version>3.0.0</version>
+	<version>3.1.0</version>
 	
 	<properties>
 		<maven.compiler.source>21</maven.compiler.source>
