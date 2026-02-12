@@ -9,7 +9,7 @@
 	
 	<groupId>com.siliconage</groupId>
 	<artifactId>siliconage</artifactId>
-	<version>3.1.0</version>
+	<version>3.1.1</version>
 	
 	<properties>
 		<maven.compiler.source>21</maven.compiler.source>
