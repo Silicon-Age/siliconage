@@ -7,11 +7,15 @@ public class BadRequestException extends WebException {
 	private static final long serialVersionUID = 1L;
 
 	public BadRequestException() {
-		super("Problem", "There was a problem with your request.");
+		this("There was a problem with your request.");
 	}
 	
 	public BadRequestException(String argMessageForUser) {
-		super("Problem", argMessageForUser);
+		this(argMessageForUser, null);
+	}
+	
+	public BadRequestException(String argMessageForUser, Throwable argCause) {
+		super("Problem", argMessageForUser, argCause);
 	}
 	
 	@Override

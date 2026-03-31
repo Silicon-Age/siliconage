@@ -7,11 +7,15 @@ public class MethodNotAllowedException extends WebException {
 	private static final long serialVersionUID = 1L;
 
 	public MethodNotAllowedException() {
-		super("Impermissible Request", "The type of request you made is not permitted.");
+		this("The type of request you made is not permitted.");
 	}
 	
 	public MethodNotAllowedException(String argMessageForUser) {
-		super("Impermissible Request", argMessageForUser);
+		this(argMessageForUser, null);
+	}
+	
+	public MethodNotAllowedException(String argMessageForUser, Throwable argCause) {
+		super("Impermissible Request", argMessageForUser, argCause);
 	}
 	
 	@Override
