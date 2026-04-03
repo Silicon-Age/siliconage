@@ -7,11 +7,15 @@ public class DataConflictException extends WebException {
 	private static final long serialVersionUID = 1L;
 
 	public DataConflictException() {
-		super("Conflict", "Your request cannot be processed due to conflicting data.");
+		this("Your request cannot be processed due to conflicting data.");
 	}
 	
 	public DataConflictException(String argMessageForUser) {
-		super("Conflict", argMessageForUser);
+		this(argMessageForUser, null);
+	}
+	
+	public DataConflictException(String argMessageForUser, Throwable argCause) {
+		super("Conflict", argMessageForUser, argCause);
 	}
 	
 	@Override
