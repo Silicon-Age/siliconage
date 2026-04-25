@@ -16,10 +16,13 @@ public abstract class WebException extends Exception {
 	private String myHeaderForUser;
 	private String myMessageForUser;
 	private String myHtmlMessageForUser;
-//	private String myMessageForLog; // Ask Jonah about this?
 	
 	protected WebException(String argDefaultHeaderForUser, String argMessageForUser) {
-		super(argMessageForUser);
+		this(argMessageForUser, argMessageForUser, null);
+	}
+	
+	protected WebException(String argDefaultHeaderForUser, String argMessageForUser, Throwable argCause) {
+		super(argMessageForUser, argCause);
 		
 		myHeaderForUser = argDefaultHeaderForUser;
 		myMessageForUser = argMessageForUser;

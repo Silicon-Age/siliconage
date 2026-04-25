@@ -1251,7 +1251,7 @@ public abstract class RelationalDatabaseAdapter {
 			
 			/* A static accessor to obtain a reference to the singleton instance. */
 			
-			lclBW.println("\tpublic static final FactoryMap getInstance() {");
+			lclBW.println("\tpublic static FactoryMap getInstance() {");
 			lclBW.println("\t\treturn ourInstance;");
 			lclBW.println("\t}");
 			lclBW.println();
@@ -1273,7 +1273,7 @@ public abstract class RelationalDatabaseAdapter {
 				lclBW.println();
 				
 				lclBW.println("\tpublic static <T extends " + Opal.class.getName() + "<?>> " + Function.class.getName() + "<" + Collection.class.getName() + "<T>, " + Set.class.getName() + "<T>> " + AbstractFactoryMap.COLLECTION_ARG_CTOR_SET_CREATOR_METHOD_NAME + "() {");
-				lclBW.println("\t\treturn " + lclCollectionClassName +"<T>::new;");
+				lclBW.println("\t\treturn " + lclCollectionClassName +"::new;");
 				lclBW.println("\t}");
 				lclBW.println();
 			}

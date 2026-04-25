@@ -18,7 +18,7 @@ import com.siliconage.util.Trinary;
 import com.siliconage.web.HTMLUtility;
 
 public class PriorInput implements FormValueProvider {
-	// private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(PriorInput.class.getName());
+	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(PriorInput.class.getName());
 	
 	private final long myLoadTime;
 	
@@ -183,7 +183,9 @@ public class PriorInput implements FormValueProvider {
 			} else if (lclValues.size() == 1) {
 				return lclValues.iterator().next();
 			} else {
-				throw new IllegalStateException("Multiple values for " + argKey + ": " + lclValues.toString());
+				// This indicates either a misconfiguration with the form or someone messing around with the request manually.
+				ourLogger.warn("Multiple values for {}: {}", argKey, lclValues.toString());
+				return lclValues.iterator().next();
 			}
 		}
 	}

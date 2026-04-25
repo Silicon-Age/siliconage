@@ -67,6 +67,8 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 	
 	protected static final String FACTORY_CLASS_NAME_FORM_PARAMETER_SUFFIX = "_FACTORY_CLASS_NAME";
 	
+	public static final String FACTORY_MAP_JNDI_KEY = "FactoryMap";
+	
 	private final String myLocalPrefix;
 	private boolean myOpened = false;
 	private boolean myClosed = false;
