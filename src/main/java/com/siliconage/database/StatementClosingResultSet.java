@@ -115,10 +115,14 @@ import javax.sql.DataSource;
 		ResultSet lclRS = getResultSet();
 		try {
 			Statement lclS = lclRS.getStatement();
-			DatabaseUtility.closeResultSet(lclRS);
-			DatabaseUtility.closeStatement(lclS);
+			if (lclRS.isClosed() == false) {
+				DatabaseUtility.closeResultSet(lclRS);
+			}
+			if (lclS.isClosed() == false) {
+				DatabaseUtility.closeStatement(lclS);
+			}
 		} catch (SQLException lclE) {
-			ourLogger.error("Could not execute ResultSet::getStatement on the wrapped ResultSet.");
+			ourLogger.error("Could not execute ResultSet::getStatement on the wrapped ResultSet.", lclE);
 		}
 	}
 	
