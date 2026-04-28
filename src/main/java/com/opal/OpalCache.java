@@ -1,13 +1,14 @@
 package com.opal;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.apache.commons.collections4.map.AbstractReferenceMap;
 import org.apache.commons.collections4.map.ReferenceMap;
 import org.apache.commons.lang3.Validate;
 
-public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing>> {
-	/* package */ static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(OpalCache.class.getName());
+public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing>> { // OPALFIXME
+	private /* package */ static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OpalCache.class.getName());
 	
 	private final ReferenceMap<OpalKey<I>, I> myCache;
 
@@ -39,9 +40,27 @@ public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing
 		Validate.notNull(argOK);
 		Validate.notNull(argOpal);
 		
-		Object lclOldObject;
 		
+		Object lclOldObject;
 		if ((lclOldObject = getCache().put(argOK, argOpal)) != null) {
+			/* Additional debugging information targeting the current writing streak problem. */
+			for (var e : getCache().entrySet()) {
+				var k = e.getKey();
+				var v = e.getValue();
+				log.warn("Just before throwing an exception about Opal replacement we have these conflicts:");
+				if (Objects.equals(k, argOK) || Objects.equals(v, argOpal) || Objects.equals(v, lclOldObject)) {
+					log.warn("key = {} ({}), value = {} ({}), argOK = {} ({}), argOpal = {} ({})",
+							k,
+							Integer.valueOf(System.identityHashCode(k)),
+							v,
+							Integer.valueOf(System.identityHashCode(v)),
+							argOK,
+							Integer.valueOf(System.identityHashCode(argOK)),
+							argOpal,
+							Integer.valueOf(System.identityHashCode(argOpal))
+							);
+				}
+			}
 			throw new RuntimeException("Adding Opal " + argOpal + " (" + System.identityHashCode(argOpal) + ") for key " + argOK + " replaced Opal " + lclOldObject + " (" + System.identityHashCode(lclOldObject) + ")");
 		}
 //		ourLogger.debug("Cache now has " + getCache().size() + " elements.");
@@ -80,6 +99,7 @@ public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing
 	 */
 	
 	/* This method intentionally does not require holding the lock.  This makes it fundamentally unsafe. */
+	@SuppressWarnings("unlikely-arg-type")
 	public I get(Object argKey) {
 		return getCache().get(argKey);
 	}
