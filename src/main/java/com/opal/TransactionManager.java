@@ -17,7 +17,6 @@ public final class TransactionManager {
 	
 	private static final TransactionManager ourInstance = new TransactionManager();
 
-//	private final LinkedList<TransactionContext> myTransactionContexts = new LinkedList<>();	
 	private final PriorityBlockingQueue<TransactionContext> myTransactionContexts = new PriorityBlockingQueue<>(11, TransactionContext.TIMEOUT_ID_COMPARATOR); // What should the initial capacity be?
 	
 	private boolean myActive = true;
@@ -41,7 +40,6 @@ public final class TransactionManager {
 		
 		@Override
 		public void run() {
-//			LinkedList<TransactionContext> lclLL = getTransactionContexts();
 			
 			long lclSleepTime;
 			

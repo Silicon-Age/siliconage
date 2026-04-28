@@ -33,7 +33,7 @@ import com.siliconage.util.UnimplementedOperationException;
  * Each subclass created will be a Singleton, which limits the amount of data that can be stored in this class. 
  */
 
-public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUserFacing, O extends IdentityOpal<U>> extends AbstractIdentityOpalFactory<U, O> {
+public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUserFacing/*<U>*/, O extends IdentityOpal<U>> extends AbstractIdentityOpalFactory<U, O> { // OPALFIXME
 	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(AbstractDatabaseIdentityOpalFactory.class.getName());
 	
 	protected AbstractDatabaseIdentityOpalFactory() {
@@ -203,28 +203,7 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 		}
 		
 		adjustParameters(lclParameters);
-//		/* FIXME: Why doesn't this need to deal with OffsetDateTimes? */
-//		if (lclParameters != null) {
-//			Validate.isTrue(argWhereClauseColumnNames != null);
-//			for (int lclI = 0; lclI < lclParameters.length; ++lclI) {
-//				Object lclO = lclParameters[lclI];
-//				if (lclO instanceof java.time.LocalDate lclLD) {
-//					lclParameters[lclI] = java.sql.Date.valueOf(lclLD);
-//				} else if (lclO instanceof java.time.LocalDateTime lclLDT){
-//					lclParameters[lclI] = java.sql.Timestamp.valueOf(lclLDT);
-//				} else if (lclO instanceof com.opal.types.UTCDateTime lclUDT){
-//					lclParameters[lclI] = java.sql.Timestamp.valueOf((lclUDT).toLocalDateTime());
-//				} else if (lclO instanceof StringSerializable lclSS) {
-//					lclParameters[lclI] = lclSS.toSerializedString();
-//				} else {
-//					// No conversion required
-//				}
-//			}
-//		}
-		
-//		System.out.println("About to call select");
 		ResultSet lclRS = DatabaseUtility.select(argConnection, lclSB.toString(), lclParameters);
-//		System.out.println("Done with select");
 		
 		return lclRS;
 	}
@@ -232,12 +211,6 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 	/* This method returns the Opal-specific array of column names in the Opal's underlying table.
 	 */
 	protected abstract String[] getColumnNames();
-	
-	/* This method returns the Opal-specific array of member types used by the fields taken from the
-	 * database.
-	 */
-	@Override
-	protected abstract Class<?>[] getFieldTypes();
 	
 	/* This method returns the fully qualified, Opal-specific name of the underlying table.  This is
 	 * a name that can be used to access the table regardless of whatever the "current schema" is for
@@ -369,7 +342,6 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 	 */
 	@SuppressWarnings("resource") // We are not responsible for closing argConnection and lclRS will be properly closed by the finally clause
 	protected final void load(Connection argConnection, String argFullyQualifiedTableName, String[] argFieldNames, Object[] argParameters, String argOrderBy, Collection<O> argCollection) throws SQLException {
-//		long lclStart = System.currentTimeMillis();
 		ResultSet lclRS = null;
 		try {
 			/* Construct the SQL statement identify the rows, turn it into a PreparedStatement, execute it, and grab
@@ -386,15 +358,6 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 			acquireFromResultSet(lclRS, argCollection, true);
 		} finally {
 			DatabaseUtility.cleanUp(lclRS, DatabaseUtility.CLEAN_STATEMENT);
-//			long lclEnd = System.currentTimeMillis();
-//			StringBuilder lclSB = new StringBuilder();
-//			for (int lclI = 0; lclI < argFieldNames.length; ++lclI) {
-//				if (lclI > 0) {
-//					lclSB.append('/');
-//				}
-//				lclSB.append(argFieldNames[lclI]);
-//			}
-//			DatabaseUtility.ourTally.tally("Object construction for " + getFullyQualifiedTableName() + " for " + lclSB.toString(), lclEnd - lclStart);
 		}
 	}
 	
@@ -405,10 +368,7 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 		assert argConnection != null;
 		
 		ResultSet lclRS = null;
-		// long lclStart = System.currentTimeMillis();
 		try {
-			// System.out.println("About to generate ResultSet");
-			
 			/* Generate a ResultSet that loads every column of every row in the table without using a WHERE clause. 
 			 */
 			lclRS = generateResultSet(argConnection, getFullyQualifiedTableName(), getColumnNames(), null, null, null);
@@ -419,8 +379,6 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 			return getFromResultSet(lclRS, true);
 		} finally {
 			DatabaseUtility.cleanUp(lclRS, DatabaseUtility.CLEAN_STATEMENT);
-			// long lclEnd = System.currentTimeMillis();
-			// DatabaseUtility.ourTally.tally("Acquire all for " + getFullyQualifiedTableName(), lclEnd - lclStart);
 		}
 	}
 	
@@ -430,7 +388,6 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 	 * okay to return additional columns (even from different tables), so long as there are no name collisions.
 	 */
 	protected final void acquireForSQL(Connection argConnection, Collection<O> argCollection, String argSQL, Object[] argParameters) throws SQLException {
-//		long lclStart = System.currentTimeMillis();
 		assert argConnection != null;
 		assert argSQL != null;
 		assert argCollection != null;
@@ -448,8 +405,6 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 			return;
 		} finally {
 			DatabaseUtility.cleanUp(lclRS, DatabaseUtility.CLEAN_STATEMENT);
-//			long lclEnd = System.currentTimeMillis();
-//			DatabaseUtility.ourTally.tally("Acquiring for " + argSQL, lclEnd - lclStart);
 		}
 	}
 	
@@ -790,6 +745,7 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 					Object lclDatabaseValue = translateJavaObjectToSQLValue(lclNewValue);
 					argMap.put(lclFieldNames[lclI], lclDatabaseValue);
 				}
+				// TODO (?): Document that not putting explicit nulls into the map is necessary for default values to work?
 			}
 //			System.out.println();
 		} else {
@@ -850,13 +806,14 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 		assert argValues != null;
 		assert argRS != null;
 		
-		Class<?>[] lclFieldTypes = getFieldTypes();
+//		Class<?>[] lclFieldTypes = getFieldTypes();
 		int lclLength = getColumnNames().length; //
 		
 		if (argCanonicalColumnOrder) {
-			for (int lclI = 0; lclI < lclLength; ++lclI) {
+			for (int lclI = 0; lclI < lclLength; ++lclI) { // OPALFIXME: Iterate over fields?
 				try {
-					argValues[lclI] = OpalUtility.convertTo(lclFieldTypes[lclI], argRS.getObject(lclI+1)); /* JDBC columns are 1-based */
+					Object o = argRS.getObject(lclI + 1);
+					argValues[lclI] = OpalUtility.convertTo(getFieldType(lclI), o); /* JDBC columns are 1-based */ // OPALFIXME
 				} catch (SQLException lclE) {
 					ourLogger.error("Could not retrieve value for column \"" + getColumnNames()[lclI] + "\".", lclE);
 					throw lclE;
@@ -866,7 +823,8 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 			String[] lclColumnNames = getColumnNames();
 			for (int lclI = 0; lclI < lclLength; ++lclI) {
 				try {
-					argValues[lclI] = OpalUtility.convertTo(lclFieldTypes[lclI], argRS.getObject(lclColumnNames[lclI]) );
+					Object o = argRS.getObject(lclColumnNames[lclI]);
+					argValues[lclI] = OpalUtility.convertTo(getFieldType(lclI), o); // OPALFIXME
 				} catch (SQLException lclE) {
 					ourLogger.error("Could not retrieve value for column \"" + lclColumnNames[lclI] + "\".", lclE);
 					throw lclE;

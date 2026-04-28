@@ -39,11 +39,11 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	 */
 	private Set<C> myOldSet;
 
-	/* If myLoaded is true, then myNewSet will contain a Set of all child Opals from the database (plus whatever
-	 * changes have been made in the current TransactionContext.  If myLoaded is false, then it will contain a Set of
-	 * child opals that have been added or removed in the current TransactionContext (this is a replacement for the old
-	 * functionality implemented by CachedOperation).  Upon loading, such a temporary Set will need to be integrated
-	 * with the from-the-database values.
+	/* If isLoaded() is true (i.e., myOldSet is not null), then myNewSet will contain a Set of all child Opals from the
+	 * database (plus whatever changes have been made in the current TransactionContext.  If isLoaded() is false (and
+	 * myOldSet is null), then myNewSet will contain a Set of child opals that have been added or removed in the
+	 * current TransactionContext (this is a replacement for the old functionality implemented by CachedOperation).
+	 * Upon loading, such a temporary Set will need to be integrated with the from-the-database values.
 	 */
 	private Set<C> myNewSet;
 	
@@ -56,10 +56,8 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	 */
 	private final OpalBackCollectionLoader<C, P> myLoader;
 	
-	/* FIXME: Test cached operations replacement. */
-	
-	/* FIXME: Allow for only loading the count if all we need to do is report on whether we are empty. */
-	
+	/* FEATURE: Allow for only loading the count if all we need to do is report on whether we are empty. */
+	@SuppressWarnings("resource")
 	public OpalBackCollectionDoubleSet(P argOwner, OpalBackCollectionLoader<C, P> argLoader, boolean argNew) {
 		super();
 		
@@ -138,37 +136,71 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	
 	protected /* synchronized */ void load() {
 		ensureMonitor();
-//		Validate.isTrue(myLoaded == false);
-		Validate.isTrue(myOldSet == null);
+		Validate.isTrue(myOldSet == null); // Synonymous with isLoaded() == false
 		P lclOwner = getOwner();
 		Set<C> lclLoadedCs = Validate.notNull(getLoader().getLoader().apply(lclOwner));
 		if (ourLogger.isDebugEnabled()) {
-			ourLogger.debug("Loaded " + defaultToString() + " owned by " + lclOwner.defaultToString() + ".  Size is " + lclLoadedCs.size() + ".");
+			ourLogger.debug("Loaded {} owned by {}.  Size is {}.",
+					defaultToString(),
+					lclOwner.defaultToString(),
+					Integer.valueOf(lclLoadedCs.size())
+					);
 		}
 		
 		myOldSet = store(lclLoadedCs);
+		/* If myNewSet is not null for a (heretofore) unloaded back collection, it means that it contains "cached operations"
+		 * in which elements were added or removed from this back collection without needing to load it.
+		 */
 		if (myNewSet != null) {
+			if (TransactionContext.hasActive() == false) {
+				ourLogger.warn("In OpalBackCollectionDoubleSet::load, myNewSet is not null but we aren't in an active TransactionContext.");
+			}
 			Set<C> lclCachedOperations = myNewSet;
 			if (ourLogger.isDebugEnabled()) {
-				ourLogger.debug("There are " + lclCachedOperations.size() + " cached operations to perform for " + defaultToString() + " owned by " + lclOwner.defaultToString() + ".");
+				ourLogger.debug("There are {} cached operations to perform for {} owned by {}.",
+						Integer.valueOf(lclCachedOperations.size()),
+						defaultToString(),
+						lclOwner.defaultToString()
+						);
 			}
 			myNewSet = createSet(myOldSet);
 			for (C lclC : lclCachedOperations) {
 				P lclCurrentOwner = getLoader().getChildAccessor().apply(lclC);
 				if (lclC.exists() && lclCurrentOwner == lclOwner) {
 					if (ourLogger.isDebugEnabled()) {
-						ourLogger.debug("Adding " + lclC + " as a cached operation to " + defaultToString() + " owned by " + lclOwner.defaultToString() + ".");
+						ourLogger.debug("Adding {} as a cached operation to {} owned by {}.",
+								lclC,
+								defaultToString(),								
+								lclOwner.defaultToString()
+								);
 					}
-					myNewSet.add(lclC);
+					if (myNewSet.add(lclC) == true) {
+						ourLogger.warn("While implementing cached-operation addition of {} to {}, it was already found in myNewSet owned by {}.",
+								lclC,
+								defaultToString(),
+								lclOwner.defaultToString()
+								);
+					}
 				} else {
 					if (ourLogger.isDebugEnabled()) {
-						ourLogger.debug("Removing " + lclC + " as a cached operation from " + defaultToString() + " owned by " + lclOwner.defaultToString() + ".");
+						ourLogger.debug("Removing {} as a cached operation from {} owned by {}.",
+								lclC,
+								defaultToString(),
+								lclOwner.defaultToString()
+								);
 					}
-					/*boolean lclSuccess = */ myNewSet.remove(lclC);
+					if (myNewSet.remove(lclC) == false) {
+						ourLogger.warn("While implementing cached-operation removal of {} from {}, it was not found in myNewSet owned by {}.",
+								lclC,
+								defaultToString(),
+								lclOwner.defaultToString()
+								);
+					}
 				}
 			}
+			Validate.notNull(myNewSet, "myNewSet is null");
 		}
-		Validate.notNull(myOldSet);
+		Validate.notNull(myOldSet, "myOldSet is null");
 	}
 	
 	/* This will not return null. */ 
@@ -184,12 +216,18 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		if (myNewSet == null) {
 			if (isLoaded()) {
 				if (ourLogger.isDebugEnabled()) {
-					ourLogger.debug("Initializing myNewSet with a copy of myOldSet in " + defaultToString() + " owned by " + getOwner() + ".");
+					ourLogger.debug("Initializing myNewSet with a copy of myOldSet in {} owned by {}.",
+							defaultToString(),
+							getOwner()
+							);
 				}
 				myNewSet = Validate.notNull(createSet(getOldSet())); // FIXME: This may be unnecessary; do we actually need to copy it until we know we are changing things?  Can we handle Iterator.remove()?
 			} else {
 				if (ourLogger.isDebugEnabled()) {
-					ourLogger.debug("Initializing myNewSet with a new set for cached operations in " + defaultToString() + " owned by " + getOwner() + ".");
+					ourLogger.debug("Initializing myNewSet with a new set for cached operations in  owned by {}.",
+							defaultToString(),
+							getOwner()
+							);
 				}
 				myNewSet = createSet(); // This will be a temporary set in which to cache added and removed C's in the current TransactionContext.
 			}
@@ -221,13 +259,18 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		return addForReal(argC);
 	}
 	
+	/* This method's sole responsibility is putting the C into our internal Set.  It does not concern itself with maintaining any
+	 * of the other Opal-to-Opal links.  (In particular, calling this to assign Opal X to Opal Y's collection of X's will not
+	 * set X's reference/foreign key to Y.  It will only add X to Y's internal set.)
+	 * @see com.opal.types.OpalBackCollectionSet#removeInternal(com.opal.Opal)
+	 */
 	@Override
 	public synchronized boolean addInternal(C argC) {
 		if (argC == null) {
 			throw new IllegalArgumentException("Tried to addInternal a null element to a back collection belonging to " + getOwner() + ".");
 		}
 		tryMutate();
-		return getNewSet().add(argC);
+		return getNewSet().add(argC); // This might end up being a cached operation.
 	}
 	
 	@Override
@@ -241,7 +284,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 			if (lclC == null) {
 				throw new IllegalStateException("Tried to add a null element to a back collection belonging to " + getOwner() + " via addAll.");
 			}
-			lclReturn ^= addForReal(lclC);
+			lclReturn |= addForReal(lclC);
 		}
 		return lclReturn;
 	}
@@ -250,7 +293,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	public synchronized void clear() { // THINK: Does this need to be synchronized?
 		tryMutate();
 		if (isLoaded() == false) {
-			ourLogger.debug("clear() called for unloaded back collection belonging to " + getOwner() + ".");
+			ourLogger.debug("clear() called for unloaded back collection belonging to {}.", getOwner());
 		}
 		ensureLoaded();
 		Set<C> lclNewSet = getNewSet();
@@ -268,12 +311,13 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	
 	/* Calling the contains(...) method with a non-C Opal probably indicates incorrectly conceived code. */
 	@Override
+	@SuppressWarnings("unlikely-arg-type")
 	public synchronized boolean contains(Object argO) {
 		if (argO == null) {
 			return false;
 		}
 		if ((argO instanceof Opal<?>) == false) {
-			ourLogger.warn("Called OpalBackCollectionDoubleSet.contains() with a non-Opal argument.");
+			ourLogger.warn("Called OpalBackCollectionDoubleSet.contains() with a non-Opal argument {}.", argO);
 		}
 		ensureLoaded();
 		return determineSet().contains(argO); // THINK: This could be made faster if we had access to the Source's accessor
@@ -282,6 +326,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	/* Calling the containsAll(...) method with a Collection that is not a Collection of COpals probably indicates
 	 * incorrectly conceived code. */
 	@Override
+	@SuppressWarnings("unlikely-arg-type")
 	public synchronized boolean containsAll(Collection<?> argC) {
 		if (argC == null) {
 			return false;
@@ -302,7 +347,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		boolean lclAccess = tryAccess();
 		Set<C> lclS = determineSet(lclAccess);
 		if (ourLogger.isDebugEnabled()) {
-			ourLogger.debug("Creating REI with lclS = " + lclS + " and lclAccess == " + lclAccess);
+			ourLogger.debug("Creating REI with lclS = {} and lclAccess == {}.", lclS, Boolean.valueOf(lclAccess));
 		}
 		if (lclS == null) {
 			throw new IllegalStateException("In iterator() for " + defaultToString() + " (belonging to " + getOwner() + " (" + ((com.opal.IdentityOpal<?>) getOwner()).getUniqueString() + ")), determineSet() returned null with lclAccess == " + lclAccess + ".  myOldSet == " + myOldSet + ".  myNewSet == " + myNewSet + ".");
@@ -355,36 +400,41 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 			@SuppressWarnings("unchecked") C lclC = (C) argT;
 			return removeForReal(lclC);
 		} catch (ClassCastException lclE) {
-			ourLogger.warn("Tried to remove an object of type " + argT.getClass().getName() + " from a back collection belonging to " + getOwner().defaultToString() + ".");
+			ourLogger.warn("Tried to remove an object of type {} from a back collection belonging to {}.",
+					argT.getClass().getName(),
+					getOwner().defaultToString(),
+					lclE
+					);
 			return false; // I hate to do this, but nobody should be trying to remove things that aren't T's in the first place.
 		}
 	}
 	
-	/* This method's sole responsibility is putting the C into our internal Set.  It does not concern itself with maintaining any
-	 * of the other Opal-to-Opal links.  (In particular, calling this to assign Opal X to Opal Y's collection of X's will not
-	 * set X's reference/foreign key to Y.  It will only add X to Y's internal set.)
-	 * @see com.opal.types.OpalBackCollectionSet#removeInternal(com.opal.Opal)
-	 * 
-	 * This comment is above the wrong method -- RRH
-	 */
 	@Override
 	public synchronized boolean removeInternal(C argC) {
 		if (argC == null) {
-			throw new IllegalArgumentException("Tried to removeInternal a null element to a back collection belonging to " + getOwner().defaultToString() + ".");
+			throw new IllegalArgumentException("Tried to removeInternal a null element from a back collection belonging to " + getOwner().defaultToString() + ".");
 		}
 		tryMutate();
 		if (ourLogger.isDebugEnabled()) {
-			ourLogger.debug("About to removeInternal() " + argC + " from " + defaultToString() + " owned by " + getOwner().defaultToString() + ".");
+			ourLogger.debug("About to removeInternal() {} from {} owned by {}.",
+					argC,
+					defaultToString(),
+					getOwner().defaultToString()
+					);
 		}
 		if (isLoaded()) {
 			if (ourLogger.isDebugEnabled()) {
-				ourLogger.debug(defaultToString() + " was loaded.");
+				ourLogger.debug("{} was loaded.", defaultToString());
 			}
 			return getNewSet().remove(argC);
 		} else {
 			getNewSet().add(argC); // Cached operation
 			if (ourLogger.isDebugEnabled()) {
-				ourLogger.debug(defaultToString() + " was not loaded.  Added " + argC + " to the list of cached operations (which is now size " + getNewSet().size() + ").");
+				ourLogger.debug("{} was not loaded.  Added {} to the list of cached operations (which is now size {}).",
+						defaultToString(),
+						argC,
+						Integer.valueOf(getNewSet().size())
+						);
 			}
 			return true; /* Quite possibly a lie. */
 		}
@@ -404,8 +454,8 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 					throw new IllegalStateException("Collection passed to removeAll() contained a null.");
 				}
 				lclResult ^= removeForReal(lclC);
-			} catch (ClassCastException lclE) {
-				ourLogger.warn("Collection passed to removeAll() had an object of type " + lclO.getClass().getName() + ".");
+			} catch (ClassCastException e) {
+				ourLogger.warn("Collection passed to removeAll() had an object of type {}.", lclO.getClass().getName(), e);
 			}
 		}
 		return lclResult;
@@ -440,7 +490,6 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	
 	@Override
 	public synchronized boolean retainAll(Collection<?> argC) {
-//		tryMutate();
 		throw new UnsupportedOperationException("retainAll hasn't been written");
 	}
 	
@@ -500,10 +549,10 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		}
 		myNewSet = null;
 		if (isLoaded() && (myOldSet == null)) {
-			ourLogger.warn("After phase-2 committing " + defaultToString() + ", isLoaded() is true while myOldSet is null.");
+			ourLogger.warn("After phase-2 committing {}, isLoaded() is true while myOldSet is null.", defaultToString());
 		}
 		if (isLoaded() == false && (myOldSet != null)) {
-			ourLogger.warn("After phase-2 committing " + defaultToString() + ", isLoaded() is false while myOldSet is not null.");
+			ourLogger.warn("After phase-2 committing, isLoaded() is false while myOldSet is not null.", defaultToString());
 		}
 	}
 	
@@ -519,7 +568,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		 * load() this collection.
 		 */
 		if (isLoaded() == false && myOldSet != null) {
-			ourLogger.warn("When rolling back " + defaultToString() + ", isLoaded() is false while myOldSet is not null.");
+			ourLogger.warn("When rolling back {}, isLoaded() is false while myOldSet is not null.", defaultToString());
 		}
 	}
 	
@@ -569,9 +618,6 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		@Override
 		public C next() {
 			myLastC = myIterator.next();
-//			if (getLoader().getChildAccessor().apply(myLastC) != getOwner()) {
-//				ourLogger.warn("While iterating on a back collection belonging to " + getOwner() + " (IHC: " + System.identityHashCode(getOwner()) + "), we came across " + myLastC + " (IHC: " + System.identityHashCode(myLastC) +"), whose accessor returned " + getLoader().getChildAccessor().apply(myLastC) + " (IHC: " + System.identityHashCode(getLoader().getChildAccessor().apply(myLastC)) + ").");
-//			}
 			return myLastC;
 		}
 		

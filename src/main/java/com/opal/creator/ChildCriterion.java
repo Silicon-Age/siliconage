@@ -96,7 +96,7 @@ public class ChildCriterion extends ComparatorCriterion {
 				} else {
 					lclAccessorMethodName = lclAccessor.getName();
 				}
-			} catch (ClassNotFoundException lclE) {
+			} catch (@SuppressWarnings("unused") ClassNotFoundException lclE) {
 				lclAccessorMethodName = "getInstance";
 			}
 		}

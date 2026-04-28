@@ -43,7 +43,7 @@ public class DelegatedMethodCriterion extends ComparatorCriterion {
 					+ lclSecond + '.' + lclMD.getMethodName() + "()"
 					+ ")";
 		} catch (ClassCastException lclCCE) {
-			throw new IllegalArgumentException("Return type of " + lclMD.getClassName() + "'s delegated method " + lclMD.getMethodName() + " is not Comparable");
+			throw new IllegalArgumentException("Return type of " + lclMD.getClassName() + "'s delegated method " + lclMD.getMethodName() + " is not Comparable.", lclCCE);
 		}
 	}
 }

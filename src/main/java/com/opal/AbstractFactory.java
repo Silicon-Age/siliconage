@@ -10,7 +10,7 @@ import org.apache.commons.lang3.Validate;
 /**
  * @author topquark
  */
-public abstract class AbstractFactory<U extends UserFacing, O extends Opal<U>> implements Factory<U> {
+public abstract class AbstractFactory<U extends UserFacing/*<U>*/, O extends Opal<U>> implements Factory<U> { // OPALFIXME
 	private final OpalFactory<U, O> myOpalFactory;
 	
 	protected AbstractFactory(OpalFactory<U, O> argOF) {

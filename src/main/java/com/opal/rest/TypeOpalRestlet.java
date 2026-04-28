@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import com.opal.IdentityUserFacing;
 
-public abstract class TypeOpalRestlet<U extends IdentityUserFacing, A> extends OpalRestlet<U, A> {
+public abstract class TypeOpalRestlet<U extends IdentityUserFacing/*<U>*/, A> extends OpalRestlet<U, A> {
 	private static final long serialVersionUID = 1L;
 //	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(TypeOpalRestlet.class.getName());
 

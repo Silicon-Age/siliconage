@@ -4,7 +4,7 @@ import com.siliconage.web.form.NullSafeNameCodeExtractor;
 
 import com.opal.IdentityUserFacing;
 
-public abstract class OpalUniqueStringNameCodeExtractor<U extends IdentityUserFacing> extends NullSafeNameCodeExtractor<U> {
+public abstract class OpalUniqueStringNameCodeExtractor<U extends IdentityUserFacing> extends NullSafeNameCodeExtractor<U> { // OPALFIXME
 	protected OpalUniqueStringNameCodeExtractor() {
 		super();
 	}

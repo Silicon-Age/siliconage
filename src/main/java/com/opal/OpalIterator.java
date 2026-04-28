@@ -3,7 +3,7 @@ package com.opal;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class OpalIterator<U extends UserFacing, O extends Opal<U>> implements Iterator<U> {
+public class OpalIterator<U extends UserFacing/*<U>*/, O extends Opal<U>> implements Iterator<U> { // OPALFIXME
 	final Iterator<O> myIterator;
 	
 	public OpalIterator(Iterator<O> argIterator) {

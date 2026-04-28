@@ -10,7 +10,7 @@ import org.apache.commons.lang3.Validate;
 
 import com.siliconage.util.UnimplementedOperationException;
 
-public class UserFacingBackCollectionSet<U extends UserFacing, O extends Opal<U>> implements Set<U> {
+public class UserFacingBackCollectionSet<U extends UserFacing/*<U>*/, O extends Opal<U>> implements Set<U> { // OPALFIXME
 
 //	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(UserFacingBackCollectionSet.class.getName());
 

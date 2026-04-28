@@ -84,7 +84,7 @@ public class TransactionContext implements AutoCloseable {
 		try {
 			lclSuccess = getLock().tryLock(5, TimeUnit.SECONDS);
 		} catch (InterruptedException lclE) {
-			ourLogger.error("*** Thread interrupted while trying to lock " + this + " ***");
+			ourLogger.error("*** Thread interrupted while trying to lock " + this + " ***", lclE);
 			lclSuccess = false;
 		}
 		if (lclSuccess) {
@@ -370,8 +370,6 @@ public class TransactionContext implements AutoCloseable {
 							setCommitStep(STARTED_PHASE_ONE);
 							
 							lclTPMap = new HashMap<>();
-							
-							/* FEATURE:  Must sort Opals so referential integrity is maintained */
 							
 							ArrayList<TransactionAware> lclList = getItems();
 							

@@ -21,7 +21,7 @@ import com.siliconage.web.form.PriorInput;
 import com.opal.IdentityFactory;
 import com.opal.IdentityUserFacing;
 
-public class OpalMainForm<U extends IdentityUserFacing> extends OpalForm<U> {
+public class OpalMainForm<U extends IdentityUserFacing/*<U>*/> extends OpalForm<U> { // OPALFIXME
 	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(OpalMainForm.class.getName());
 	
 	protected static final String DEFAULT_UNIQUE_STRING_PARAMETER_NAME = "object";
@@ -56,7 +56,7 @@ public class OpalMainForm<U extends IdentityUserFacing> extends OpalForm<U> {
 	
 	private OpalFormConfiguration myConfiguration = OpalFormConfiguration.getInstance();
 	
-	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory<U> argFactory, String argParameterName) {
+	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory/*<U>*/ argFactory, String argParameterName) { // OPALFIXME
 		super("");
 		
 		mySession = Validate.notNull(argSession);
@@ -75,7 +75,7 @@ public class OpalMainForm<U extends IdentityUserFacing> extends OpalForm<U> {
 		setDeleteURI(null);
 	}
 	
-	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, U argUserFacing, IdentityFactory<U> argFactory, String argParameterName) {
+	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, U argUserFacing, IdentityFactory/*<U>*/ argFactory, String argParameterName) { // OPALFIXME
 		super("");
 		
 		mySession = Validate.notNull(argSession);
@@ -98,7 +98,7 @@ public class OpalMainForm<U extends IdentityUserFacing> extends OpalForm<U> {
 		setDeleteURI(null);
 	}
 	
-	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory<U> argFactory) {
+	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory/*<U>*/ argFactory) { // OPALFIXME
 		this(argSession, argRequest, argFormAction, argFactory, DEFAULT_UNIQUE_STRING_PARAMETER_NAME);
 	}
 	

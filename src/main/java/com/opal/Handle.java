@@ -15,14 +15,14 @@ import org.apache.commons.lang3.reflect.MethodUtils;
   * This class is designed to hold an opal in a serializable fashion,
   * for instance so that it can be stored in an HTTP session.
   */
-public abstract class Handle<U extends IdentityUserFacing> implements Serializable {
+public abstract class Handle<I extends IdentityUserFacing/*<? super I>*/> implements Serializable { // OPALFIXME
 	private static final long serialVersionUID = 1L;
 	
 	private Handle() {
 		super();
 	}
 	
-	public abstract U pull();
+	public abstract I pull();
 	
 	@Override
 	public int hashCode() {
@@ -45,7 +45,7 @@ public abstract class Handle<U extends IdentityUserFacing> implements Serializab
 	
 	@Override
 	public String toString() {
-		U lclThis = pull();
+		I lclThis = pull();
 		
 		if (lclThis == null) {
 			return "Handle<null>";
@@ -54,7 +54,19 @@ public abstract class Handle<U extends IdentityUserFacing> implements Serializab
 		}
 	}
 	
-	public static <U extends IdentityUserFacing> Handle<U> on(U argU) {
+//	public static <U extends IdentityUserFacing<U>> Handle<U> on(U argU) {
+//		if (argU == null) {
+//			return NullHandle.getInstance();
+//		} else if (argU instanceof OpalBacked) {
+//			return new FactoryBasedHandle<>(argU);
+//		} else if (argU instanceof Serializable) {
+//			return new WrapperHandle<>(argU);
+//		} else {
+//			throw new IllegalArgumentException("We don't know how to handle this kind of opal");
+//		}
+//	}
+	
+	public static <I extends IdentityUserFacing/*<? super I>*/> Handle<I> on(I argU) { // OPALFIXME
 		if (argU == null) {
 			return NullHandle.getInstance();
 		} else if (argU instanceof OpalBacked) {
@@ -66,38 +78,38 @@ public abstract class Handle<U extends IdentityUserFacing> implements Serializab
 		}
 	}
 	
-	public static <U extends IdentityUserFacing> Set<Handle<U>> onAll(Set<U> argRaw) {
+	public static <U extends IdentityUserFacing/*<U>*/> Set<Handle<U>> onAll(Set<U> argRaw) { // OPALFIXME
 		Validate.notNull(argRaw);
 		
 		return argRaw.stream().map(Handle::on).collect(Collectors.toSet());
 	}
 	
-	public static <U extends IdentityUserFacing> List<Handle<U>> onAll(Collection<U> argRaw) {
+	public static <U extends IdentityUserFacing/*<U>*/> List<Handle<U>> onAll(Collection<U> argRaw) { // OPALFIXME
 		Validate.notNull(argRaw);
 		
 		return argRaw.stream().map(Handle::on).collect(Collectors.toList());
 	}
 	
-	public static <U extends IdentityUserFacing> Set<U> pullAll(Set<Handle<U>> argHandles) {
+	public static <U extends IdentityUserFacing/*<U>*/> Set<U> pullAll(Set<Handle<U>> argHandles) { // OPALFIXME
 		Validate.notNull(argHandles);
 		
 		return argHandles.stream().map(Handle::pull).collect(Collectors.toSet());
 	}
 	
-	public static <U extends IdentityUserFacing> List<U> pullAll(Collection<Handle<U>> argHandles) {
+	public static <U extends IdentityUserFacing/*<U>*/> List<U> pullAll(Collection<Handle<U>> argHandles) { // OPALFIXME
 		Validate.notNull(argHandles);
 		
 		return argHandles.stream().map(Handle::pull).collect(Collectors.toList());
 	}
 	
-	private static class NullHandle<U extends IdentityUserFacing> extends Handle<U> {
+	private static class NullHandle<I extends IdentityUserFacing/*<? super I>*/> extends Handle<I> { // OPALFIXME
 		private static final long serialVersionUID = 1L;
 		
 		private static final NullHandle<?> ourInstance = new NullHandle<>();
 		
 		@SuppressWarnings("unchecked")
-		public static <U extends IdentityUserFacing> NullHandle<U> getInstance() {
-			return (NullHandle<U>) ourInstance;
+		public static <I extends IdentityUserFacing/*<? super I>*/> NullHandle<I> getInstance() { // OPALFIXME
+			return (NullHandle<I>) ourInstance;
 		}
 		
 		private NullHandle() {
@@ -105,31 +117,31 @@ public abstract class Handle<U extends IdentityUserFacing> implements Serializab
 		}
 		
 		@Override
-		public U pull() {
+		public I pull() {
 			return null;
 		}
 	}
 	
-	private static class WrapperHandle<U extends IdentityUserFacing> extends Handle<U> {
+	private static class WrapperHandle<I extends IdentityUserFacing/*<? super I>*/> extends Handle<I> { // OPALFIXME
 		private static final long serialVersionUID = 1L;
 		
-		private final U myU;
+		private final I myI;
 		
-		/* package */ WrapperHandle(U argU) {
+		/* package */ WrapperHandle(I argI) {
 			super();
 			
-			Validate.notNull(argU);
-			Validate.isTrue(argU instanceof Serializable, "Must be Serializable!");
-			myU = argU;
+			Validate.notNull(argI);
+			Validate.isTrue(argI instanceof Serializable, "Must be Serializable!");
+			myI = argI;
 		}
 		
 		@Override
-		public U pull() {
-			return myU;
+		public I pull() {
+			return myI;
 		}
 	}
 	
-	private static class FactoryBasedHandle<U extends IdentityUserFacing> extends Handle<U> {
+	private static class FactoryBasedHandle<I extends IdentityUserFacing/*<? super I>*/> extends Handle<I> { // OPALFIXME
 		private static final long serialVersionUID = 1L;
 		
 		private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(FactoryBasedHandle.class.getName());
@@ -137,7 +149,7 @@ public abstract class Handle<U extends IdentityUserFacing> implements Serializab
 		private final String myUniqueString;
 		private final String myFactoryName;
 		
-		/* package */ FactoryBasedHandle(U argU) {
+		/* package */ FactoryBasedHandle(I argU) {
 			super();
 			
 			Validate.notNull(argU);
@@ -147,27 +159,33 @@ public abstract class Handle<U extends IdentityUserFacing> implements Serializab
 			myUniqueString = argU.getUniqueString();
 			
 			@SuppressWarnings("unchecked")
-			OpalBacked<U, Opal<? extends U>> lclOB = (OpalBacked<U, Opal<? extends U>>) argU;
+			OpalBacked<I, Opal<? extends I>> lclOB = (OpalBacked<I, Opal<? extends I>>) argU;
 			
-			IdentityOpal<? extends U> lclOpal = (IdentityOpal<? extends U>) lclOB.getBottomOpal();
+			IdentityOpal<? extends I> lclOpal = (IdentityOpal<? extends I>) lclOB.getBottomOpal();
 			
 			/* This OpalFactory's definition is more wildcard-y than it probably has to be, but I can't figure out how
 			 * to get the type parameters exactly right.
 			 */
-			OpalFactory<? extends U, ?> lclFactory = lclOpal.getOpalFactory();
+			OpalFactory<? extends I, ?> lclFactory = lclOpal.getOpalFactory();
 			myFactoryName = lclFactory.getClass().getName();
 		}
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public U pull() {
+		public I pull() {
 			try {
-				Class<AbstractIdentityOpalFactory<U, IdentityOpal<U>>> lclFactoryClass = (Class<AbstractIdentityOpalFactory<U, IdentityOpal<U>>>) Class.forName(myFactoryName);
+//				Class<AbstractIdentityOpalFactory<I, IdentityOpal<I>>> lclFactoryClass = (Class<AbstractIdentityOpalFactory<? suoer I, IdentityOpal<? super I>>>) Class.forName(myFactoryName);
+//				
+//				AbstractIdentityOpalFactory<I, IdentityOpal<I>> lclFactoryInstance = (AbstractIdentityOpalFactory<I, IdentityOpal<I>>) MethodUtils.invokeStaticMethod(lclFactoryClass, "getInstance");
+//				
+//				IdentityOpal<I> lclOpal = lclFactoryInstance.forUniqueString(myUniqueString);
 				
-				AbstractIdentityOpalFactory<U, IdentityOpal<U>> lclFactoryInstance = (AbstractIdentityOpalFactory<U, IdentityOpal<U>>) MethodUtils.invokeStaticMethod(lclFactoryClass, "getInstance");
+				var lclFactoryClass = (Class<AbstractIdentityOpalFactory<? extends I, ?>>) Class.forName(myFactoryName);
 				
-				IdentityOpal<U> lclOpal = lclFactoryInstance.forUniqueString(myUniqueString);
+				var lclFactoryInstance = (AbstractIdentityOpalFactory<? extends I, ?>) MethodUtils.invokeStaticMethod(lclFactoryClass, "getInstance");
 				
+				var lclOpal = lclFactoryInstance.forUniqueString(myUniqueString);
+
 				Validate.notNull(lclOpal, "Factory came back with a null Opal for the unique string " + myUniqueString);
 				
 				return lclOpal.getUserFacing();

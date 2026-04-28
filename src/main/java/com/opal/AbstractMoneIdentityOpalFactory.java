@@ -11,7 +11,7 @@ import org.apache.commons.lang3.Validate;
 
 import com.siliconage.util.UnimplementedOperationException;
 
-public abstract class AbstractMoneIdentityOpalFactory<U extends IdentityUserFacing, O extends IdentityOpal<U>> extends AbstractIdentityOpalFactory<U, O> {
+public abstract class AbstractMoneIdentityOpalFactory<U extends IdentityUserFacing/*<U>*/, O extends IdentityOpal<U>> extends AbstractIdentityOpalFactory<U, O> { // OPALFIXME
 //	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(AbstractMoneIdentityOpalFactory.class.getName());
 	
 	protected AbstractMoneIdentityOpalFactory() {
@@ -42,13 +42,6 @@ public abstract class AbstractMoneIdentityOpalFactory<U extends IdentityUserFaci
 	protected final void deleteInternal(TransactionParameter argTP, O argOpal) {
 		return;
 	}
-	
-	
-	/* This method returns the Opal-specific array of member types used by the fields taken from the
-	 * database.
-	 */
-	@Override
-	protected abstract Class<?>[] getFieldTypes();
 	
 	/* insertInternal is responsible for handling the tasks specific to this kind of persistence 
 	 * engine (in this case a generic relational database) that occur when an Opal is inserted.  For

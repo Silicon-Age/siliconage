@@ -6,7 +6,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang3.Validate;
 
-public abstract class AbstractEphemeralOpalFactory<U extends UserFacing, O extends Opal<U>> implements OpalFactory<U, O> {
+public abstract class AbstractEphemeralOpalFactory<U extends UserFacing/*<U>*/, O extends Opal<U>> implements OpalFactory<U, O> { // OPALFIXME
 
 	protected AbstractEphemeralOpalFactory() {
 		super();
@@ -52,31 +52,23 @@ public abstract class AbstractEphemeralOpalFactory<U extends UserFacing, O exten
 		throw new IllegalStateException();
 	}
 	
-//	@Override
-//	public final void commitPhaseOne(TransactionParameter argTP, O argOpal) {
-//		throw new IllegalStateException();
-//	}
-//	
-//	@Override
-//	public final void commitPhaseTwo(TransactionParameter argTP, O argOpal) {
-//		throw new IllegalStateException();
-//	}
-
 	@Override
 	public TransactionParameter extractTransactionParameter(Map<DataSource, TransactionParameter> argTPMap) {
 		throw new UnsupportedOperationException();
 	}
 	
 	protected abstract void determineUserFacing(O argOpal, boolean argConcrete);
-		
+	
+	// OPALFIXME: Remove these next four lines
 	protected abstract String[] getFieldNames();
 	protected abstract Class<?>[] getFieldTypes();
 	protected abstract boolean[] getFieldNullability();
 	protected abstract FieldValidator[] getFieldValidators();
 	
+	// OPALFIXME: Remove down to the /OPALFIXME comment
 	@Override
 	public int getFieldCount() {
-		return getFieldNames().length;
+		return getFieldTypes().length;
 	}
 	
 	@Override
@@ -110,7 +102,8 @@ public abstract class AbstractEphemeralOpalFactory<U extends UserFacing, O exten
 		}
 		throw new IllegalArgumentException("\"" + argFieldName + "\" is not a valid field name.");
 	}
-		
+	// /OPALFIXME
+	
 //	/* Do not call this without already being synchronized on argOpal or without it being
 //	 * part of the current TransactionContext.  In all likelihood, the only method that
 //	 * calls this should be Opal.reload(). */

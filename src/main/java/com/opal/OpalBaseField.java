@@ -1,12 +1,11 @@
 package com.opal;
 
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.opal.cma.validator.FieldValidator;
-
-public /* value */ class OpalBaseField<U extends UserFacing, T> implements OpalField<U, T> {
+public /* value */ class OpalBaseField<U extends UserFacing/*<U>*/, T> implements OpalField<U, T> { // OPALFIXME
 
 	private final int myIndex;
 	private final String myName;
@@ -17,10 +16,10 @@ public /* value */ class OpalBaseField<U extends UserFacing, T> implements OpalF
 	private final FieldValidator myValidator; // FIXME: Should be parameterized
 	// Normalizer?
 	private final Function<U, T> myObjectAccessor;
-	private final BiFunction<U, T, ?> myObjectMutator; // FIXME: Explain ?
+	private final BiConsumer<U, T> myObjectMutator; // FIXME: Explain ?
 	private final Object mySourceMetadata;
 	
-	public OpalBaseField( // TODO: Can we make this private?
+	public OpalBaseField( // FIXME: Can we make this private?
 			int argIndex,
 			String argName,
 			Class<T> argType,
@@ -29,7 +28,7 @@ public /* value */ class OpalBaseField<U extends UserFacing, T> implements OpalF
 			Supplier<T> argDefaultSupplier,
 			FieldValidator argValidator,
 			Function<U, T> argObjectAccessor,
-			BiFunction<U, T, ?> argObjectMutator,
+			BiConsumer<U, T> argObjectMutator, // Ignores fluency
 			Object argSourceMetadata) {
 		
 		super();
@@ -59,6 +58,32 @@ public /* value */ class OpalBaseField<U extends UserFacing, T> implements OpalF
 		mySourceMetadata = argSourceMetadata; // TODO: Nullable?  Change type.
 	}
 
+//	public OpalBaseField( // FIXME: Can we make this private?
+//			int argIndex,
+//			String argName,
+//			Class<T> argType,
+//			boolean argMutable,
+//			boolean argNullable,
+//			Supplier<T> argDefaultSupplier,
+//			FieldValidator argValidator,
+//			Function<U, T> argObjectAccessor,
+//			BiConsumer<U, T> argObjectMutator,
+//			Object argSourceMetadata) {
+//		
+//		this(argIndex,
+//				argName,
+//				argType,
+//				argMutable,
+//				argNullable,
+//				argDefaultSupplier,
+//				argValidator,
+//				argObjectAccessor,
+//				(x, y) -> { argObjectMutator.accept(x, y); return x; },
+//				argSourceMetadata
+//				);
+//		
+//	}
+
 	/* For non-modifiable fields. */
 	public OpalBaseField( // TODO: Can we make this private?
 			int argIndex,
@@ -73,44 +98,54 @@ public /* value */ class OpalBaseField<U extends UserFacing, T> implements OpalF
 		this(argIndex, argName, argType, false, argNullable, argDefaultSupplier, argValidator, argObjectAccessor, null, argSourceMetadata);
 	}
 
+	@Override
 	public final int getIndex() {
 		return myIndex;
 	}
 	
+	@Override
 	public final String getName() {
 		return myName;
 	}
 	
+	@Override
 	public final Class<T> getType() {
 		return myType;
 	}
 	
+	@Override
 	public final boolean isMutable() {
 		return myMutable;
 	}
 	
+	@Override
 	public final boolean isNullable() {
 		return myNullable;
 	}
 	
+	@Override
 	public final Supplier<T> getDefaultSupplier() {
 		return myDefaultSupplier;
 	}
 	
+	@Override
 	public final FieldValidator getValidator() {
 		return myValidator;
 	}
 	
+	@Override
 	public final Function<U, T> getObjectAccessor() {
 		return myObjectAccessor;
 	}
 	
-	public final BiFunction<U, T, ?> getObjectMutator() {
+	@Override
+	public final BiConsumer<U, T> getObjectMutator() {
 		return myObjectMutator;
 	}
 	
 	// THINK: setConvert?
 	
+	@Override
 	public final Object getSourceMetadata() {
 		return mySourceMetadata;
 	}

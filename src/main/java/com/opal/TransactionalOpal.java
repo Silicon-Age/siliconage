@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang3.Validate;
 
-public abstract class TransactionalOpal<U extends UserFacing> extends AbstractTransactionAware implements Opal<U> /*, Serializable */ {
+public abstract class TransactionalOpal<U extends UserFacing/*<U>*/> extends AbstractTransactionAware implements Opal<U> { // OPALFIXME
 
 	//	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(Opal.class.getName());
 	
@@ -24,9 +24,8 @@ public abstract class TransactionalOpal<U extends UserFacing> extends AbstractTr
 	/* final */ private U myUserFacing; /* FIXME: Is there a way to make this actually final? */
 
 	/*
-	 * This should only be used to construct the NOT_YET_LOADED placeholders.
-	 */
-	 
+	 * This ctor should only be used to construct the NOT_YET_LOADED placeholders.
+	 */	 
 	protected TransactionalOpal() {
 		super();
 		myAbstractOpalFactory = null;
@@ -47,6 +46,7 @@ public abstract class TransactionalOpal<U extends UserFacing> extends AbstractTr
 	}
 	
 
+	@Override
 	public final U getUserFacing() {
 		return myUserFacing;
 	}
@@ -67,8 +67,6 @@ public abstract class TransactionalOpal<U extends UserFacing> extends AbstractTr
 	}
 	
 	public abstract boolean exists();
-	
-//	public abstract int getFieldCount();
 	
 	public final OpalFactory<U, ? extends TransactionalOpal<U>> getOpalFactory() {
 		return myAbstractOpalFactory;
@@ -93,61 +91,6 @@ public abstract class TransactionalOpal<U extends UserFacing> extends AbstractTr
 	
 	public abstract void translateReferencesToFields();
 	
-//	public Object getField(String argFieldName) {
-//		return getField(getFieldIndex(argFieldName));
-//	}
-//	
-//	public abstract Object getField(int argFieldIndex);
-//	
-//	public Class<?> getFieldType(String argFieldName) {
-//		return getFieldType(getFieldIndex(argFieldName));
-//	}
-//	
-//	public Class<?> getFieldType(int argFieldIndex) {
-//		return getFieldTypes()[argFieldIndex];
-//	}
-//	
-//	public int getFieldIndex(String argFieldName) {
-//		Validate.notNull(argFieldName);
-//		String[] lclFieldNames = getFieldNames();
-//		for (int lclI = 0; lclI < lclFieldNames.length; ++lclI) {
-//			if (argFieldName.equals(lclFieldNames[lclI])) {
-//				return lclI;
-//			}
-//		}
-//		throw new IllegalArgumentException("\"" + argFieldName + "\" is not a valid field name.");
-//	}
-	
-//	protected abstract String[] getFieldNames();
-//	protected abstract Class<?>[] getFieldTypes();
-//	protected abstract boolean[] getFieldNullability();
-//	protected abstract FieldValidator[] getFieldValidators();
-	
-//	public abstract String[] getFieldNames();
-//	public abstract Class<?>[] getFieldTypes();
-//	public abstract boolean[] getFieldNullability();
-//	public abstract FieldValidator[] getFieldValidators();
-//	
-//	public String getFieldName(int argFieldIndex) {
-//		return getFieldNames()[argFieldIndex];
-//	}
-//	
-//	public boolean getFieldNullability(String argFieldName) {
-//		return getFieldNullability(getFieldIndex(argFieldName));
-//	}
-//	
-//	public boolean getFieldNullability(int argFieldIndex) {
-//		return getFieldNullability()[argFieldIndex];
-//	}
-//	
-//	public FieldValidator getFieldValidator(String argFieldName) {
-//		return getFieldValidator(getFieldIndex(argFieldName));
-//	}
-//	
-//	public FieldValidator getFieldValidator(int argFieldIndex) {
-//		return getFieldValidators()[argFieldIndex];
-//	}
-	
 	protected abstract String toStringField(int argFieldIndex); // THINK: Can this be default-implemented somewhere higher?
 	
 	protected abstract void copyOldValuesToNew();
@@ -167,18 +110,9 @@ public abstract class TransactionalOpal<U extends UserFacing> extends AbstractTr
 	@Override
 	public abstract Set<TransactionAware> getRequiredSubsequentCommits();
 
+	@Override
 	public abstract void output(PrintStream argPS) throws IOException;
 	
-	public abstract void output(PrintWriter argPW) throws IOException;
-	
-//	/* TODO:  This method should eventually go away. */
-//	protected void markAsDataRead() {
-//		myDataRead = true;
-//	}
-//	
-//	/* TODO:  This method should eventually go away. */
-//	public boolean isDataRead() {
-//		return myDataRead;
-//	}
-	
+	@Override
+	public abstract void output(PrintWriter argPW) throws IOException;	
 }
