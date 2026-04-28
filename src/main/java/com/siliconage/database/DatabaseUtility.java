@@ -940,8 +940,6 @@ public abstract class DatabaseUtility {
 		
 		if (log.isDebugEnabled()) {
 			log.debug("SQL = \"{}\"", argSQL);
-		} else {
-			System.out.println("SQL = " + argSQL);
 		}
 		
 		/* This can't be put into the try-with-resources paradigm because we need to return an unclosed ResultSet. */
