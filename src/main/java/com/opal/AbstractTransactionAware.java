@@ -249,46 +249,6 @@ public abstract class AbstractTransactionAware implements TransactionAware /* im
 		}
 	}
 	
-//	protected synchronized final void tryMutate() { // THINK: Should this require that you already hold the monitor?
-//		TransactionContext lclThreadTC = TransactionContext.getActive();
-//		
-////		ourLogger.debug("Trying to mutate " + defaultToString() + " in TC " + lclThreadTC + " with OpalTC = " + getTransactionContext());
-//		
-//		if (lclThreadTC == null) {
-//			throw new IllegalStateException("Modifications of Opals must be done within a TransactionContext.");
-//		}
-//		
-//		while (true) {
-//			TransactionContext lclOpalTC = getTransactionContext();
-//			
-//			if (lclOpalTC == null) {
-//				joinTransactionContext(lclThreadTC);
-//				return;
-//			} else if (lclOpalTC == lclThreadTC) {
-//				return;
-//			} else {
-//				try {
-//					if (ourLogger.isDebugEnabled()) {
-//						ourLogger.debug(lclThreadTC + " is waiting on " + defaultToString() + ", which is held by " + lclOpalTC);
-//					}
-//					wait(TRY_MUTATE_TIMEOUT);
-//					if (ourLogger.isDebugEnabled()) {
-//						ourLogger.debug(lclThreadTC + " has woken up from waiting on " + defaultToString());
-//					}
-//					CommitStep lclCS = lclThreadTC.getCommitStep();
-//					if (lclCS != CommitStep.NOT_CURRENTLY_COMMITTING) {
-//						if (ourLogger.isDebugEnabled()) {
-//							ourLogger.debug(lclThreadTC + " has found that its commit step is now " + lclCS + ".");
-//						}
-//						throw new RuntimeException("After waking up from waiting on " + defaultToString() + ", " + lclThreadTC + " found that its commit step had changed to " + lclCS + "."); 
-//					}
-//				} catch (InterruptedException lclE) {
-//					throw new RuntimeException("Thread interrupted while waiting to acquire lock on " + defaultToString(), lclE);
-//				}
-//			}
-//		}
-//	}
-	
 	@Override
 	public Set<TransactionAware> getRequiredPriorCommits() {
 		return Collections.emptySet();
