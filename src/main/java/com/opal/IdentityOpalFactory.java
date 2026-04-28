@@ -6,7 +6,7 @@ import java.util.Collection;
  * @author topquark
  */
 
-public interface IdentityOpalFactory<U extends IdentityUserFacing, O extends IdentityOpal<U> > extends OpalFactory<U, O> {
+public interface IdentityOpalFactory<U extends IdentityUserFacing/*<U>*/, O extends IdentityOpal<U> > extends OpalFactory<U, O> { // OPALFIXME
 	
 	public O forUniqueString(String argUniqueString);
 	

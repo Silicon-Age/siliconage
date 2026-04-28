@@ -1,6 +1,6 @@
 package com.opal;
 
-public class OpalIntegerField <U extends UserFacing> extends OpalSpecificField<U, Integer> {
+public class OpalIntegerField <U extends UserFacing/*<U>*/> extends OpalSpecificField<U, Integer> { // OPALFIXME
 	
 	private final int myMinimumValue;
 	private final int myMaximumValue;
@@ -15,8 +15,6 @@ public class OpalIntegerField <U extends UserFacing> extends OpalSpecificField<U
 		myMaximumValue = argMaximumValue;	
 	}
 
-	// FIXME: One-arg ctor for just maximum length?
-	
 	public OpalIntegerField(OpalBaseField<U, Integer> argBaseField) {
 		this(argBaseField, DEFAULT_MINIMUM_VALUE, DEFAULT_MAXIMUM_VALUE);		
 	}

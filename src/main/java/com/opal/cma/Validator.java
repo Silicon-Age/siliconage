@@ -48,7 +48,7 @@ public abstract class Validator<U extends IdentityUserFacing> {
 			Method lclM = this.getClass().getMethod(lclMethodName, String.class, String.class);
 			assert lclM != null;
 			lclM.invoke(this, argValue, argVerifyValue);
-		} catch (NoSuchMethodException lclE) {
+		} catch (@SuppressWarnings("unused") NoSuchMethodException lclE) {
 			if (argValue == null && argVerifyValue == null) {
 				/* Both are null; fine. */
 			} else if (argValue != null && argValue.equals(argVerifyValue)) {

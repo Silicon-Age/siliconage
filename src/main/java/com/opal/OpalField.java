@@ -1,14 +1,12 @@
 package com.opal;
 
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import com.opal.cma.validator.FieldValidator;
-
-public interface OpalField<U extends UserFacing, T> {
+public interface OpalField<U extends UserFacing/*<U>*/, T> { // OPALFIXME
 
 	public int getIndex();
 	
@@ -34,7 +32,7 @@ public interface OpalField<U extends UserFacing, T> {
 	
 	public Function<U, T> getObjectAccessor();
 	
-	public BiFunction<U, T, ?> getObjectMutator();
+	public BiConsumer<U, T> getObjectMutator();
 	
 	public Object getSourceMetadata();
 
@@ -56,7 +54,7 @@ public interface OpalField<U extends UserFacing, T> {
 			throw new UnsupportedOperationException("Cannot call set on a non-updateable OpalField.");
 		}
 		
-		lclMutator.apply(argUF, argNewValue);
+		lclMutator.accept(argUF, argNewValue);
 		
 		return argUF; // Fluent
 	}

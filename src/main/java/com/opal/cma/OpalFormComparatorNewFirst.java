@@ -6,7 +6,7 @@ import org.apache.commons.lang3.Validate;
 
 import com.opal.IdentityUserFacing;
 
-public class OpalFormComparatorNewFirst<U extends IdentityUserFacing> implements Comparator<OpalForm<U>> {
+public class OpalFormComparatorNewFirst<U extends IdentityUserFacing/*<U>*/> implements Comparator<OpalForm<U>> { // OPALFIXME
 	private final Comparator<U> myComparator;
 	
 	public OpalFormComparatorNewFirst(Comparator<U> argComparator) {
@@ -29,6 +29,9 @@ public class OpalFormComparatorNewFirst<U extends IdentityUserFacing> implements
 		
 		/* If the internal UserFacings are null, it indicates that the OpalForm corresponds to a blank
 		 * record for inserting a new record.  In that case, they should be displayed at the beginning.
+		 * 
+		 * I am re-reading the above reasoning on 2025-11-25, and I find it dubious.  Shouldn't new
+		 * records default to being at the end?
 		 */
 		if (lclA == null) {
 			if (lclB == null) {

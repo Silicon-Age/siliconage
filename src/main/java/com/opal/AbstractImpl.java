@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-public abstract class AbstractImpl<U extends UserFacing, O extends Opal<? extends U>> implements OpalBacked<U, O> {
+public abstract class AbstractImpl<U extends UserFacing/*<U>*/, O extends Opal<? extends U>> implements OpalBacked<U, O> { // OPALFIXME
 
 	protected AbstractImpl() {
 		super();
@@ -72,18 +72,18 @@ public abstract class AbstractImpl<U extends UserFacing, O extends Opal<? extend
 		return getBottomOpal().getFieldName(argFieldIndex);
 	}
 
-	public Object getField(int argFieldIndex) {
-		return getBottomOpal().getField(argFieldIndex);
+	public Object getFieldValue(int argFieldIndex) {
+		return getBottomOpal().getFieldValue(argFieldIndex);
 	}
 	
-	public void setField(int argFieldIndex, Object argValue) {
+	public void setFieldValue(int argFieldIndex, Object argValue) {
 		Opal<? extends U> lclOpal = getBottomOpal();
 		if (lclOpal instanceof UpdatableOpal<? extends U> lclUO) {
-			lclUO.setField(argFieldIndex, argValue);
-		} else if (lclOpal instanceof ImmutableOpal<? extends U> lclIO) {
-			throw new UnsupportedOperationException("Called setField on UserFacing backed by ImmutableOpal.");
+			lclUO.setFieldValue(argFieldIndex, argValue);
+		} else if (lclOpal instanceof ImmutableOpal<? extends U> /* lclIO */) {
+			throw new UnsupportedOperationException("Called setFieldValue on UserFacing backed by ImmutableOpal.");
 		} else {
-			throw new UnsupportedOperationException("Called setField on UserFacing backed by unknown Opal type.");
+			throw new UnsupportedOperationException("Called setFieldValue on UserFacing backed by unknown Opal type.");
 		}
 	}
 	

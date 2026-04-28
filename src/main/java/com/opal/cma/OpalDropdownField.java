@@ -21,7 +21,7 @@ import com.opal.IdentityFactory;
 import com.opal.IdentityUserFacing;
 import com.opal.ImplicitTableDatabaseQuery;
 
-public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends IdentityUserFacing> extends AssembledDropdownField<T, U> {
+public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends IdentityUserFacing/*<U>*/> extends AssembledDropdownField<T, U> { // OPALFIXME
 	// private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(OpalDropdownField.class.getName());
 	
 	private IdentityFactory<U> myFactory;
@@ -122,7 +122,7 @@ public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends Iden
 	protected List<U> determineChoices() {
 		Collection<U> lclSpecifiedChoices = getChoices();
 		
-		List<U> lclChoices = getFilter() != null ? new LinkedList<>() : new ArrayList<>();
+		List<U> lclChoices = getFilter() != null ? new LinkedList<>() : new ArrayList<>(); // Do we ever really want to use a LinkedList?
 		
 		if (isNullable()) {
 			lclChoices.add(null);

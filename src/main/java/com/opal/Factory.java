@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * @author topquark
  */
-public interface Factory<U extends UserFacing> {
+public interface Factory<U extends UserFacing> { // OPALFIXME
 	public Class<U> getUserFacingInterface();
 	
 	public Set<U> getAll();

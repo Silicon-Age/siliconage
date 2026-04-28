@@ -28,7 +28,7 @@ import com.opal.IdentityUserFacing;
 import com.opal.TransactionContext;
 import com.opal.types.UTCDateTime;
 
-public abstract class OpalRestlet<U extends IdentityUserFacing, A> extends HttpServlet {
+public abstract class OpalRestlet<U extends IdentityUserFacing/*<U>*/, A> extends HttpServlet { // OPALFIXME
 	private static final long serialVersionUID = 1L;
 	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(OpalRestlet.class.getName());
 
@@ -59,12 +59,6 @@ public abstract class OpalRestlet<U extends IdentityUserFacing, A> extends HttpS
 
 	protected abstract boolean checkAccess(U argUF, A argCredential);
 
-//	@SuppressWarnings("unused")
-//	protected boolean checkAccess(U argUF, A argCredential) {
-//		ourLogger.warn("Default checkAccess(...) is being called.");
-//		return false;
-//	}
-	
 	protected boolean checkGetAccess(U argUF, A argCredential) {
 		return checkAccess(argUF, argCredential);
 	}

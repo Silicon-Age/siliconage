@@ -6,7 +6,7 @@ import org.apache.commons.lang3.Validate;
 
 import com.opal.IdentityUserFacing;
 
-public class OpalFormComparator<U extends IdentityUserFacing> implements Comparator<OpalForm<U>> {
+public class OpalFormComparator<U extends IdentityUserFacing/*<U>*/> implements Comparator<OpalForm<U>> { // OPALFIXME
 	private final Comparator<U> myComparator;
 	
 	public OpalFormComparator(Comparator<U> argComparator) {

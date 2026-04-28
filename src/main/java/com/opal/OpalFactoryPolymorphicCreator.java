@@ -4,7 +4,7 @@ package com.opal;
  * @author topquark
  */
 
-public interface OpalFactoryPolymorphicCreator<U extends UserFacing, O extends Opal<U>, T> {
+public interface OpalFactoryPolymorphicCreator<U extends UserFacing/*<U>*/, O extends Opal<U>, T> { // OPALFIXME
 	
 	/* This create(...) method is currently only used with SingleTable polymorphism. */
 	public O create(T argType);

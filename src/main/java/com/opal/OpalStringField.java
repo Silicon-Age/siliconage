@@ -1,6 +1,6 @@
 package com.opal;
 
-public class OpalStringField <U extends UserFacing> extends OpalSpecificField<U, String> {
+public class OpalStringField <U extends UserFacing/*<U>*/> extends OpalSpecificField<U, String> { // OPALFIXME
 	
 	private final int myMinimumLength;
 	private final int myMaximumLength;

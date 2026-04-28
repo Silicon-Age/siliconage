@@ -1,6 +1,6 @@
 package com.opal;
 
-public interface IdentityUserFacing extends UserFacing {
+public interface IdentityUserFacing/*<U extends UserFacing<U>>*/ extends UserFacing/*<U>*/ { // OPALFIXME
 	public void unlink();
 	public void reload();
 	

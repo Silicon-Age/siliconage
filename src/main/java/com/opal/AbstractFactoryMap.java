@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Collection;
 import java.util.Set;
 
-public abstract class AbstractFactoryMap implements Map<Class<? extends IdentityUserFacing>, IdentityFactory<?>> {
+public abstract class AbstractFactoryMap implements Map<Class<? extends IdentityUserFacing>, IdentityFactory<?>> { // OPALFIXME
 	// Rather than extend HashMap, we implement Map and delegate everything to myMap.
 	// This is to avoid being Serializable.
 	
