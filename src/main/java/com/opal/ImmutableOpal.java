@@ -5,12 +5,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-public abstract non-sealed class ImmutableOpal<U extends IdentityUserFacing> extends IdentityOpal<U> {
+public abstract non-sealed class ImmutableOpal<U extends IdentityUserFacing/*<U>*/> extends IdentityOpal<U> { // OPALFIXME
 
-	//	protected <O extends Opal<U>> ImmutableOpal(OpalFactory<O> argOpalFactory) {
-//		super(argOpalFactory);
-//	}
-	
 	private boolean myDataRead = false;
 
 	private final Object[] myValues;
@@ -70,7 +66,7 @@ public abstract non-sealed class ImmutableOpal<U extends IdentityUserFacing> ext
 	}
 
 	@Override
-	public synchronized Object getField(int argFieldIndex) {
+	public synchronized Object getFieldValue(int argFieldIndex) {
 		markAsDataRead(); // TODO: This should eventually go away
 		return getValues()[argFieldIndex];
 	}

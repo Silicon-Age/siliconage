@@ -7,7 +7,7 @@ import org.apache.commons.lang3.Validate;
 
 import com.siliconage.util.UnimplementedOperationException;
 
-public abstract class AbstractIdentityOpalFactory<U extends IdentityUserFacing, O extends IdentityOpal<U>> implements IdentityOpalFactory<U, O> {
+public abstract class AbstractIdentityOpalFactory<U extends IdentityUserFacing/*<U>*/, O extends IdentityOpal<U>> implements IdentityOpalFactory<U, O> { // OPALFIXME
 
 //	private static final org.apache.log4j.Logger ourLogger = org.apache.log4j.Logger.getLogger(AbstractIdentityOpalFactory.class.getName());
 
@@ -168,7 +168,6 @@ public abstract class AbstractIdentityOpalFactory<U extends IdentityUserFacing, 
 			throw new IllegalStateException("lclOpal.getUserFacing() == null");
 		}
 		return lclOpal;
-					
 	}
 	
 	protected abstract void determineUserFacing(O argOpal, boolean argConcrete);
@@ -229,11 +228,13 @@ public abstract class AbstractIdentityOpalFactory<U extends IdentityUserFacing, 
 	@Override
 	public abstract Set<O> getAll() throws PersistenceException;
 	
+	// OPALFIXME: The following four lines should be removed
 	protected abstract String[] getFieldNames();
 	protected abstract Class<?>[] getFieldTypes();
 	protected abstract boolean[] getFieldNullability();
 	protected abstract FieldValidator[] getFieldValidators();
-	
+
+	// OPALFIXME: From here to the following /OPALFIXSME comment should be removed
 	@Override
 	public int getFieldCount() {
 		return getFieldNames().length;
@@ -270,6 +271,7 @@ public abstract class AbstractIdentityOpalFactory<U extends IdentityUserFacing, 
 		}
 		throw new IllegalArgumentException("\"" + argFieldName + "\" is not a valid field name.");
 	}
+	// /OPALFIXME
 	
 	/**
 	 * Must only be called when the thread has a lock on argOpal!!!

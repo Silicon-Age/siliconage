@@ -27,7 +27,7 @@ import com.siliconage.database.DatabaseUtility;
  * Each subclass created will be a Singleton, which limits the type of data that can be stored in this class. 
  */
 
-public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing, O extends Opal<U>> extends AbstractEphemeralOpalFactory<U, O> {
+public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing/*<U>*/, O extends Opal<U>> extends AbstractEphemeralOpalFactory<U, O> { // OPALFIXME
 
 	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(AbstractDatabaseEphemeralOpalFactory.class.getName());
 	
@@ -141,12 +141,6 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing,
 	 */
 	protected abstract String[] getColumnNames();
 	
-	/* This method returns the Opal-specific array of member types used by the fields taken from the
-	 * database.
-	 */
-	@Override
-	protected abstract Class<?>[] getFieldTypes();
-	
 	/* This method returns the fully qualified, Opal-specific name of the underlying table.  This is
 	 * a name that can be used to access the table regardless of whatever the "current schema" is for
 	 * a Connection.
@@ -191,7 +185,9 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing,
 
 		try (ResultSet lclRS = generateResultSet(argConnection, argFullyQualifiedTableName, getColumnNames(), argFieldNames, argParameters, argOrderBy)) {
 			/* Which should never be null. */
-			Validate.notNull(lclRS);
+			if (lclRS == null) {
+				throw new IllegalStateException("lclRS is null.");
+			}
 			
 			/* Convert that ResultSet into Opals (either by looking them up in the OpalCache or by constructing new Opals
 			 * from the data in it, then add them to argCollection.
@@ -293,9 +289,10 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing,
 		return;
 	}
 	
-	protected final O extractSingleOpalFromResultSet(/* OpalCache argOC, */ ResultSet argRS, boolean argCanonicalColumnOrder) throws SQLException {
-//		Validate.notNull(argOC);
-		Validate.notNull(argRS);
+	protected final O extractSingleOpalFromResultSet(ResultSet argRS, boolean argCanonicalColumnOrder) throws SQLException {
+		if (argRS == null) {
+			throw new IllegalArgumentException("argRS is null.");
+		}
 		
 		O lclOpal;
 		
@@ -390,13 +387,15 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing,
 		assert argValues != null;
 		assert argRS != null;
 		
-		Class<?>[] lclFieldTypes = getFieldTypes();
+//		Class<?>[] lclFieldTypes = getFieldTypes();
 		int lclLength = getColumnNames().length; //
 		
+		// OPALFIXME: Just loop over Fields()?
 		if (argCanonicalColumnOrder) {
 			for (int lclI = 0; lclI < lclLength; ++lclI) {
 				try {
-					argValues[lclI] = OpalUtility.convertTo(lclFieldTypes[lclI], argRS.getObject(lclI+1)); /* JDBC columns are 1-based */
+					argValues[lclI] = OpalUtility.convertTo(getFieldType(lclI), argRS.getObject(lclI+1)); /* JDBC columns are 1-based */ // OPALFIXME
+//					argValues[lclI] = OpalUtility.convertTo(getField(lclI).getType(), argRS.getObject(lclI+1)); /* JDBC columns are 1-based */ // OPALFIXME
 				} catch (SQLException lclE) {
 					ourLogger.error("Could not retrieve value for column \"" + getColumnNames()[lclI] + "\".");
 					throw lclE;
@@ -406,7 +405,8 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing,
 			String[] lclColumnNames = getColumnNames();
 			for (int lclI = 0; lclI < lclLength; ++lclI) {
 				try {
-					argValues[lclI] = OpalUtility.convertTo(lclFieldTypes[lclI], argRS.getObject(lclColumnNames[lclI]) );
+					argValues[lclI] = OpalUtility.convertTo(getFieldType(lclI), argRS.getObject(lclColumnNames[lclI]) ); // OPALFIXME
+//					argValues[lclI] = OpalUtility.convertTo(getField(lclI).getType(), argRS.getObject(lclColumnNames[lclI]) ); // OPALFIXME
 				} catch (SQLException lclE) {
 					ourLogger.error("Could not retrieve value for column \"" + lclColumnNames[lclI] + "\".");
 					throw lclE;

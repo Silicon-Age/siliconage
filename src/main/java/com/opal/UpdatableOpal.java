@@ -2,7 +2,7 @@ package com.opal;
 
 import org.apache.commons.lang3.Validate;
 
-public abstract non-sealed class UpdatableOpal<U extends IdentityUserFacing> extends IdentityOpal<U> {
+public abstract non-sealed class UpdatableOpal<U extends IdentityUserFacing/*<U>*/> extends IdentityOpal<U> { // OPALFIXME
 
 //	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(UpdatableOpal.class.getName());
 	
@@ -71,15 +71,21 @@ public abstract non-sealed class UpdatableOpal<U extends IdentityUserFacing> ext
 		return tryAccess() ? doesNewOpalExist() : doesOldOpalExist();
 	}
 	
-	/*
+	/* getOldValues() has the vibe of a method that should be private (since it is directly guarding the contents
+	 * of the Opal, but it needs to be accessed by methods that work with foreign keys and the database in other
+	 * classes.
+	 * 
 	 * For the love of God, don't call this method unless you know what you are doing.
 	 * Might return null!
 	 */ 
-	public final Object[] getOldValues() {
+	public Object[] getOldValues() {
 		return myOldValues;
 	}
 	
-	/*
+	/* getNewValues() has the vibe of a method that should be private (since it is directly guarding the contents
+	 * of the Opal, but it needs to be accessed by methods that work with foreign keys and the database in other
+	 * classes.
+	 * 
 	 * For the love of God, don't call this method unless you know what you are doing.
 	 * Might return null!
 	 */
@@ -88,18 +94,17 @@ public abstract non-sealed class UpdatableOpal<U extends IdentityUserFacing> ext
 	}
 
 	@Override
-	public synchronized Object getField(int argFieldIndex) {
+	public synchronized Object getFieldValue(int argFieldIndex) {
 		markAsDataRead(); // TODO: This should eventually go away
 		return getReadValueSet()[argFieldIndex];
 	}
 	
-	public void setField(String argFieldName, Object argValue) {
-//		markAsDataRead(); // TODO: This should eventually go away
-		setField(getFieldIndex(argFieldName), argValue);
+	public void setFieldValue(String argFieldName, Object argValue) {
+		setFieldValue(getFieldIndex(argFieldName), argValue);
 		return;
 	}
 	
-	public synchronized void setField(int argFieldIndex, Object argValue) {
+	public synchronized void setFieldValue(int argFieldIndex, Object argValue) {
 		if (argValue == null) {
 			if (getFieldNullability(argFieldIndex)) {
 				tryMutate();

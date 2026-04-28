@@ -52,6 +52,7 @@ import com.opal.ImplicitTableDatabaseQuery;
 import com.opal.MultipleValueDatabaseOpalKey;
 import com.opal.Opal;
 import com.opal.OpalCache;
+import com.opal.OpalField;
 import com.opal.OpalUtility;
 import com.opal.OpalKey;
 import com.opal.PersistenceException;
@@ -260,22 +261,32 @@ public abstract class RelationalDatabaseAdapter {
 				lclBW.println();
 			}
 	
-			lclBW.println("\t@Override");
-			lclBW.println("\tprotected String[] getFieldNames() { return " + argMC.getOpalClassName() + ".getStaticFieldNames(); }");
-			lclBW.println();
+			if (ClassGenerator.GENERATE_FIELD_CLASS == false) {
+				lclBW.println("\t@Override");
+				lclBW.println("\tprotected String[] getFieldNames() { return " + argMC.getOpalClassName() + ".getStaticFieldNames(); }");
+				lclBW.println();
+				
+				lclBW.println("\t@Override");
+				lclBW.println("\tprotected Class<?>[] getFieldTypes() { return " + argMC.getOpalClassName() + ".getStaticFieldTypes(); }");
+				lclBW.println();
+				
+				lclBW.println("\t@Override");
+				lclBW.println("\tprotected boolean[] getFieldNullability() { return " + argMC.getOpalClassName() + ".getStaticFieldNullability(); }");
+				lclBW.println();
+				
+				lclBW.println("\t@Override");
+				lclBW.println("\tprotected com.opal.FieldValidator[] getFieldValidators() { return " + argMC.getOpalClassName() + ".getStaticFieldValidators(); }");
+				lclBW.println();
+			}
 			
-			lclBW.println("\t@Override");
-			lclBW.println("\tprotected Class<?>[] getFieldTypes() { return " + argMC.getOpalClassName() + ".getStaticFieldTypes(); }");
-			lclBW.println();
-			
-			lclBW.println("\t@Override");
-			lclBW.println("\tprotected boolean[] getFieldNullability() { return " + argMC.getOpalClassName() + ".getStaticFieldNullability(); }");
-			lclBW.println();
-			
-			lclBW.println("\t@Override");
-			lclBW.println("\tprotected com.opal.FieldValidator[] getFieldValidators() { return " + argMC.getOpalClassName() + ".getStaticFieldValidators(); }");
-			lclBW.println();
-						
+			if (ClassGenerator.GENERATE_FIELD_CLASS) {
+				lclBW.println("\t@Override");
+				lclBW.println("\tpublic " + List.class.getName() + "<" + OpalField.class.getName() + "<" + lclICN + ", ?>> getFields() {");
+				lclBW.println("\t\treturn " + lclOCN + ".FIELD.ALL;");
+				lclBW.println("\t}");
+				lclBW.println();
+			}
+									
 			lclBW.println("\t@Override");
 			lclBW.println("\tprotected " + lclOCN + " instantiate(Object[] argValues) {");
 			if (argMC.isEphemeral() == false) {
@@ -389,10 +400,9 @@ public abstract class RelationalDatabaseAdapter {
 					}
 					/* FIXME: Would it be better to "trace up and over" like we do when we have a direct Polymorphism record? */
 				}
-			} else if (lclPD instanceof SingleTablePolymorphicData) {
+			} else if (lclPD instanceof SingleTablePolymorphicData lclSPD) {
 				lclBW.println("\t\tassert argConcrete == false;");
 				lclBW.println("\t\tassert argO.getUserFacing() == null;");
-				SingleTablePolymorphicData lclSPD = (SingleTablePolymorphicData) lclPD;
 				String lclNV = null;
 				MappedClass lclMappedClassWithActualTypeField = argMC;
 				for (int lclJ = 0; lclJ < lclSPD.getDereferenceKeys().size(); ++lclJ) {
@@ -414,14 +424,14 @@ public abstract class RelationalDatabaseAdapter {
 				}
 				
 				int lclFieldIndex = lclCM.getFieldIndex();
-				lclBW.println("\t\tObject lclV = " + lclNV + ".getField(" + lclFieldIndex + ");");
+				lclBW.println("\t\tObject lclV = " + lclNV + ".getFieldValue(" + lclFieldIndex + ");");
 				lclBW.println("\t\tif (lclV == null) {");
 				lclBW.println("\t\t\tthrow new IllegalStateException(\"Column that should contain information about which concrete Class to instantiate was null.\");");
 				lclBW.println("\t\t}");
 				switch (lclSPD.getMethod()) {
 				case "Class":
 					if (lclCM.getMemberType() == String.class) {
-						lclBW.println("\t\tString lclClassName = (String) " + lclNV + ".getField(" + lclFieldIndex + ");");
+						lclBW.println("\t\tString lclClassName = (String) " + lclNV + ".getFieldValue(" + lclFieldIndex + ");");
 						/* FIXME: Check for not a string */
 						/* FIXME: Build some sort of lookup table on class creation */
 						/* FIXME: Check for not being a class */

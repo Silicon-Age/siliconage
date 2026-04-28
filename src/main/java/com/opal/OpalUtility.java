@@ -93,14 +93,9 @@ public abstract class OpalUtility {
 				return (T) Double.valueOf(((Number) argValue).doubleValue());
 			}
 		} else if (argToClass == Boolean.class) {
-//			System.out.println("Converting [" + argValue.toString() + "] of class " + argValue.getClass().getName() + " to Boolean.");
-//			if (argValue instanceof Number lclNumber1) {
-			if (argValue instanceof Number) { // FIXME: Use pattern-matching
-				Number lclNumber1 = (Number) argValue;
+			if (argValue instanceof Number lclNumber1) {
 				return (T) (lclNumber1.intValue() != 0 ? Boolean.TRUE: Boolean.FALSE);
-//			} else if (argValue instanceof Trinary lclTrinary) {
-			} else if (argValue instanceof Trinary) { // FIXME: Use pattern-matching
-				Trinary lclTrinary = (Trinary) argValue;
+			} else if (argValue instanceof Trinary lclTrinary) {
 				return (T) lclTrinary.asBoolean(null);
 			} else {
 				String lclS = String.valueOf(argValue);
@@ -111,13 +106,9 @@ public abstract class OpalUtility {
 				}
 			}
 		} else if (argToClass == Trinary.class) {
-//			if (argValue instanceof Number lclNumber2) {
-			if (argValue instanceof Number) { // FIXME: Use pattern-matching
-				Number lclNumber2 = (Number) (argValue);
+			if (argValue instanceof Number lclNumber2) {
 				return (T) (lclNumber2.intValue() != 0 ? Trinary.TRUE : Trinary.FALSE);
-//			} else if (argValue instanceof Boolean lclBoolean) {
-			} else if (argValue instanceof Boolean) {
-				Boolean lclBoolean = (Boolean) argValue;
+			} else if (argValue instanceof Boolean lclBoolean) {
 				return (T) (lclBoolean.booleanValue() ? Trinary.TRUE : Trinary.FALSE);
 			} else {
 				String lclS = String.valueOf(argValue);
@@ -505,7 +496,7 @@ public abstract class OpalUtility {
 	public static String generateJavaDeclaration(Type argType) {
 		Validate.notNull(argType);
 		
-		if (argType instanceof Class) { // FIXME: Use pattern-matching (switch pattern-matching when available
+		if (argType instanceof Class) { // FIXME: Use pattern-matching when available
 			Class<?> lclC = (Class<?>) argType;
 			String lclName = lclC.getName().replace('$', '.');
 			if (lclC.isArray()) {

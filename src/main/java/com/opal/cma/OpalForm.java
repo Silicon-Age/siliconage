@@ -60,7 +60,7 @@ import com.opal.IdentityUserFacing;
 import com.opal.FieldUtility;
 import com.opal.OpalUtility;
 
-public abstract class OpalForm<U extends IdentityUserFacing> implements FormValueProvider {
+public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements FormValueProvider { // OPALFIXME
 	/* package */ static final String FULLY_QUALIFIED_NAME_SEPARATOR = "/";
 	
 	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(OpalForm.class.getName());
@@ -84,7 +84,7 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 		myLocalPrefix = Validate.notNull(argLocalPrefix);
 	}
 	
-	public static <U extends IdentityUserFacing> OpalMainForm<U> create(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory<U> argFactory, String argParameterName) {
+	public static <U extends IdentityUserFacing/*<U>*/> OpalMainForm<U> create(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory<U> argFactory, String argParameterName) { // OPALFIXME
 		Validate.notNull(argSession);
 		Validate.notNull(argRequest);
 		Validate.notNull(argFactory);
@@ -92,7 +92,7 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 		return new OpalMainForm<>(argSession, argRequest, argFormAction, argFactory, argParameterName);
 	}
 	
-	public static <U extends IdentityUserFacing> OpalMainForm<U> create(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, U argUserFacing, IdentityFactory<U> argFactory) {
+	public static <U extends IdentityUserFacing/*<U>*/> OpalMainForm<U> create(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, U argUserFacing, IdentityFactory<U> argFactory) { // OPALFIXME
 		return create(
 				argSession,
 				argRequest,
@@ -103,7 +103,7 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 				);
 	}
 	
-	public static <U extends IdentityUserFacing> OpalMainForm<U> create(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, U argUserFacing, IdentityFactory<U> argFactory, String argParameterName) {
+	public static <U extends IdentityUserFacing/*<U>*/> OpalMainForm<U> create(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, U argUserFacing, IdentityFactory<U> argFactory, String argParameterName) { // OPALFIXME
 		Validate.notNull(argSession);
 		Validate.notNull(argRequest);
 		Validate.notNull(argFactory);
@@ -111,7 +111,7 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 		return new OpalMainForm<>(argSession, argRequest, argFormAction, argUserFacing, argFactory, argParameterName);
 	}
 	
-	public static <U extends IdentityUserFacing> OpalMainForm<U> create(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory<U> argFactory) {
+	public static <U extends IdentityUserFacing/*<U>*/> OpalMainForm<U> create(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory<U> argFactory) { // OPALFIXME
 		return create(argSession, argRequest, argFormAction, argFactory, OpalMainForm.DEFAULT_UNIQUE_STRING_PARAMETER_NAME);
 	}
 	
@@ -132,7 +132,8 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 	}
 	
 	protected Object getSavedValue(String argFieldName) {
-		return FieldUtility.getValue(getUserFacing(), argFieldName);
+		var uf = getUserFacing();
+		return FieldUtility.getValue(uf, argFieldName);
 	}
 	
 	protected String getSavedValueAsString(String argName) {
@@ -153,7 +154,7 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 	}
 	
 	protected String getUserFacingUniqueString() {
-		IdentityUserFacing lclUF = getUserFacing();
+		IdentityUserFacing/*<U>*/ lclUF = getUserFacing(); // OPALFIXME
 		return lclUF == null ? null : lclUF.getUniqueString();
 	}
 	
@@ -431,7 +432,7 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 		return prepareField(new PasswordField<>(generateFullyQualifiedName(lclVerifyName), getSavedValueAsString(argName), this, argSize).notRealField(), argName);
 	}
 	
-	public <T extends IdentityUserFacing> TextFieldWithHandler<?> special(String argName, int argSize, Class<? extends SpecialHandler<T>> argHandlerClass) {
+	public <T extends IdentityUserFacing/*<T>*/> TextFieldWithHandler<?> special(String argName, int argSize, Class<? extends SpecialHandler<T>> argHandlerClass) { // OPALFIXME
 		Validate.notNull(argName);
 		Validate.isTrue(argSize > 0);
 		Validate.notNull(argHandlerClass);
@@ -631,23 +632,23 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 		return prepareField(new TrinaryField<>(generateFullyQualifiedName(argName), lclCurrentValue), argName);
 	}
 	
-	public <T extends IdentityUserFacing> OpalDropdownField<?, T> dropdown(String argName) {
+	public <T extends IdentityUserFacing/*<T>*/> OpalDropdownField<?, T> dropdown(String argName) { // OPALFIXME
 		return dropdown(argName, (IdentityFactory<T>) null, (Comparator<? super T>) null, (NameCodeExtractor<? super T>) null);
 	}
 	
-	public <T extends IdentityUserFacing> OpalDropdownField<?, T> dropdown(String argName, Comparator<? super T> argComparator) {
+	public <T extends IdentityUserFacing/*<T>*/> OpalDropdownField<?, T> dropdown(String argName, Comparator<? super T> argComparator) { // OPALFIXME
 		return dropdown(argName, (IdentityFactory<T>) null, argComparator, (NameCodeExtractor<T>) null);
 	}
 	
-	public <T extends IdentityUserFacing> OpalDropdownField<?, T> dropdown(String argName, IdentityFactory<T> argFactory, Comparator<? super T> argComparator) {
+	public <T extends IdentityUserFacing/*<T>*/> OpalDropdownField<?, T> dropdown(String argName, IdentityFactory<T> argFactory, Comparator<? super T> argComparator) { // OPALFIXME
 		return dropdown(argName, argFactory, argComparator, (NameCodeExtractor<T>) null);
 	}
 	
-	public <T extends IdentityUserFacing> OpalDropdownField<?, T> dropdown(String argName, Comparator<T> argComparator, NameCodeExtractor<? super T> argNCE) {
+	public <T extends IdentityUserFacing/*<T>*/> OpalDropdownField<?, T> dropdown(String argName, Comparator<T> argComparator, NameCodeExtractor<? super T> argNCE) { // OPALFIXME
 		return dropdown(argName, (IdentityFactory<T>) null, argComparator, argNCE);
 	}
 	
-	public <T extends IdentityUserFacing> OpalDropdownField<?, T> dropdown(String argName, IdentityFactory<T> argFactory, Comparator<? super T> argComparator, NameCodeExtractor<? super T> argNCE) {
+	public <T extends IdentityUserFacing/*<T>*/> OpalDropdownField<?, T> dropdown(String argName, IdentityFactory<T> argFactory, Comparator<? super T> argComparator, NameCodeExtractor<? super T> argNCE) { // OPALFIXME
 		Validate.notNull(argName);
 		
 		requireOpened();
@@ -667,16 +668,16 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 				// CHECK: How slow is this?
 				try {
 					InitialContext lclC = new InitialContext();
-					AbstractFactoryMap lclAFM = (AbstractFactoryMap) lclC.lookup("FactoryMap");
+					AbstractFactoryMap lclAFM = (AbstractFactoryMap) lclC.lookup(FACTORY_MAP_JNDI_KEY);
 					if (lclAFM == null) {
-						throw new IllegalStateException("Could not find instance of AbstractOpalFactoryFactory in the InitialContext under the key OpalFactoryFactory");
+						throw new IllegalStateException("Could not find instance of AbstractFactoryMap in the InitialContext under the key \"" + FACTORY_MAP_JNDI_KEY + "\".");
 					}
 					@SuppressWarnings("unchecked")
 					IdentityFactory<T> lclTempIF = (IdentityFactory<T>) lclAFM.get(lclReturnTypeOfAccessor); // lclTempIF only exists to suppress warnings
 					lclIF = lclTempIF;
 					
 				} catch (NamingException lclE) {
-					throw new IllegalStateException("Could not get an InitialContext or look up the OpalFactoryFactory.");
+					throw new IllegalStateException("Could not get an InitialContext or could not look up the FactoryMap.");
 				}
 			} catch (NoSuchMethodException lclE) {
 				throw new IllegalStateException("Could not find accessor \"" + lclAccessorName + "\" on " + lclInterfaceClass.getName() + " to determine the proper return type.", lclE);
@@ -770,27 +771,27 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 	
 	/* Methods for getting subforms */
 	
-	public <T extends IdentityUserFacing> List<OpalForm<T>> children(String argName, IdentityFactory<T> argFactory) {
+	public <T extends IdentityUserFacing/*<T>*/> List<OpalForm<T>> children(String argName, IdentityFactory<T> argFactory) { // OPALFIXME
 		return children(argName, argFactory, 0, null, null);
 	}
 	
-	public <T extends IdentityUserFacing> List<OpalForm<T>> children(String argName, IdentityFactory<T> argFactory, Comparator<? super T> argComparator) {
+	public <T extends IdentityUserFacing/*<T>*/> List<OpalForm<T>> children(String argName, IdentityFactory<T> argFactory, Comparator<? super T> argComparator) { // OPALFIXME
 		return children(argName, argFactory, 0, null, argComparator);
 	}
 	
-	public <T extends IdentityUserFacing> List<OpalForm<T>> children(String argName, IdentityFactory<T> argFactory, int argNew) {
+	public <T extends IdentityUserFacing/*<T>*/> List<OpalForm<T>> children(String argName, IdentityFactory<T> argFactory, int argNew) { // OPALFIXME
 		return children(argName, argFactory, argNew, null, null);
 	}
 	
-	public <T extends IdentityUserFacing> List<OpalForm<T>> children(String argName, IdentityFactory<T> argFactory, int argNew, Comparator<? super T> argComparator) {
+	public <T extends IdentityUserFacing/*<T>*/> List<OpalForm<T>> children(String argName, IdentityFactory<T> argFactory, int argNew, Comparator<? super T> argComparator) { // OPALFIXME
 		return children(argName, argFactory, argNew, null, argComparator);
 	}
 
-	public <T extends IdentityUserFacing> List<OpalForm<T>> children(String argName, IdentityFactory<T> argFactory, int argNew, Predicate<? super T> argFilter, Comparator<? super T> argComparator) {
+	public <T extends IdentityUserFacing/*<T>*/> List<OpalForm<T>> children(String argName, IdentityFactory<T> argFactory, int argNew, Predicate<? super T> argFilter, Comparator<? super T> argComparator) { // OPALFIXME
 		return children(argName, "get" + argName + "Set", argFactory, argNew, argFilter, argComparator);
 	}
 
-	public <T extends IdentityUserFacing> List<OpalForm<T>> children(String argName, String argAccessorName, IdentityFactory<T> argFactory, int argNew, Predicate<? super T> argFilter, Comparator<? super T> argComparator) {
+	public <T extends IdentityUserFacing/*<T>*/> List<OpalForm<T>> children(String argName, String argAccessorName, IdentityFactory<T> argFactory, int argNew, Predicate<? super T> argFilter, Comparator<? super T> argComparator) { // OPALFIXME
 		Validate.notNull(argName);
 		Validate.notNull(argAccessorName);
 		
@@ -850,7 +851,7 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends IdentityUserFacing> T target(String argName, IdentityFactory<T> argFactory) {
+	public <T extends IdentityUserFacing/*<T>*/> T target(String argName, IdentityFactory<T> argFactory) { // OPALFIXME
 		Validate.notNull(argName);
 		Validate.notNull(argFactory);
 		
@@ -881,7 +882,7 @@ public abstract class OpalForm<U extends IdentityUserFacing> implements FormValu
 		myValidatorClass = argValidatorClass;
 	}
 	
-	public <T extends IdentityUserFacing> OpalForm<T> targetForm(String argName, IdentityFactory<T> argFactory) {
+	public <T extends IdentityUserFacing/*<T>*/> OpalForm<T> targetForm(String argName, IdentityFactory<T> argFactory) { // OPALFIXME
 		noteDisplayedField("Target:" + argName, true); // THINK: should this be false?
 		
 		OpalForm<T> lclOF = new OpalSubform<>(this, argName, target(argName, argFactory), argFactory);

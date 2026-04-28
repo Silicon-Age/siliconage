@@ -33,12 +33,13 @@ import com.opal.FactoryPolymorphicCreator;
 import com.opal.FieldUtility;
 import com.opal.IdentityFactory;
 import com.opal.IdentityUserFacing;
+import com.opal.OpalStringField;
 import com.opal.OpalUtility;
 import com.opal.TransactionContext;
 import com.opal.UserFacing;
 import com.opal.annotation.RequiresActiveTransaction;
 
-public class OpalFormUpdater<U extends IdentityUserFacing> {
+public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 	private final HttpServletRequest myRequest;
 	private final String myPrefix;
 	private final IdentityFactory<U> myFactory;
@@ -47,7 +48,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 	private final Validator<U> myValidator;
 	private String myUsername;
 	private String myPrefixedReferenceName;
-	private UserFacing myParent;
+	private UserFacing/*<?>*/ myParent; // OPALFIXME
 	private final Collection<OpalFormUpdater<?>> myChildUpdaters = new ArrayList<>();
 	
 	private final List<String> myErrors = new ArrayList<>();
@@ -147,6 +148,13 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 		return myUserFacing;
 	}
 	
+	protected Class<U> getUserFacingClass() {
+		U uf = getUserFacing();
+		if (uf == null) {
+			throw new IllegalStateException("getUserFacingClass() called when getUserFacing() was null.");
+		}
+		return (Class<U>) uf.getClass();
+	}
 	
 	protected String generateFullyQualifiedName(String argName) {
 		return OpalForm.generateFullyQualifiedName(getPrefix(), argName);
@@ -412,7 +420,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 				} else {
 					// There is no problem.
 				}
-			} catch (NumberFormatException lclE) {
+			} catch (@SuppressWarnings("unused") NumberFormatException lclE) {
 				ourLogger.error("Received LoadTime of '" + lclFormLoadTimestampString + "'; could not parse that as a long");
 			}
 		}
@@ -492,8 +500,9 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 			
 			/* Update the field */
 			
-			U lclUF = getUserFacing();
-			Class<? extends UserFacing> lclUFClass = lclUF.getClass();
+			U lclUF = Validate.notNull(getUserFacing(), "getUserFacing() is null");
+//			Class<? extends UserFacing<?>> lclUFClass = lclUF.getClass();
+			Class<U> ufClass = getUserFacingClass();
 			
 			boolean lclUpdateField = true;
 			
@@ -605,8 +614,8 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 					} else if (lclOldValue != null && lclOldValue.equals(lclNewValue)) {
 						/* No need to update */
 					} else {
-						if (lclNewValue == null && FieldUtility.isNullable(lclUFClass, argFieldName) == Trinary.FALSE) {
-							Optional<?> lclDefault = FieldUtility.getDefault(lclUFClass, argFieldName);
+						if (lclNewValue == null && FieldUtility.isNullable(ufClass, argFieldName) == Trinary.FALSE) {
+							Optional<?> lclDefault = FieldUtility.getDefault(ufClass, argFieldName);
 							if (lclDefault.isPresent()) {
 								lclNewValue = lclDefault.get();
 							}
@@ -654,15 +663,15 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 	public boolean isRequired(String argFieldName) {
 		Validate.notBlank(argFieldName);
 		
-		Class<? extends UserFacing> lclUFClass = getUserFacing().getClass();
-		Class<?> lclFieldType = FieldUtility.getType(lclUFClass, argFieldName);
+		Class<U> ufClass = getUserFacingClass(); // throws an exception if getUserFacing() is null;
+		Class<?> lclFieldType = FieldUtility.getType(ufClass, argFieldName);
 		
 		if (lclFieldType == null) {
 			return false; // more like, we don't know, but the safe route is to not demand that the user specify something we don't understand
 		} else if (lclFieldType == Boolean.class || lclFieldType == boolean.class) {
 			return false; // because a null string for the field value is simply how "false" is represented
 		} else {
-			return FieldUtility.isNullable(lclUFClass, argFieldName) == Trinary.FALSE && FieldUtility.getDefault(lclUFClass, argFieldName).isPresent() == false && providesDefaultFor(argFieldName) == false;
+			return FieldUtility.isNullable(ufClass, argFieldName) == Trinary.FALSE && FieldUtility.getDefault(ufClass, argFieldName).isPresent() == false && providesDefaultFor(argFieldName) == false;
 		}
 	}
 	
@@ -750,15 +759,27 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 		Validate.notNull(argFieldName);
 		// ourLogger.debug("Validating against annotations for " + argFieldName + " and " + argValue);
 		
-		Class<? extends UserFacing> lclUFClass = getUserFacing().getClass();
-		Class<?> lclFieldType = FieldUtility.getType(lclUFClass, argFieldName);
+		U uf = getUserFacing();
+		Validate.notNull(uf, "uf is null");
+
+		// OPALFIXME: These three lines should uncommented
+//		var field = uf.getField(argFieldName);
+//		Validate.notNull(field, "field is null");
+//		Class<?> fieldType = field.getType();
+		
+		// OPALFIXME: These three lines should be removed
+		Class<? extends UserFacing/*<?>*/> lclUFClass = getUserFacing().getClass();
+		Class<?> fieldType = FieldUtility.getType(lclUFClass, argFieldName);
+//		Class<?> fieldType = getUserFacing().getFieldType(argFieldName);
+
 		
 		if (isRequired(argFieldName) && argValue == null) {
 			addError(argFieldName, argFieldName + " is required.");
 			return;
 		}
 		
-		if (argValue != null && lclFieldType == String.class) {
+		// OPALFIXME: The following if block should be removed and replaced with the subsequent commented-out block
+		if (argValue != null && fieldType == String.class) {
 			OptionalLong lclMin = FieldUtility.getMinimumLength(lclUFClass, argFieldName);
 			if (lclMin.isPresent() && argValue.length() < lclMin.getAsLong()) {
 				long lclMinLength = lclMin.getAsLong();
@@ -770,10 +791,8 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 				} else {
 					lclMust = " must be at least " + lclMinLength + " characters long.";
 				}
-				
 				addError(argFieldName, argFieldName + ' ' + lclMust);
 			}
-			
 			OptionalLong lclMax = FieldUtility.getMaximumLength(lclUFClass, argFieldName);
 			if (lclMax.isPresent() && argValue.length() > lclMax.getAsLong()) {
 				long lclMaxLength = lclMax.getAsLong();
@@ -785,10 +804,42 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 				} else {
 					lclMust = " cannot be longer than " + lclMax.getAsLong() + " characters.";
 				}
-				
 				addError(argFieldName, argFieldName + ' ' + lclMust);
 			}
 		}
+// OPALFIXME: This whole section must be restored
+//		if (argValue != null && fieldType == String.class) {
+//			OpalStringField<U> stringField = (OpalStringField<U>) field; // FIXME: Check
+//			int lclMin = stringField.getMinimumLength(); // 
+//			if (/* lclMin.isPresent() && */ argValue.length() < lclMin) {
+//				long lclMinLength = lclMin; // FIXME: Extra variables
+//				String lclMust;
+//				if (lclMinLength == 0L) {
+//					lclMust = " must not be blank.";
+//				} else if (lclMinLength == 1L) {
+//					lclMust = " must be at least one character long.";
+//				} else {
+//					lclMust = " must be at least " + lclMinLength + " characters long.";
+//				}
+//				
+//				addError(argFieldName, argFieldName + ' ' + lclMust);
+//			}
+//			
+//			int lclMax = stringField.getMaximumLength();
+//			if (/* lclMax.isPresent() && */ argValue.length() > lclMax) {
+//				long lclMaxLength = lclMax;
+//				String lclMust;
+//				if (lclMaxLength == 0L) {
+//					lclMust = " must be blank.";
+//				} else if (lclMaxLength == 1L) {
+//					lclMust = " cannot be more than one character long.";
+//				} else {
+//					lclMust = " cannot be longer than " + lclMaxLength + " characters.";
+//				}
+//				
+//				addError(argFieldName, argFieldName + ' ' + lclMust);
+//			}
+//		}
 	}
 	
 	protected boolean displayed(String argName) {
@@ -833,7 +884,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 	protected String appendParameter(String argPrefixedParameterName) {
 		Validate.notBlank(argPrefixedParameterName);
 		
-		IdentityUserFacing lclUF = getUserFacing();
+		IdentityUserFacing/*<U>*/ lclUF = getUserFacing(); // OPALFIXME
 		String lclURI = getPrefixedParameter(argPrefixedParameterName);
 		
 		if (lclUF == null || lclUF.isNew()) {
@@ -846,7 +897,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 	}
 	
 	protected String getPresentableUniqueString() {
-		IdentityUserFacing lclUF = getUserFacing();
+		IdentityUserFacing/*<U>*/ lclUF = getUserFacing(); // OPALFIXME
 		if (lclUF == null || lclUF.isNew()) {
 			return null;
 		} else {
@@ -911,7 +962,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 	
 	@RequiresActiveTransaction
 	protected void automaticReferences() {
-		IdentityUserFacing lclUF = getUserFacing();
+		IdentityUserFacing/*<U>*/ lclUF = getUserFacing(); // OPALFIXME
 		// ourLogger.debug("automaticReferences for " + lclUF);
 		Method[] lclMethodArray = lclUF.getClass().getMethods();
 		for (Method lclM : lclMethodArray) {
@@ -921,7 +972,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 				Class<?> lclOnlyParameterType = lclM.getParameterTypes()[0];
 				if (UserFacing.class.isAssignableFrom(lclOnlyParameterType)) {
 					@SuppressWarnings("unchecked")
-					Class<? extends IdentityUserFacing> lclType = (Class<? extends IdentityUserFacing>) lclOnlyParameterType;
+					Class<? extends IdentityUserFacing/*<?>*/> lclType = (Class<? extends IdentityUserFacing/*<?>*/>) lclOnlyParameterType; // OPALFIXME
 					
 					String lclName = lclM.getName().substring(3);
 					// ourLogger.debug("Looking for " + lclName);
@@ -939,7 +990,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 		Validate.notNull(argType);
 		
 		String lclParam = getPrefixedParameter(argFieldName);
-		IdentityUserFacing lclUF = getUserFacing();
+		IdentityUserFacing/*<U>*/ lclUF = getUserFacing(); // OPALFIXME
 		
 		if (StringUtils.isEmpty(lclParam)) {
 			if (getUserFacing().isNew() && isRequired(argFieldName) && providesDefaultFor(argFieldName) == false) {
@@ -962,8 +1013,8 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 				ourLogger.debug("Working on "+ argFieldName + "; posted value is \"" + lclParam + "\"");
 			}
 			/* FIXME: This should use the new FactoryMap by default. */
-			IdentityFactory<? extends IdentityUserFacing> lclTargetFactory = determineReferenceFactory(argFieldName, argType);
-			IdentityUserFacing lclTarget;
+			IdentityFactory<? extends IdentityUserFacing/*<?>*/> lclTargetFactory = determineReferenceFactory(argFieldName, argType); // OPALFIXME
+			IdentityUserFacing/*<?>*/ lclTarget; // OPALFIXME
 			if (special(argFieldName)) {
 				// ourLogger.debug("handling special reference for " + argFieldName + " / " + lclTargetFactory);
 				try {
@@ -995,7 +1046,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 	}
 	
 	@RequiresActiveTransaction
-	protected <T extends IdentityUserFacing> IdentityUserFacing handleSpecialReference(String argName, IdentityFactory<T> argTargetFactory) {
+	protected <T extends IdentityUserFacing/*<T>*/> IdentityUserFacing/*<T>*/ handleSpecialReference(String argName, IdentityFactory<T> argTargetFactory) { // OPALFIXME
 		Validate.notNull(argName);
 		String lclSpecialHandlerClassName = getPrefixedParameter("SpecialHandler_" + argName);
 		Validate.notNull(lclSpecialHandlerClassName);
@@ -1012,7 +1063,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 	/* Determine the Factory that should be used to obtain the Opal that was specified as the value of
 	 * a reference (foreign key) from the Opal being edited.  This is currently only called by automaticReferences. 
 	 */
-	protected <I extends IdentityUserFacing> IdentityFactory<I> determineReferenceFactory(String argName, Class<I> argUserFacingClass) {
+	protected <I extends IdentityUserFacing/*<I>*/> IdentityFactory<I> determineReferenceFactory(String argName, Class<I> argUserFacingClass) { // OPALFIXME
 		Validate.notNull(argName);
 		
 		/* We look up the name of the Factory that was specified (via a HIDDEN form field) in the request.  This will
@@ -1062,7 +1113,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 	
 	@RequiresActiveTransaction
 	protected void automaticTargets() {
-		IdentityUserFacing lclUF = getUserFacing();
+		IdentityUserFacing/*<?>*/ lclUF = getUserFacing(); // OPALFIXME
 		if (ourLogger.isDebugEnabled()) {
 			ourLogger.debug("In automaticTargets for " + lclUF);
 		}
@@ -1085,7 +1136,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 						}
 						
 						boolean lclTargetDataExistence = determineTargetDataExistence(lclName);
-						IdentityUserFacing lclChildUF;
+						IdentityUserFacing/*<?>*/ lclChildUF; // OPALFIXME
 						if (lclTargetDataExistence) {
 							lclTargetUpdater.update();
 
@@ -1106,7 +1157,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 						}
 						
 						try {
-							IdentityUserFacing lclTarget = (IdentityUserFacing) lclM.invoke(lclUF);
+							IdentityUserFacing/*<?>*/ lclTarget = (IdentityUserFacing/*<?>*/) lclM.invoke(lclUF); // OPALFIXME
 							if (ourLogger.isDebugEnabled()) {
 								ourLogger.debug("lclTarget = " + lclTarget);
 							}
@@ -1201,7 +1252,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 		if (ourLogger.isDebugEnabled()) {
 			ourLogger.debug("Doing automaticChildren for " + getUserFacing());
 		}
-		IdentityUserFacing lclUF = getUserFacing();
+		IdentityUserFacing/*<U>*/ lclUF = getUserFacing(); // OPALFIXME
 		Method[] lclMethodArray = lclUF.getClass().getMethods();
 		for (Method lclM : lclMethodArray) {
 			/* Is it a creator method for a child array?  We use createChildArray() instead of getChildSet() because the latter can be confused with regular field accessors */
@@ -1292,20 +1343,20 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 		return false;
 	}
 	
-	protected <T extends IdentityUserFacing> OpalFormUpdater<T> createChildUpdater(String argNewPrefix) {
+	protected <T extends IdentityUserFacing/*<T>*/> OpalFormUpdater<T> createChildUpdater(String argNewPrefix) { // OPALFIXME
 		OpalFormUpdater<T> lclOFU = createChildUpdater(argNewPrefix, (Validator<T>) null);
 		lclOFU.setUsername(getUsername());
 		return lclOFU;
 	}
 	
-	protected <T extends IdentityUserFacing> OpalFormUpdater<T> createChildUpdater(String argNewPrefix, Validator<T> argValidator) {
+	protected <T extends IdentityUserFacing/*<T>*/> OpalFormUpdater<T> createChildUpdater(String argNewPrefix, Validator<T> argValidator) { // OPALFIXME
 		OpalFormUpdater<T> lclOFU = createUpdater(getRequest(), getPrefix() + OpalForm.FULLY_QUALIFIED_NAME_SEPARATOR + argNewPrefix, null, argValidator);
 		lclOFU.setUsername(getUsername());
 		myChildUpdaters.add(lclOFU);
 		return lclOFU;
 	}
 	
-	protected <T extends IdentityUserFacing> OpalFormUpdater<T> createChildUpdater(String argNewPrefix, Validator<T> argValidator, String argPrefixedReferenceName) {
+	protected <T extends IdentityUserFacing/*<T>*/> OpalFormUpdater<T> createChildUpdater(String argNewPrefix, Validator<T> argValidator, String argPrefixedReferenceName) { // OPALFIXME
 		Validate.notBlank(argNewPrefix);
 		Validate.notBlank(argPrefixedReferenceName);
 		
@@ -1315,15 +1366,15 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 		return lclOFU;
 	}
 	
-	/* package */ static <T extends IdentityUserFacing> OpalFormUpdater<T> createUpdater(HttpServletRequest argRequest, String argPrefix, String argUniqueStringParameterName) {
+	/* package */ static <T extends IdentityUserFacing/*<T>*/> OpalFormUpdater<T> createUpdater(HttpServletRequest argRequest, String argPrefix, String argUniqueStringParameterName) { // OPALFIXME
 		return createUpdater(argRequest, argPrefix, argUniqueStringParameterName, (Validator<T>) null);
 	}
 	
-	/* package */ static <T extends IdentityUserFacing> OpalFormUpdater<T> createUpdater(HttpServletRequest argRequest, String argPrefix, String argUniqueStringParameterName, Validator<T> argValidator) {
+	/* package */ static <T extends IdentityUserFacing/*<T>*/> OpalFormUpdater<T> createUpdater(HttpServletRequest argRequest, String argPrefix, String argUniqueStringParameterName, Validator<T> argValidator) { // OPALFIXME
 		return createUpdater(argRequest, argPrefix, argUniqueStringParameterName, argValidator, null, null);
 	}
 	
-	/* package */ static <T extends IdentityUserFacing> OpalFormUpdater<T> createUpdater(HttpServletRequest argRequest, String argPrefix, String argUniqueStringParameterName, Validator<T> argValidator, String argPrefixedReferenceName, UserFacing argParent) {
+	/* package */ static <T extends IdentityUserFacing/*<T>*/> OpalFormUpdater<T> createUpdater(HttpServletRequest argRequest, String argPrefix, String argUniqueStringParameterName, Validator<T> argValidator, String argPrefixedReferenceName, UserFacing/*<?>*/ argParent) { // OPALFIXME
 		Validate.isTrue((argPrefixedReferenceName == null) == (argParent == null), "argPrefixedReferenceName may be null if and only if argParent is null");
 		
 		String lclUpdaterClassName = argRequest.getParameter(argPrefix + OpalForm.FULLY_QUALIFIED_NAME_SEPARATOR + "UpdaterClassName");
@@ -1420,7 +1471,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 		myPrefixedReferenceName = argPrefixedReferenceName;
 	}
 	
-	protected UserFacing getParent() {
+	protected UserFacing getParent() { // FIXME: Document what this does
 		return myParent;
 	}
 	
@@ -1429,7 +1480,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing> {
 	}
 	
 	@RequiresActiveTransaction
-	protected void setParent(UserFacing argParent) {
+	protected void setParent(UserFacing argParent) { // FIXME: Document what this does
 		myParent = argParent;
 	}
 	

@@ -1,12 +1,11 @@
 package com.opal;
 
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.opal.cma.validator.FieldValidator;
-
-public abstract class OpalSpecificField <U extends UserFacing, T> implements OpalField<U, T> {
+public abstract class OpalSpecificField <U extends UserFacing/*<U>*/, T> implements OpalField<U, T> { // OPALFIXME
 	
 	private final OpalBaseField<U, T> myBaseField;
 	
@@ -64,7 +63,7 @@ public abstract class OpalSpecificField <U extends UserFacing, T> implements Opa
 	}
 
 	@Override
-	public final BiFunction<U, T, ?> getObjectMutator() {
+	public final BiConsumer<U, T> getObjectMutator() {
 		return getBaseField().getObjectMutator();
 	}
 

@@ -1,6 +1,6 @@
 package com.opal;
 
-public abstract /* value */ class SingleValueDatabaseOpalKey<O extends IdentityOpal<? extends IdentityUserFacing>> extends SingleValueOpalKey<O> implements DatabaseOpalKey<O> {
+public abstract /* value */ class SingleValueDatabaseOpalKey<O extends IdentityOpal<? extends IdentityUserFacing>> extends SingleValueOpalKey<O> implements DatabaseOpalKey<O> { // OPALFIXME
 	 
 	protected SingleValueDatabaseOpalKey(Object argKeyValue) {
 		super(argKeyValue);

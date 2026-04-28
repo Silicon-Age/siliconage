@@ -3,7 +3,7 @@ package com.opal;
 /**
  * @author topquark
  */
-public abstract class AbstractIdentityFactory<U extends IdentityUserFacing, O extends IdentityOpal<U>> extends AbstractFactory<U, O> implements IdentityFactory<U> {
+public abstract class AbstractIdentityFactory<U extends IdentityUserFacing/*<U>*/, O extends IdentityOpal<U>> extends AbstractFactory<U, O> implements IdentityFactory<U> { // OPALFIXME
 	// private final IdentityOpalFactory<U, O> myOpalFactory;
 	
 	protected AbstractIdentityFactory(IdentityOpalFactory<U, O> argOF) {

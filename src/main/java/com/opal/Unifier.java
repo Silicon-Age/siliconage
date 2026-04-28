@@ -20,7 +20,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-public class Unifier<U extends IdentityUserFacing> {
+public class Unifier<U extends IdentityUserFacing> { // OPALFIXME
 	// private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(Unifier.class.getName());
 	
 	private final Factory<U> myFactory;
@@ -55,7 +55,7 @@ public class Unifier<U extends IdentityUserFacing> {
 	public Unifier<U> firstNonNull(String argFieldName) {
 		Validate.notEmpty(argFieldName);
 		
-		getGood().setField(argFieldName, ObjectUtils.firstNonNull(getGood().getField(argFieldName), getFirstNonNullFromBads(argFieldName)));
+		getGood().setFieldValue(argFieldName, ObjectUtils.firstNonNull(getGood().getFieldValue(argFieldName), getFirstNonNullFromBads(argFieldName)));
 		
 		return this;
 	}
@@ -74,7 +74,7 @@ public class Unifier<U extends IdentityUserFacing> {
 		Validate.notEmpty(argFieldName);
 		
 		for (U lclU : getBads()) {
-			Object lclFieldValue = lclU.getField(argFieldName);
+			Object lclFieldValue = lclU.getFieldValue(argFieldName);
 			if (lclFieldValue != null) {
 				return lclFieldValue;
 			}
@@ -170,13 +170,13 @@ public class Unifier<U extends IdentityUserFacing> {
 		
 		List<String> lclValues = new ArrayList<>(1 + getBads().size());
 		
-		String lclGoodValue = (String) getGood().getField(argFieldName); // which may be null
+		String lclGoodValue = (String) getGood().getFieldValue(argFieldName); // which may be null
 		if (lclGoodValue != null) {
 			lclValues.add(lclGoodValue);
 		}
 		lclValues.addAll(
 			getBads().stream()
-				.map(argBad -> argBad.getField(argFieldName) == null ? null : (String) argBad.getField(argFieldName))
+				.map(argBad -> argBad.getFieldValue(argFieldName) == null ? null : (String) argBad.getFieldValue(argFieldName))
 				.filter(Objects::nonNull)
 				.distinct()
 				.collect(Collectors.toList())
@@ -189,12 +189,12 @@ public class Unifier<U extends IdentityUserFacing> {
 			long lclMaxLength = lclMaxLengthOpt.getAsLong();
 			
 			if (lclConcatenated != null && lclConcatenated.length() > lclMaxLength) {
-				getGood().setField(argFieldName, lclConcatenated.substring(0, Math.min(Integer.MAX_VALUE, (int) lclMaxLength)));
+				getGood().setFieldValue(argFieldName, lclConcatenated.substring(0, Math.min(Integer.MAX_VALUE, (int) lclMaxLength)));
 			} else {
-				getGood().setField(argFieldName, lclConcatenated);
+				getGood().setFieldValue(argFieldName, lclConcatenated);
 			}
 		} else {
-			getGood().setField(argFieldName, lclConcatenated);
+			getGood().setFieldValue(argFieldName, lclConcatenated);
 		}
 		
 		return this;
@@ -211,11 +211,11 @@ public class Unifier<U extends IdentityUserFacing> {
 		
 		int lclSum;
 		
-		Integer lclGoodValue = (Integer) getGood().getField(argFieldName);
+		Integer lclGoodValue = (Integer) getGood().getFieldValue(argFieldName);
 		int lclGoodIntValue = lclGoodValue == null ? argValueForNulls : lclGoodValue.intValue();
 		
 		long lclBadSum = getBads().stream()
-				.map(argBad -> (Integer) argBad.getField(argFieldName))
+				.map(argBad -> (Integer) argBad.getFieldValue(argFieldName))
 				.mapToInt(argValue -> argValue == null ? argValueForNulls : argValue.intValue())
 				.sum();
 		
@@ -227,7 +227,7 @@ public class Unifier<U extends IdentityUserFacing> {
 			lclSum = (int) lclSumGoodAndBad;
 		}
 		
-		getGood().setField(argFieldName, Integer.valueOf(lclSum));
+		getGood().setFieldValue(argFieldName, Integer.valueOf(lclSum));
 		
 		return this;
 	}
@@ -241,15 +241,15 @@ public class Unifier<U extends IdentityUserFacing> {
 		
 		Validate.isTrue(getGood().getFieldType(argFieldName) == Long.class, "This method is for adding longs/Longs");
 		
-		Long lclGoodValue = (Long) getGood().getField(argFieldName);
+		Long lclGoodValue = (Long) getGood().getFieldValue(argFieldName);
 		long lclGoodPrimitiveValue = lclGoodValue == null ? argValueForNulls : lclGoodValue.longValue();
 		
 		long lclBadSum = getBads().stream()
-				.map(argBad -> (Long) argBad.getField(argFieldName))
+				.map(argBad -> (Long) argBad.getFieldValue(argFieldName))
 				.mapToLong(argValue -> argValue == null ? argValueForNulls : argValue.longValue())
 				.sum();
 		
-		getGood().setField(argFieldName, Long.valueOf(lclGoodPrimitiveValue + lclBadSum));
+		getGood().setFieldValue(argFieldName, Long.valueOf(lclGoodPrimitiveValue + lclBadSum));
 		
 		return this;
 	}
@@ -263,15 +263,15 @@ public class Unifier<U extends IdentityUserFacing> {
 		
 		Validate.isTrue(getGood().getFieldType(argFieldName) == Double.class, "This method is for adding doubles/Doubles");
 		
-		Double lclGoodValue = (Double) getGood().getField(argFieldName);
+		Double lclGoodValue = (Double) getGood().getFieldValue(argFieldName);
 		double lclGoodPrimitiveValue = lclGoodValue == null ? argValueForNulls : lclGoodValue.doubleValue();
 		
 		double lclBadSum = getBads().stream()
-				.map(argBad -> (Double) argBad.getField(argFieldName))
+				.map(argBad -> (Double) argBad.getFieldValue(argFieldName))
 				.mapToDouble(argValue -> argValue == null ? argValueForNulls : argValue.doubleValue())
 				.sum();
 		
-		getGood().setField(argFieldName, Double.valueOf(lclGoodPrimitiveValue + lclBadSum));
+		getGood().setFieldValue(argFieldName, Double.valueOf(lclGoodPrimitiveValue + lclBadSum));
 		
 		return this;
 	}
@@ -281,15 +281,15 @@ public class Unifier<U extends IdentityUserFacing> {
 		
 		Validate.isTrue(getGood().getFieldType(argFieldName) == Float.class, "This method is for adding floats/Floats");
 		
-		Float lclGoodValue = (Float) getGood().getField(argFieldName);
+		Float lclGoodValue = (Float) getGood().getFieldValue(argFieldName);
 		float lclGoodPrimitiveValue = lclGoodValue == null ? argValueForNulls : lclGoodValue.floatValue();
 		
 		float lclBadSum = (float) getBads().stream() // FIXME: risk of overflow
-				.map(argBad -> (Float) argBad.getField(argFieldName))
+				.map(argBad -> (Float) argBad.getFieldValue(argFieldName))
 				.mapToDouble(argValue -> argValue == null ? argValueForNulls : argValue.doubleValue()) // There is no mapToFloat
 				.sum();
 		
-		getGood().setField(argFieldName, Float.valueOf(lclGoodPrimitiveValue + lclBadSum));
+		getGood().setFieldValue(argFieldName, Float.valueOf(lclGoodPrimitiveValue + lclBadSum));
 		
 		return this;
 	}
@@ -305,16 +305,16 @@ public class Unifier<U extends IdentityUserFacing> {
 	public Unifier<U> max(String argFieldName, int argDefault) {
 		Validate.notEmpty(argFieldName);
 		
-		Integer lclGoodValue = (Integer) getGood().getField(argFieldName);
+		Integer lclGoodValue = (Integer) getGood().getFieldValue(argFieldName);
 		int lclGoodPrimitiveValue = lclGoodValue == null ? argDefault : lclGoodValue.intValue();
 		
 		int lclMaxOfBads = getBads().stream()
-				.map(argBad -> (Integer) argBad.getField(argFieldName))
+				.map(argBad -> (Integer) argBad.getFieldValue(argFieldName))
 				.mapToInt(argValue -> argValue == null ? argDefault : argValue.intValue())
 				.max()
 				.orElse(lclGoodPrimitiveValue);
 		
-		getGood().setField(argFieldName, Integer.valueOf(Math.max(lclMaxOfBads, lclGoodPrimitiveValue)));
+		getGood().setFieldValue(argFieldName, Integer.valueOf(Math.max(lclMaxOfBads, lclGoodPrimitiveValue)));
 		
 		return this;
 	}
@@ -326,16 +326,16 @@ public class Unifier<U extends IdentityUserFacing> {
 	public Unifier<U> max(String argFieldName, long argDefault) {
 		Validate.notEmpty(argFieldName);
 		
-		Long lclGoodValue = (Long) getGood().getField(argFieldName);
+		Long lclGoodValue = (Long) getGood().getFieldValue(argFieldName);
 		long lclGoodPrimitiveValue = lclGoodValue == null ? argDefault : lclGoodValue.longValue();
 		
 		long lclMaxOfBads = getBads().stream()
-			.map(argBad -> (Long) argBad.getField(argFieldName))
+			.map(argBad -> (Long) argBad.getFieldValue(argFieldName))
 			.mapToLong(argValue -> argValue == null ? argDefault : argValue.longValue())
 			.max()
 			.orElse(lclGoodPrimitiveValue);
 		
-		getGood().setField(argFieldName, Long.valueOf(Math.max(lclMaxOfBads, lclGoodPrimitiveValue)));
+		getGood().setFieldValue(argFieldName, Long.valueOf(Math.max(lclMaxOfBads, lclGoodPrimitiveValue)));
 		
 		return this;
 	}
@@ -347,16 +347,16 @@ public class Unifier<U extends IdentityUserFacing> {
 	public Unifier<U> max(String argFieldName, double argDefault) {
 		Validate.notEmpty(argFieldName);
 		
-		Double lclGoodValue = (Double) getGood().getField(argFieldName);
+		Double lclGoodValue = (Double) getGood().getFieldValue(argFieldName);
 		double lclGoodPrimitiveValue = lclGoodValue == null ? argDefault : lclGoodValue.doubleValue();
 		
 		double lclMaxOfBads = getBads().stream()
-			.map(argBad -> (Double) argBad.getField(argFieldName))
+			.map(argBad -> (Double) argBad.getFieldValue(argFieldName))
 			.mapToDouble(argValue -> argValue == null ? argDefault : argValue.doubleValue())
 			.max()
 			.orElse(lclGoodPrimitiveValue);
 		
-		getGood().setField(argFieldName, Double.valueOf(Math.max(lclMaxOfBads, lclGoodPrimitiveValue)));
+		getGood().setFieldValue(argFieldName, Double.valueOf(Math.max(lclMaxOfBads, lclGoodPrimitiveValue)));
 		
 		return this;
 	}
@@ -372,7 +372,7 @@ public class Unifier<U extends IdentityUserFacing> {
 		int lclNulls = 0;
 		int lclFalses = 0;
 		
-		Boolean lclGoodValue = (Boolean) getGood().getField(argFieldName);
+		Boolean lclGoodValue = (Boolean) getGood().getFieldValue(argFieldName);
 		if (lclGoodValue == null) {
 			++lclNulls;
 		} else if (lclGoodValue.equals(Boolean.TRUE)) {
@@ -383,7 +383,7 @@ public class Unifier<U extends IdentityUserFacing> {
 		}
 		
 		for (U lclBad : lclBads) {
-			Boolean lclBadValue = (Boolean) lclBad.getField(argFieldName);
+			Boolean lclBadValue = (Boolean) lclBad.getFieldValue(argFieldName);
 			if (lclBadValue == null) {
 				++lclNulls;
 			} else if (lclBadValue.equals(Boolean.TRUE)) {
@@ -397,11 +397,11 @@ public class Unifier<U extends IdentityUserFacing> {
 		Validate.isTrue(lclTrues + lclNulls + lclFalses == lclCount);
 		
 		if (lclTrues == lclCount) {
-			getGood().setField(argFieldName, Boolean.TRUE);
+			getGood().setFieldValue(argFieldName, Boolean.TRUE);
 		} else if (lclFalses > 0) {
-			getGood().setField(argFieldName, Boolean.FALSE);
+			getGood().setFieldValue(argFieldName, Boolean.FALSE);
 		} else {
-			getGood().setField(argFieldName, null);
+			getGood().setFieldValue(argFieldName, null);
 		}
 		
 		return this;
@@ -418,7 +418,7 @@ public class Unifier<U extends IdentityUserFacing> {
 		int lclNulls = 0;
 		int lclFalses = 0;
 		
-		Boolean lclGoodValue = (Boolean) getGood().getField(argFieldName);
+		Boolean lclGoodValue = (Boolean) getGood().getFieldValue(argFieldName);
 		if (lclGoodValue == null) {
 			++lclNulls;
 		} else if (lclGoodValue.equals(Boolean.TRUE)) {
@@ -429,7 +429,7 @@ public class Unifier<U extends IdentityUserFacing> {
 		}
 		
 		for (U lclBad : lclBads) {
-			Boolean lclBadValue = (Boolean) lclBad.getField(argFieldName);
+			Boolean lclBadValue = (Boolean) lclBad.getFieldValue(argFieldName);
 			if (lclBadValue == null) {
 				++lclNulls;
 			} else if (lclBadValue.equals(Boolean.TRUE)) {
@@ -443,11 +443,11 @@ public class Unifier<U extends IdentityUserFacing> {
 		Validate.isTrue(lclTrues + lclNulls + lclFalses == lclCount);
 		
 		if (lclTrues > 0) {
-			getGood().setField(argFieldName, Boolean.TRUE);
+			getGood().setFieldValue(argFieldName, Boolean.TRUE);
 		} else if (lclNulls == 0) {
-			getGood().setField(argFieldName, Boolean.FALSE);
+			getGood().setFieldValue(argFieldName, Boolean.FALSE);
 		} else {
-			getGood().setField(argFieldName, null);
+			getGood().setFieldValue(argFieldName, null);
 		}
 		
 		return this;
@@ -457,10 +457,10 @@ public class Unifier<U extends IdentityUserFacing> {
 		Validate.notEmpty(argFieldName);
 		
 		if (getGood().getFieldType(argFieldName) == LocalDate.class) {
-			LocalDate lclGoodValue = (LocalDate) getGood().getField(argFieldName);
+			LocalDate lclGoodValue = (LocalDate) getGood().getFieldValue(argFieldName);
 			
 			Stream<LocalDate> lclBadValues = getBads().stream()
-				.map(argBad -> (LocalDate) argBad.getField(argFieldName));
+				.map(argBad -> (LocalDate) argBad.getFieldValue(argFieldName));
 			
 			Stream<LocalDate> lclAllValues = Stream.concat(lclBadValues, Stream.of(lclGoodValue));
 			
@@ -469,12 +469,12 @@ public class Unifier<U extends IdentityUserFacing> {
 				.sorted()
 				.findFirst().orElse(null);
 			
-			getGood().setField(argFieldName, lclEarliest); // which could still be null, if every value was null
+			getGood().setFieldValue(argFieldName, lclEarliest); // which could still be null, if every value was null
 		} else if (getGood().getFieldType(argFieldName) == LocalDateTime.class) {
-			LocalDateTime lclGoodValue = (LocalDateTime) getGood().getField(argFieldName);
+			LocalDateTime lclGoodValue = (LocalDateTime) getGood().getFieldValue(argFieldName);
 			
 			Stream<LocalDateTime> lclBadValues = getBads().stream()
-				.map(argBad -> (LocalDateTime) argBad.getField(argFieldName));
+				.map(argBad -> (LocalDateTime) argBad.getFieldValue(argFieldName));
 			
 			Stream<LocalDateTime> lclAllValues = Stream.concat(lclBadValues, Stream.of(lclGoodValue));
 			
@@ -483,7 +483,7 @@ public class Unifier<U extends IdentityUserFacing> {
 				.sorted()
 				.findFirst().orElse(null);
 			
-			getGood().setField(argFieldName, lclEarliest); // which could still be null, if every value was null
+			getGood().setFieldValue(argFieldName, lclEarliest); // which could still be null, if every value was null
 		} else {
 			throw new IllegalArgumentException("Can only perform 'earliest' on LocalDate or LocalDateTime fields");
 		}
@@ -495,33 +495,33 @@ public class Unifier<U extends IdentityUserFacing> {
 		Validate.notEmpty(argFieldName);
 		
 		if (getGood().getFieldType(argFieldName) == LocalDate.class) {
-			LocalDate lclGoodValue = (LocalDate) getGood().getField(argFieldName);
+			LocalDate lclGoodValue = (LocalDate) getGood().getFieldValue(argFieldName);
 			if (lclGoodValue == null) {
 				return this;
 			}
 			
 			List<LocalDate> lclBadValues = getBads().stream()
-				.map(argBad -> (LocalDate) argBad.getField(argFieldName))
+				.map(argBad -> (LocalDate) argBad.getFieldValue(argFieldName))
 				.collect(Collectors.toList());
 			
 			if (lclBadValues.contains(null)) {
-				getGood().setField(argFieldName, null);
+				getGood().setFieldValue(argFieldName, null);
 				return this;
 			}
 			
 			return earliestNonNull(argFieldName);
 		} else if (getGood().getFieldType(argFieldName) == LocalDateTime.class) {
-			LocalDateTime lclGoodValue = (LocalDateTime) getGood().getField(argFieldName);
+			LocalDateTime lclGoodValue = (LocalDateTime) getGood().getFieldValue(argFieldName);
 			if (lclGoodValue == null) {
 				return this;
 			}
 			
 			List<LocalDateTime> lclBadValues = getBads().stream()
-				.map(argBad -> (LocalDateTime) argBad.getField(argFieldName))
+				.map(argBad -> (LocalDateTime) argBad.getFieldValue(argFieldName))
 				.collect(Collectors.toList());
 			
 			if (lclBadValues.contains(null)) {
-				getGood().setField(argFieldName, null);
+				getGood().setFieldValue(argFieldName, null);
 				return this;
 			}
 			
@@ -535,10 +535,10 @@ public class Unifier<U extends IdentityUserFacing> {
 		Validate.notEmpty(argFieldName);
 		
 		if (getGood().getFieldType(argFieldName) == LocalDate.class) {
-			LocalDate lclGoodValue = (LocalDate) getGood().getField(argFieldName);
+			LocalDate lclGoodValue = (LocalDate) getGood().getFieldValue(argFieldName);
 			
 			Stream<LocalDate> lclBadValues = getBads().stream()
-				.map(argBad -> (LocalDate) argBad.getField(argFieldName));
+				.map(argBad -> (LocalDate) argBad.getFieldValue(argFieldName));
 			
 			Stream<LocalDate> lclAllValues = Stream.concat(lclBadValues, Stream.of(lclGoodValue));
 			
@@ -547,12 +547,12 @@ public class Unifier<U extends IdentityUserFacing> {
 				.sorted(Comparator.<LocalDate>naturalOrder().reversed())
 				.findFirst().orElse(null);
 			
-			getGood().setField(argFieldName, lclLatest); // which could still be null, if every value was null
+			getGood().setFieldValue(argFieldName, lclLatest); // which could still be null, if every value was null
 		} else if (getGood().getFieldType(argFieldName) == LocalDateTime.class) {
-			LocalDateTime lclGoodValue = (LocalDateTime) getGood().getField(argFieldName);
+			LocalDateTime lclGoodValue = (LocalDateTime) getGood().getFieldValue(argFieldName);
 			
 			Stream<LocalDateTime> lclBadValues = getBads().stream()
-				.map(argBad -> (LocalDateTime) argBad.getField(argFieldName));
+				.map(argBad -> (LocalDateTime) argBad.getFieldValue(argFieldName));
 			
 			Stream<LocalDateTime> lclAllValues = Stream.concat(lclBadValues, Stream.of(lclGoodValue));
 			
@@ -561,7 +561,7 @@ public class Unifier<U extends IdentityUserFacing> {
 				.sorted(Comparator.<LocalDateTime>naturalOrder().reversed())
 				.findFirst().orElse(null);
 			
-			getGood().setField(argFieldName, lclLatest); // which could still be null, if every value was null
+			getGood().setFieldValue(argFieldName, lclLatest); // which could still be null, if every value was null
 		} else {
 			throw new IllegalArgumentException("Can only perform 'latest' on LocalDate or LocalDateTime fields");
 		}
@@ -573,33 +573,33 @@ public class Unifier<U extends IdentityUserFacing> {
 		Validate.notEmpty(argFieldName);
 		
 		if (getGood().getFieldType(argFieldName) == LocalDate.class) {
-			LocalDate lclGoodValue = (LocalDate) getGood().getField(argFieldName);
+			LocalDate lclGoodValue = (LocalDate) getGood().getFieldValue(argFieldName);
 			if (lclGoodValue == null) {
 				return this;
 			}
 			
 			List<LocalDate> lclBadValues = getBads().stream()
-				.map(argBad -> (LocalDate) argBad.getField(argFieldName))
+				.map(argBad -> (LocalDate) argBad.getFieldValue(argFieldName))
 				.collect(Collectors.toList());
 			
 			if (lclBadValues.contains(null)) {
-				getGood().setField(argFieldName, null);
+				getGood().setFieldValue(argFieldName, null);
 				return this;
 			}
 			
 			return latestNonNull(argFieldName);
 		} else if (getGood().getFieldType(argFieldName) == LocalDateTime.class) {
-			LocalDateTime lclGoodValue = (LocalDateTime) getGood().getField(argFieldName);
+			LocalDateTime lclGoodValue = (LocalDateTime) getGood().getFieldValue(argFieldName);
 			if (lclGoodValue == null) {
 				return this;
 			}
 			
 			List<LocalDateTime> lclBadValues = getBads().stream()
-				.map(argBad -> (LocalDateTime) argBad.getField(argFieldName))
+				.map(argBad -> (LocalDateTime) argBad.getFieldValue(argFieldName))
 				.collect(Collectors.toList());
 			
 			if (lclBadValues.contains(null)) {
-				getGood().setField(argFieldName, null);
+				getGood().setFieldValue(argFieldName, null);
 				return this;
 			}
 			

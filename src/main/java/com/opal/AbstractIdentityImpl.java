@@ -1,6 +1,6 @@
 package com.opal;
 
-public abstract class AbstractIdentityImpl<U extends IdentityUserFacing, O extends IdentityOpal<? extends U>> extends AbstractImpl<U, O> {
+public abstract class AbstractIdentityImpl<U extends IdentityUserFacing/*<U>*/, O extends IdentityOpal<? extends U>> extends AbstractImpl<U, O> { // OPALFIXME
 	
 	protected AbstractIdentityImpl() {
 		super();

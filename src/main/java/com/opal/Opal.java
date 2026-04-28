@@ -2,41 +2,81 @@ package com.opal;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.List;
 import java.io.IOException;
 
 import org.apache.commons.lang3.Validate;
 
-public interface Opal<U extends UserFacing> {
+public interface Opal<U extends UserFacing/*<U>*/> { // OPALFIXME
 
 	//	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(Opal.class.getName());
 	
 	public U getUserFacing();
 	
-	public Object getField(int argFieldIndex);
-	
-	default int getFieldIndex(String argFieldName) {
-		Validate.notNull(argFieldName);
-		String[] lclFieldNames = getFieldNames();
-		for (int lclI = 0; lclI < lclFieldNames.length; ++lclI) {
-			if (argFieldName.equals(lclFieldNames[lclI])) {
-				return lclI;
-			}
-		}
-		throw new IllegalArgumentException("\"" + argFieldName + "\" is not a valid field name.");
-	}
+	// OPALFIXME: Restore this
+//	public List<OpalField<U, ?>> getFields();
 
+	// OPALFIXME: Restore this
+//	default OpalField<U, ?> getField(int argFieldIndex) {
+//		// CHECK bounds?
+//		return getFields().get(argFieldIndex);
+//	}
+
+	// OPALFIXME: Restore this
+//	default OpalField<U, ?> getField(String argFieldName) {
+//		Validate.notNull(argFieldName, "argFieldName is null.");
+//		var lclFields = getFields();
+//		int lclSize = getFields().size();
+//		for (int lclI = 0; lclI < lclSize; ++lclI) {
+//			OpalField<U, ?> lclField = lclFields.get(lclI);
+//			if (argFieldName.equals(lclField.getName())) {
+//				return lclField;
+//			}
+//		}
+//		throw new IllegalArgumentException("\"" + argFieldName + "\" is not a valid field name.");
+//	}
+
+	// OPALFIXME Restore this
+//	default int getFieldIndex(String argFieldName) {
+//		return getField(argFieldName).getIndex();
+//	}
+
+	// OPALFIXME: The following four lines should be deleted.
 	public String[] getFieldNames();
 	public Class<?>[] getFieldTypes();
 	public boolean[] getFieldNullability();
 	public FieldValidator[] getFieldValidators();
 
 	default int getFieldCount() {
+//		return getFields().size();
 		return getFieldNames().length;
 	}
 	
+	default int getFieldIndex(String argFieldName) {
+		for (int i = 0; i < getFieldCount(); ++i) {
+			if (argFieldName.equals(getFieldNames()[i])) {
+				return i;
+			}
+		}
+		return -1; // Exception?
+	}
+	
 	default String getFieldName(int argFieldIndex) {
+//		return getField(argFieldIndex).getName();
 		return getFieldNames()[argFieldIndex];
 	}
+
+	public Object getFieldValue(int argFieldIndex);
+//	default Object getField(int argFieldIndex) {
+//		return getFieldValue(argFieldIndex);
+//	}
+	
+	default Object getFieldValue(String argFieldName) {
+		return getFieldValue(getFieldIndex(argFieldName));
+	}
+//	default Object getField(String argFieldName) {
+//		return getFieldValue(argFieldName);
+//	}
 	
 	default Class<?> getFieldType(String argFieldName) {
 		return getFieldType(getFieldIndex(argFieldName));
