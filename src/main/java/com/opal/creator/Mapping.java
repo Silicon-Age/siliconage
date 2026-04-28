@@ -177,7 +177,7 @@ public class Mapping extends OpalXMLElement {
 		MessageLevel lclMessageLevel;
 		try {
 			 lclMessageLevel = MessageLevel.valueOf(lclMessageLevelString);
-		} catch (IllegalArgumentException lclE) {
+		} catch (@SuppressWarnings("unused") IllegalArgumentException lclE) {
 			System.out.println("The MessageLevel attribute for the Mapping of " + lclEntityName + " is \"" + lclMessageLevelString + "\", which is unrecognized.");
 			lclMessageLevel = MessageLevel.Warning;
 		}
@@ -447,7 +447,7 @@ public class Mapping extends OpalXMLElement {
 					)
 				);
 			}
-		} catch (ClassNotFoundException lclE) {
+		} catch (@SuppressWarnings("unused") ClassNotFoundException lclE) {
 			/* No class of automatic delegation methods found; not a problem. */
 			complain(MessageLevel.Debug, lclMC, "No class found with name \"" + argClassName + "\" from which to import delegated methods.");
 		}
@@ -507,7 +507,7 @@ public class Mapping extends OpalXMLElement {
 					complain(MessageLevel.Warning, lclMC, "Found method " + lclM.getName() + " in " + lclDelegateClassName + " that looks like it is intended to be a field validation method, but the field \"" + lclPotentialMemberName + "\" doesn't match an actual field.");
 				}
 			}
-		} catch (ClassNotFoundException lclE) {
+		} catch (@SuppressWarnings("unused") ClassNotFoundException lclE) {
 			complain(MessageLevel.Debug, lclMC, "No class found with name \"" + argClassName + "\" from which to import delegated validation methods.");
 			/* No class of automatic delegation methods found; not a problem. */
 		}

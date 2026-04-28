@@ -348,21 +348,21 @@ public class ClassMember {
 			Class<?> lclClass = Class.forName(argTypeName);
 			setSpecifiedType(lclClass);
 			return;
-		} catch (ClassNotFoundException lclE) {
+		} catch (@SuppressWarnings("unused") ClassNotFoundException lclE) {
 			/* Nothing */
 		}
 		try {
 			Class<?> lclClass = Class.forName("java.lang." + argTypeName);
 			setSpecifiedType(lclClass);
 			return;
-		} catch (ClassNotFoundException lclE) {
+		} catch (@SuppressWarnings("unused") ClassNotFoundException lclE) {
 			/* Nothing */
 		}
 		try {
 			Class<?> lclClass = Class.forName("java.time." + argTypeName);
 			setSpecifiedType(lclClass);
 			return;
-		} catch (ClassNotFoundException lclE) {
+		} catch (@SuppressWarnings("unused") ClassNotFoundException lclE) {
 			/* Nothing */
 		}
 		if (argTypeName.equalsIgnoreCase("Boolean")) {
@@ -571,7 +571,9 @@ public class ClassMember {
 	}
 	
 	public void outputAnnotations(PrintWriter argPW, MappedClass argMC) {
-		Validate.notNull(argPW);
+		if (argPW == null) {
+			throw new IllegalArgumentException("argPW is null");
+		}
 		Validate.notNull(argMC);
 		
 		argPW.println("\t@" + Updatability.class.getName() + "(updatable = " + (isUpdatable() && argMC.isUpdatable()) + ")");

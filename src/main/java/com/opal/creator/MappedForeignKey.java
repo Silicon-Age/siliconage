@@ -523,7 +523,7 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 				try {
 					Class<?> lclC = Class.forName("gnu.trove.set.hash.THashSet");
 					return lclC;
-				} catch (ClassNotFoundException lclE) {
+				} catch (@SuppressWarnings("unused") ClassNotFoundException lclE) {
 					getTargetMappedClass().complain(MessageLevel.Error, "Tried to use Trove Collections, but the relevant class names could not be resolved.");
 					Class<?> lclC = HashSet.class;
 					return lclC;
