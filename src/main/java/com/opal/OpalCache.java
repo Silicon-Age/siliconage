@@ -40,14 +40,13 @@ public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing
 		Validate.notNull(argOK);
 		Validate.notNull(argOpal);
 		
-		
 		Object lclOldObject;
 		if ((lclOldObject = getCache().put(argOK, argOpal)) != null) {
 			/* Additional debugging information targeting the current writing streak problem. */
+			log.warn("Just before throwing an exception about Opal replacement we have these conflicts:");
 			for (var e : getCache().entrySet()) {
 				var k = e.getKey();
 				var v = e.getValue();
-				log.warn("Just before throwing an exception about Opal replacement we have these conflicts:");
 				if (Objects.equals(k, argOK) || Objects.equals(v, argOpal) || Objects.equals(v, lclOldObject)) {
 					log.warn("key = {} ({}), value = {} ({}), argOK = {} ({}), argOpal = {} ({})",
 							k,
@@ -81,15 +80,11 @@ public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing
 		
 //		ourLogger.debug("Asked OpalCache " + this + " for " + argOK + " (" + argOK.hashCode() + ")");
 		
-		/* The following cast to (O) seems like it shouldn't be necessary, but I can't figure out how to declare the cache in such a way
-		 * that the OpalKey's opal must match the Opal.
-		 */
-		
-		I lclO = getCache().get(argOK);
+		I lclI = getCache().get(argOK);
 		
 //		getStatistics().tallyRequest();
 		
-		return lclO;
+		return lclI;
 	}
 	
 	/**
@@ -124,24 +119,28 @@ public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing
 		getStatistics().clear();
 	}
 	
-	private CacheStatistics myCacheStatistics = new CacheStatistics();
+	private final CacheStatistics myCacheStatistics = new CacheStatistics();
 	
 	public CacheStatistics getStatistics() {
 		return myCacheStatistics;
 	}
 	
+	// Explain why this is unsynchronized.
 	public int getSize() {
 		return getCache().size();
 	}
 	
+	// Explain why this is unsynchronized.
 	public long getRealKeyCount() {
 		return getCache().keySet().size();
 	}
 
+	// Explain why this is unsynchronized.
 	public long getDistinctValueCount() {
 		return getCache().values().stream().distinct().count();
 	}
 
+	// Explain why this is unsynchronized.
 	public long getDataReadCount() {
 		return getCache().values().stream().filter(IdentityOpal::isDataRead).distinct().count();
 	}
@@ -194,45 +193,5 @@ public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing
 		public int getRequests() {
 			return myRequests;
 		}
-	}
-	
-//	public int[] getMemoryUsage() {
-//		int lclKeys = 0;
-//		int lclValues = 0;
-//		int lclBlanked = 0;
-//		for(Map.Entry<OpalKey<? extends Opal<? extends UserFacing>>, OpalReference<? extends Opal<? extends UserFacing>>> lclEntry : getCache().entrySet()) {
-//			++lclKeys;
-//			OpalReference<? extends Opal<? extends UserFacing>> lclR = lclEntry.getValue();
-//			if (lclR != null) {
-//				lclValues++;
-//				if (lclR.get() != null) {
-//					lclBlanked ++;
-//				}
-//			}
-//		}
-//		return new int[] { lclKeys, lclValues, lclBlanked, };
-//	}
-	
-//	public Map<Class<?>, int[]> getObjects() {
-//		HashMap<Class<?>, int[]> lclTally = new HashMap<Class<?>, int[]>();
-//		for(Map.Entry<OpalKey<? extends Opal<? extends UserFacing>>, OpalReference<? extends Opal<? extends UserFacing>>> lclEntry : getCache().entrySet()) {
-//			OpalReference<? extends Opal<? extends UserFacing>> lclR = lclEntry.getValue();
-//			Class<?> lclC = lclEntry.getKey().getClass();
-//			int[] lclCount = lclTally.get(lclC);
-//			if (lclCount == null) {
-//				lclTally.put(lclC, lclCount = new int[2]);
-//			}
-//			lclCount[0]++;
-//			if (lclR != null) {
-//				if (lclR.get() != null) {
-//					lclCount[1]++;
-//				}
-//			}
-//		}
-//		return lclTally;
-//	}
-	
-//	public void shutdown() {
-//		return;
-//	}
+	}	
 }
