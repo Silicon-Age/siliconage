@@ -807,13 +807,32 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 		assert argRS != null;
 		
 //		Class<?>[] lclFieldTypes = getFieldTypes();
-		int lclLength = getColumnNames().length; //
+		int lclLength = getColumnNames().length;
 		
 		if (argCanonicalColumnOrder) {
 			for (int lclI = 0; lclI < lclLength; ++lclI) { // OPALFIXME: Iterate over fields?
 				try {
-					Object o = argRS.getObject(lclI + 1);
-					argValues[lclI] = OpalUtility.convertTo(getFieldType(lclI), o); /* JDBC columns are 1-based */ // OPALFIXME
+					var fieldType = getFieldType(lclI);
+					/* OpalUtility::convertTo was intended to encapsulate all of the technicalities surrounding the conversion
+					 * of objects obtained from a ResultSet into the proper Java objects to be stored in Opals, but it's possible
+					 * that the fact that getObject() returns java.sql.Dates for date columns is leading to cache errors.  We
+					 * attempt to avoid those by asking the JDBC driver to give us LocalDates directly.  I don't know for
+					 * certain that there still aren't java.sql.Dates being created as an intermediary.
+					 * 
+					 * This same comment applies to the non-canonical-column order block below.
+					 */
+					if (fieldType == LocalDate.class) {
+						LocalDate newWayValue;
+						argValues[lclI] = newWayValue = LocalDateCache.cache(argRS.getObject(lclI + 1, LocalDate.class));
+						Object o =  argRS.getObject(lclI + 1);
+						LocalDate oldWayValue = OpalUtility.convertTo(LocalDate.class, o);
+						if ((newWayValue != null) && (newWayValue.equals(oldWayValue) == false)) {
+							ourLogger.error("Inconsistent reading of LocalDates:  {} versus {} in {}.", oldWayValue, newWayValue, this.getClass().getName());
+						}
+					} else {					
+						Object o = argRS.getObject(lclI + 1);
+						argValues[lclI] = OpalUtility.convertTo(fieldType, o); /* JDBC columns are 1-based */ // OPALFIXME
+					}					
 				} catch (SQLException lclE) {
 					ourLogger.error("Could not retrieve value for column \"" + getColumnNames()[lclI] + "\".", lclE);
 					throw lclE;
@@ -823,8 +842,20 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 			String[] lclColumnNames = getColumnNames();
 			for (int lclI = 0; lclI < lclLength; ++lclI) {
 				try {
-					Object o = argRS.getObject(lclColumnNames[lclI]);
-					argValues[lclI] = OpalUtility.convertTo(getFieldType(lclI), o); // OPALFIXME
+					var fieldType = getFieldType(lclI);
+					String columnName = lclColumnNames[lclI];
+					if (fieldType == LocalDate.class) {
+						LocalDate newWayValue;
+						argValues[lclI] = newWayValue = LocalDateCache.cache(argRS.getObject(columnName, LocalDate.class));
+						Object o = argRS.getObject(columnName);
+						LocalDate oldWayValue = OpalUtility.convertTo(LocalDate.class, o);
+						if ((newWayValue != null) && (newWayValue.equals(oldWayValue) == false)) {
+							ourLogger.error("Inconsistent reading of LocalDates:  {} versus {} in {}.", oldWayValue, newWayValue, this.getClass().getName());
+						}
+					} else {
+						Object o = argRS.getObject(columnName);
+						argValues[lclI] = OpalUtility.convertTo(fieldType, o); // OPALFIXME
+					}
 				} catch (SQLException lclE) {
 					ourLogger.error("Could not retrieve value for column \"" + lclColumnNames[lclI] + "\".", lclE);
 					throw lclE;

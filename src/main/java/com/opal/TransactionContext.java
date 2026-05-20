@@ -430,23 +430,24 @@ public class TransactionContext implements AutoCloseable {
 						}
 					} catch (TransactionException lclE) {
 						// setCommitStep(ROLLING_BACK);
-						ourLogger.error("Exception caught while committing Transaction " + this + "; rolling it back.", lclE);
-						
+						ourLogger.error("Exception caught while committing Transaction {}; rolling it back.", this /* , lclE */);
+						Throwable cause = lclE.getCause();
+						Throwable causeToRethrow = (cause != null) ? cause : lclE;
 						if (lclTPMap != null) {
 							for (TransactionParameter lclTP : lclTPMap.values()) {
 								try {
-									ourLogger.error("Rolling back TransactionParameter " + lclTP);
+									ourLogger.error("Rolling back TransactionParameter {}.", lclTP);
 									lclTP.rollback(); /* TODO: Does this close the connection? */
 								} catch (Exception lclF) {
-									ourLogger.error("Squashing exception thrown while rolling back " + lclTP, lclF);
+									ourLogger.error("Squashing exception thrown while rolling back {}.", lclTP, lclF);
 								}
 							}
 						}
 						try {
-							ourLogger.error("Rolling back " + this + '.');
+							ourLogger.error("Rolling back {}.", this);
 							rollback();
 						} catch (Exception lclF) {
-							ourLogger.error("Squashing exception thrown while rolling back " + this, lclF);
+							ourLogger.error("Squashing exception thrown while rolling back {}.", this, lclF);
 						}
 						
 						if (getItems().size() != 0) {
@@ -458,7 +459,7 @@ public class TransactionContext implements AutoCloseable {
 						Validate.isTrue(getItems().isEmpty());
 						
 						/* THINK:  Is there anything else that we need to do to correct the state of the objects? */
-						throw new RuntimeException("Could not commit transaction " + this, lclE);
+						throw new RuntimeException("Could not commit transaction " + this, causeToRethrow);
 					} finally {
 						if (getActive() == this) {
 							setActive(null);
@@ -469,7 +470,7 @@ public class TransactionContext implements AutoCloseable {
 								try {
 									lclTP.close();
 								} catch (Exception lclF) {
-									ourLogger.error("Squashing exception thrown while closing TransactionParameter " + lclTP, lclF);
+									ourLogger.error("Squashing exception thrown while closing TransactionParameter {}.", lclTP, lclF);
 									/* THINK: Is there anything else that we need to do? */
 								}
 							}
@@ -498,14 +499,14 @@ public class TransactionContext implements AutoCloseable {
 							}
 						}
 					} catch (Exception lclE) {
-						ourLogger.error("Exception thrown while removing Opals from completed transaction " + this + '.', lclE);
+						ourLogger.error("Exception thrown while removing Opals from completed transaction {}.", this, lclE);
 					} finally {
 						getItems().clear();
 						Validate.isTrue(getItems().isEmpty());
 						setCommitStep(COMMITTED);
 					}
 					
-					ourLogger.atLevel(getLoggingLevel()).log("Finished committing " + this);
+					ourLogger.atLevel(getLoggingLevel()).log("Finished committing {}.", this);
 					
 					if (getCommitStep() == COMMITTED) {
 						for (Runnable lclR : getSuccessfulCommitActions()) {

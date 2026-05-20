@@ -177,7 +177,7 @@ public abstract class DatabaseUtility {
 				lclSQL.append(argOutputColumns[lclI]);
 			}
 		} else {
-			log.warn("insertWithOutput invoked with zero-length array of OUTPUT columns.");
+			log.warn("DatabaseUtility::buildInsertString invoked with zero-length array of OUTPUT columns.");
 		}
 		
 		if (lclColumnList) {
@@ -201,11 +201,11 @@ public abstract class DatabaseUtility {
 	 */
 	public static String buildUpdateString(Iterator<String> argI, String argFullyQualifiedTableName, String[] argWhereClauseColumns) {
 		Validate.notNull(argI);
-		Validate.isTrue(argI.hasNext()); // Assumes at least one value in the iterator
+		Validate.isTrue(argI.hasNext()); // Check that there is at least one value in the iterator
 		Validate.notNull(argFullyQualifiedTableName);
 		Validate.notNull(argWhereClauseColumns);
 		
-		StringBuilder lclSQL = new StringBuilder(128); // THINK: How to compute?
+		StringBuilder lclSQL = new StringBuilder(128); // THINK: How to pre-compute the size?
 		lclSQL.append("UPDATE ");
 		
 		lclSQL.append(argFullyQualifiedTableName);
@@ -246,7 +246,7 @@ public abstract class DatabaseUtility {
 	 */
 	public static String buildUpdateString(Iterator<String> argI, String argFullyQualifiedTableName, String argIDColumnName) {
 		Validate.notNull(argI);
-		Validate.isTrue(argI.hasNext()); // Assume at least one value in the iterator
+		Validate.isTrue(argI.hasNext()); // Check that there is at least one value in the iterator
 		Validate.notNull(argFullyQualifiedTableName);
 		Validate.notNull(argIDColumnName);
 				
@@ -508,9 +508,6 @@ public abstract class DatabaseUtility {
 			int lclInt = extractSingleInt(rs, argColumn);
 			return lclInt;
 		}
-//		} finally {
-//			cleanUp(lclRS, CLEAN_STATEMENT);
-//		}
 	}
 	
 	/**
@@ -565,9 +562,6 @@ public abstract class DatabaseUtility {
 		try (ResultSet rs = select(argConnection, lclSQL)) {
 			return extractSingleInt(rs);
 		}
-//		} finally {
-//			cleanUp(lclRS, CLEAN_STATEMENT); // Don't close the Connection!
-//		}
 	}
 	
 	/**
@@ -596,8 +590,6 @@ public abstract class DatabaseUtility {
 		String lclSQL = "SELECT " + argSequence + ".nextval FROM Dual\n";
 		try (ResultSet lclRS = select(argConnection, lclSQL)) {
 			return extractSingleInt(lclRS);
-//		} finally {
-//			cleanUp(lclRS, CLEAN_STATEMENT); // Don't close the Connection
 		} 
 		
 	}
@@ -787,7 +779,7 @@ public abstract class DatabaseUtility {
 		// parameters.
 		
 		if (log.isDebugEnabled()) {
-			log.debug("DatabaseUtility.insertWithOutput: Table == " + argFullyQualifiedTableName);
+			log.debug("DatabaseUtility::insertWithOutput: Table == " + argFullyQualifiedTableName);
 		}
 		
 		String lclSQL = buildInsertString(argMap.keySet().iterator(), argOutputColumns, argFullyQualifiedTableName);
@@ -804,10 +796,10 @@ public abstract class DatabaseUtility {
 				if (lclRS.next()) {
 					argOutputProcessor.accept(lclRS);
 					if (lclRS.next()) {
-						log.warn("DatabaseUtility.insertWithOutput: Asked to getGeneratedKeys but more than one row was returned in the ResultSet.");
+						log.warn("DatabaseUtility::insertWithOutput: Asked to getGeneratedKeys but more than one row was returned in the ResultSet.");
 					}
 				} else {
-					log.warn("DatabaseUtility.insertWithOutput: Asked to getGeneratedKeys but no rows were returned in the ResultSet.");
+					log.warn("DatabaseUtility::insertWithOutput: Asked to getGeneratedKeys but no rows were returned in the ResultSet.");
 				}
 			}
 		}
@@ -881,7 +873,7 @@ public abstract class DatabaseUtility {
 			lclSB.append(lclSQL);
 			lclSB.append("\"; Parameters = [");
 			boolean lclFirst = true;
-			for (Map.Entry<String, Object> lclEntry : argMap.entrySet()) {
+			for (var lclEntry : argMap.entrySet()) {
 				if (lclFirst) {
 					lclFirst = false;
 				} else {
@@ -890,8 +882,7 @@ public abstract class DatabaseUtility {
 				lclSB.append(String.valueOf(lclEntry.getValue()));
 			}
 			lclSB.append("]");
-			log.error(lclSB.toString());
-			throw lclE;
+			throw new SQLException(lclSB.toString(), lclE);
 		}
 	}
 	
@@ -925,7 +916,7 @@ public abstract class DatabaseUtility {
 	/* This method returns a ResultSet (which needs to be closed).  Eclipse says it should be annotated with @Owning
 	 * (meaning that the caller assumes responsibility for closing it), but that's an annotation from its internal
 	 * libraries, so it's not usable in NAQT's project.  There are other annotation systems (like that of
-	 * CheckerFramework) that have an annotation of the same name (and meaning), but we're not currently use that
+	 * CheckerFramework) that have an annotation of the same name (and meaning), but we're not currently using that
 	 * either.  And Eclipse might not understand it if we did.
 	 */
 	@SuppressWarnings("resource")
@@ -982,7 +973,7 @@ public abstract class DatabaseUtility {
 			return new StatementClosingResultSet(lclRS);
 		} catch (SQLException | RuntimeException lclE) {
 			closeStatement(lclPS);
-			log.error("Couldn't execute SELECT query " + argSQL + " with parameters " + Arrays.toString(argParameters), lclE);
+			log.error("Couldn't execute SELECT query " + argSQL + " with parameters " + Arrays.toString(argParameters), lclE); // Replace this?
 			throw lclE;
 		} finally {
 			// We don't want to close the statement if we exit successfully!
@@ -1131,7 +1122,7 @@ public abstract class DatabaseUtility {
 			lclSB.append(lclSQL);
 			lclSB.append("\"; Parameters = [");
 			boolean lclFirst = true;
-			for (Map.Entry<String, Object> lclEntry : argMap.entrySet()) {
+			for (var lclEntry : argMap.entrySet()) {
 				if (lclFirst) {
 					lclFirst = false;
 				} else {
@@ -1140,8 +1131,10 @@ public abstract class DatabaseUtility {
 				lclSB.append(String.valueOf(lclEntry.getValue()));
 			}
 			lclSB.append("]");
-			log.error(lclSB.toString(), lclE);
-			throw lclE;
+			
+			throw new SQLException(lclSB.toString(), lclE);
+//			log.error(lclSB.toString(), lclE);
+//			throw lclE;
 		}
 	}
 }
