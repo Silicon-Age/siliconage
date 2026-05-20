@@ -62,6 +62,9 @@ public abstract class OpalUtility {
 			if (argToClass == Integer.class) {
 				return (T) Integer.valueOf(((Integer) argValue).intValue());
 			} else {
+				/* This short-circuit check prevents the use of this method to implicitly run newly created LocalDates
+				 * or LocalDateTimes through the LocalDateCache.
+				 */
 				return (T) argValue;
 			}
 		}
