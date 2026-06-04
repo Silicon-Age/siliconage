@@ -1782,11 +1782,10 @@ public class ClassGenerator {
 				String lclFQICN = lclMC.getFullyQualifiedInterfaceClassName();
 				String lclTABase = TreeAdapter.class.getName() + "<" + lclFQICN + ">";
 				
+				lclBW.println("\t/** This is a singleton class of which only one instance should ever exist.  Clients of this class");
+				lclBW.println("\tshould not create their own instances using a constructor, but should instead invoke the static");
+				lclBW.println("\tmethod {@code getInstance()} to access the singleton instance. */");
 				lclBW.println("\tpublic static class " + lclTA + " extends " + lclTABase + " {");
-				lclBW.println("\t\t/** This is a singleton class of which only one instance should ever exist.  Clients of this class");
-				lclBW.println("\t\tshould not create their own instances using a constructor, but should instead invoke the static");
-				lclBW.println("\t\tmethod {@code getInstance()} to access the singleton instance. */");
-				lclBW.println();
 				lclBW.println("\t\t/** A static reference to the only instance of this class, which is constructed on class load. */");
 				lclBW.println();
 				lclBW.println("\t\tprivate static final " + lclTA + " ourInstance = new " + lclTA + "();");
