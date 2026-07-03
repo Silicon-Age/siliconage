@@ -228,7 +228,7 @@ public class ClassGenerator {
 				}
 				
 				if (lclMC.doesImplHaveOpalReference()) {
-					lclBW.println("\t\t" + lclMC.getImplOpalMemberName() + " = org.apache.commons.lang3.Validate.notNull(" + lclA + ");");
+					lclBW.println("\t\t" + lclMC.getImplOpalMemberName() + " = java.util.Objects.requireNonNull(" + lclA + ");");
 				}
 				lclBW.println("\t}");
 				lclBW.println();
@@ -747,7 +747,7 @@ public class ClassGenerator {
 				Validate.notNull(lclPK, "We could not find a primary key for " + lclMC.getTableName() + " (possibly some of its columns were unmapped)");
 				
 				lclBW.println("\tpublic " + lclICN + " fromHttpRequest(" + HTTP_REQUEST_CLASS.getName() + " argRequest) {");
-				lclBW.println("\t\torg.apache.commons.lang3.Validate.notNull(argRequest);");
+				lclBW.println("\t\tjava.util.Objects.requireNonNull(argRequest);");
 				lclBW.print("\t\treturn fromHttpRequest(argRequest");
 				Iterator<ClassMember> lclCMI = lclPK.createClassMemberIterator();
 				while (lclCMI.hasNext()) {
@@ -778,7 +778,7 @@ public class ClassGenerator {
 					lclBW.print(lclAN);
 				}
 				lclBW.println(") {");
-				lclBW.println("\t\torg.apache.commons.lang3.Validate.notNull(argRequest);");
+				lclBW.println("\t\tjava.util.Objects.requireNonNull(argRequest);");
 				StringBuilder lclMethodName = new StringBuilder("for");
 				StringBuilder lclArguments = new StringBuilder();
 				lclCMI = lclPK.createClassMemberIterator();
@@ -833,8 +833,8 @@ public class ClassGenerator {
 				}
 				
 				lclBW.println("\tpublic <T extends " + ACQUIRE_COLLECTION_INTERFACE.getName() + "<? super " + lclICN + ">> T acquireFromHttpRequest(T argCollection, " + HTTP_REQUEST_CLASS.getName() + " argRequest, String argParameterName) {");
-				lclBW.println("\t\torg.apache.commons.lang3.Validate.notNull(argCollection);");
-				lclBW.println("\t\torg.apache.commons.lang3.Validate.notNull(argRequest);");
+				lclBW.println("\t\tjava.util.Objects.requireNonNull(argCollection);");
+				lclBW.println("\t\tjava.util.Objects.requireNonNull(argRequest);");
 				lclBW.println("\t\torg.apache.commons.lang3.Validate.notEmpty(argParameterName);");
 				lclBW.println("\t\tString[] lclValues = argRequest.getParameterValues(argParameterName);");
 				lclBW.println("\t\tif (lclValues == null || lclValues.length == 0) {");
@@ -3795,7 +3795,7 @@ public class ClassGenerator {
 				lclBW.println("\t@Override");
 				lclBW.println("\tpublic void updateKeys(" + lclOCN + " argOpal) {");
 				if (isCreatable() || isUpdatable()) {
-					lclBW.println("\t\torg.apache.commons.lang3.Validate.notNull(argOpal);");
+					lclBW.println("\t\tjava.util.Objects.requireNonNull(argOpal);");
 					if (isCreatable() || isUpdatable()) {
 						lclBW.println("\t\tObject[] lclOldValues = argOpal.getOldValues();");
 					} else {
