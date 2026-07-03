@@ -665,7 +665,7 @@ public abstract class RelationalDatabaseAdapter {
 				lclBW.println("\t@Override");
 				lclBW.println("\tpublic void updateKeys(" + lclOCN + " argOpal) {");
 				if (argMC.isCreatable() || argMC.isUpdatable()) {
-					lclBW.println("\t\torg.apache.commons.lang3.Validate.notNull(argOpal);");
+					lclBW.println("\t\tjava.util.Objects.requireNonNull(argOpal);");
 					if (argMC.isCreatable() || argMC.isUpdatable()) {
 						lclBW.println("\t\tObject[] lclOldValues = argOpal.getOldValues();");
 					} else {
