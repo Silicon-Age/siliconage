@@ -228,7 +228,7 @@ public class ClassGenerator {
 				}
 				
 				if (lclMC.doesImplHaveOpalReference()) {
-					lclBW.println("\t\t" + lclMC.getImplOpalMemberName() + " = org.apache.commons.lang3.Validate.notNull(" + lclA + ");");
+					lclBW.println("\t\t" + lclMC.getImplOpalMemberName() + " = java.util.Objects.requireNonNull(" + lclA + ");");
 				}
 				lclBW.println("\t}");
 				lclBW.println();
@@ -747,7 +747,7 @@ public class ClassGenerator {
 				Validate.notNull(lclPK, "We could not find a primary key for " + lclMC.getTableName() + " (possibly some of its columns were unmapped)");
 				
 				lclBW.println("\tpublic " + lclICN + " fromHttpRequest(" + HTTP_REQUEST_CLASS.getName() + " argRequest) {");
-				lclBW.println("\t\torg.apache.commons.lang3.Validate.notNull(argRequest);");
+				lclBW.println("\t\tjava.util.Objects.requireNonNull(argRequest);");
 				lclBW.print("\t\treturn fromHttpRequest(argRequest");
 				Iterator<ClassMember> lclCMI = lclPK.createClassMemberIterator();
 				while (lclCMI.hasNext()) {
@@ -778,7 +778,7 @@ public class ClassGenerator {
 					lclBW.print(lclAN);
 				}
 				lclBW.println(") {");
-				lclBW.println("\t\torg.apache.commons.lang3.Validate.notNull(argRequest);");
+				lclBW.println("\t\tjava.util.Objects.requireNonNull(argRequest);");
 				StringBuilder lclMethodName = new StringBuilder("for");
 				StringBuilder lclArguments = new StringBuilder();
 				lclCMI = lclPK.createClassMemberIterator();
@@ -833,8 +833,8 @@ public class ClassGenerator {
 				}
 				
 				lclBW.println("\tpublic <T extends " + ACQUIRE_COLLECTION_INTERFACE.getName() + "<? super " + lclICN + ">> T acquireFromHttpRequest(T argCollection, " + HTTP_REQUEST_CLASS.getName() + " argRequest, String argParameterName) {");
-				lclBW.println("\t\torg.apache.commons.lang3.Validate.notNull(argCollection);");
-				lclBW.println("\t\torg.apache.commons.lang3.Validate.notNull(argRequest);");
+				lclBW.println("\t\tjava.util.Objects.requireNonNull(argCollection);");
+				lclBW.println("\t\tjava.util.Objects.requireNonNull(argRequest);");
 				lclBW.println("\t\torg.apache.commons.lang3.Validate.notEmpty(argParameterName);");
 				lclBW.println("\t\tString[] lclValues = argRequest.getParameterValues(argParameterName);");
 				lclBW.println("\t\tif (lclValues == null || lclValues.length == 0) {");
@@ -1782,11 +1782,10 @@ public class ClassGenerator {
 				String lclFQICN = lclMC.getFullyQualifiedInterfaceClassName();
 				String lclTABase = TreeAdapter.class.getName() + "<" + lclFQICN + ">";
 				
+				lclBW.println("\t/** This is a singleton class of which only one instance should ever exist.  Clients of this class");
+				lclBW.println("\tshould not create their own instances using a constructor, but should instead invoke the static");
+				lclBW.println("\tmethod {@code getInstance()} to access the singleton instance. */");
 				lclBW.println("\tpublic static class " + lclTA + " extends " + lclTABase + " {");
-				lclBW.println("\t\t/** This is a singleton class of which only one instance should ever exist.  Clients of this class");
-				lclBW.println("\t\tshould not create their own instances using a constructor, but should instead invoke the static");
-				lclBW.println("\t\tmethod {@code getInstance()} to access the singleton instance. */");
-				lclBW.println();
 				lclBW.println("\t\t/** A static reference to the only instance of this class, which is constructed on class load. */");
 				lclBW.println();
 				lclBW.println("\t\tprivate static final " + lclTA + " ourInstance = new " + lclTA + "();");
@@ -3796,7 +3795,7 @@ public class ClassGenerator {
 				lclBW.println("\t@Override");
 				lclBW.println("\tpublic void updateKeys(" + lclOCN + " argOpal) {");
 				if (isCreatable() || isUpdatable()) {
-					lclBW.println("\t\torg.apache.commons.lang3.Validate.notNull(argOpal);");
+					lclBW.println("\t\tjava.util.Objects.requireNonNull(argOpal);");
 					if (isCreatable() || isUpdatable()) {
 						lclBW.println("\t\tObject[] lclOldValues = argOpal.getOldValues();");
 					} else {

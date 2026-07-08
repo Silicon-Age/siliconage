@@ -16,11 +16,12 @@ import jakarta.servlet.http.HttpSession;
 import org.apache.commons.collections4.EnumerationUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.siliconage.util.NetworkUtils;
 import com.siliconage.web.ControllerServlet;
+import com.siliconage.web.exception.WebException;
+import com.siliconage.web.exception.BadRequestException;
 
 import com.opal.TransactionContext;
 
@@ -37,7 +38,7 @@ public class OpalFormController extends ControllerServlet {
 	}
 	
 	@Override
-	protected String processInternal(HttpServletRequest argRequest, HttpSession argSession, String argUsername) throws Exception {
+	protected String processInternal(HttpServletRequest argRequest, HttpSession argSession, String argUsername) throws WebException {
 		boolean lclPassedSecurityCheck = checkSecurityDigest(argRequest);
 		if (lclPassedSecurityCheck == false) {
 			List<Pair<String, String>> lclParameterList = getParameterList(argRequest);
@@ -51,8 +52,7 @@ public class OpalFormController extends ControllerServlet {
 				"Parameter map: " + lclParameterList.toString()
 			);
 			
-			// This should really result in an error status code, namely HTTP 400 Bad Request. Our current framework doesn't really allow that, but we should change it so it does.
-			throw new IllegalArgumentException("Security check failed");
+			throw new BadRequestException("Your form submission was invalid.");
 		}
 		
 		
@@ -159,7 +159,10 @@ public class OpalFormController extends ControllerServlet {
 								lclOFU.successfulSubmit();
 								lclNewURI = lclOFU.generateSuccessURI();
 							} else {
-								Validate.isTrue(lclAction == OpalFormAction.CONTINUE);
+								requireOrThrow(
+									lclAction == OpalFormAction.CONTINUE,
+									() -> new BadRequestException("Your form submission was invalid.")
+								);
 								lclOFU.successfulContinue();
 								lclNewURI = lclOFU.generateContinueURI();
 							}
@@ -170,7 +173,7 @@ public class OpalFormController extends ControllerServlet {
 					}
 				// TODO: Custom actions -- how should they work?
 				default:
-					throw new IllegalStateException("Unknown action");
+					throw new BadRequestException("Your form submission was invalid.");
 			}
 		}
 	}
