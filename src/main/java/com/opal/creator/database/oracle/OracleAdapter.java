@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +13,6 @@ import java.sql.Timestamp;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.Validate;
 
 import org.w3c.dom.Element;
 
@@ -105,21 +105,21 @@ public class OracleAdapter extends RelationalDatabaseAdapter {
 		try {
 			int lclI = Integer.parseInt(lclDefaultString);
 			return new ConstantDefaultValue(Integer.valueOf(lclI));
-		} catch (NumberFormatException lclE) {
+		} catch (NumberFormatException _) {
 			/* Okay, not an int */
 		}
 		
 		try {
 			long lclL = Long.parseLong(lclDefaultString);
 			return new ConstantDefaultValue(Long.valueOf(lclL));
-		} catch (NumberFormatException lclE) {
+		} catch (NumberFormatException _) {
 			/* Okay, not a long */
 		}
 		
 		try {
 			double lclD = Double.parseDouble(lclDefaultString);
 			return new ConstantDefaultValue(Double.valueOf(lclD));
-		} catch (NumberFormatException lclE) {
+		} catch (NumberFormatException _) {
 			/* Okay, not a double */
 		}
 		
@@ -342,7 +342,7 @@ public class OracleAdapter extends RelationalDatabaseAdapter {
 	
 	@Override
 	public boolean isLargeDatabaseType(DatabaseColumn argDatabaseColumn) {
-		Validate.notNull(argDatabaseColumn);
+		Objects.requireNonNull(argDatabaseColumn);
 		return false;
 	}
 	
@@ -542,8 +542,8 @@ public class OracleAdapter extends RelationalDatabaseAdapter {
 					}
 				}
 				
-				Validate.notNull(lclSourceKey);
-				Validate.notNull(lclTargetKey);
+				Objects.requireNonNull(lclSourceKey);
+				Objects.requireNonNull(lclTargetKey);
 				
 				ReferentialAction lclDeleteAction = determineDeleteAction(lclRS.getString("delete_rule"));
 				ReferentialAction lclUpdateAction = determineUpdateAction(lclRS.getString("update_rule"));

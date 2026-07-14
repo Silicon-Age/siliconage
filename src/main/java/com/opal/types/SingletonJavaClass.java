@@ -80,8 +80,8 @@ public class SingletonJavaClass<T> extends JavaClass<T> {
 	public static <U> SingletonJavaClass<U> fromSerializedString(String argClassName) {
 		try {
 			return new SingletonJavaClass<>(argClassName);
-		} catch (ClassNotFoundException lclE) {
-			ourLogger.warn("Couldn't find {}", argClassName);
+		} catch (ClassNotFoundException _) {
+			ourLogger.warn("Couldn't find {}.", argClassName);
 			return null;
 		}
 	}

@@ -1208,7 +1208,7 @@ public class WebDataFilter {
 				case '}':
 				case '~':
 					lclSB.append('\\');
-					// Fall through!
+					//$FALL-THROUGH$ // This exact formatting prevents Eclipse warning.
 				default:
 					lclSB.append(lclC);
 			}

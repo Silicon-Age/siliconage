@@ -1,9 +1,8 @@
 package com.opal.creator.database;
 
-import org.apache.commons.lang3.Validate;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DatabaseColumn {
 	
@@ -27,9 +26,9 @@ public class DatabaseColumn {
 	public DatabaseColumn(TableName argTableName, String argName, String argDataType, int argLength, int argPrecision, int argScale, boolean argWideCharacters, String argDomainName, boolean argNullable, DefaultValue argDefault) {
 		super();
 		
-		myTableName = Validate.notNull(argTableName);
-		myName = Validate.notNull(argName);
-		myDataType = Validate.notNull(argDataType);
+		myTableName = Objects.requireNonNull(argTableName);
+		myName = Objects.requireNonNull(argName);
+		myDataType = Objects.requireNonNull(argDataType);
 		myLength = argLength;
 		myPrecision = argPrecision;
 		myScale = argScale;
@@ -132,7 +131,7 @@ public class DatabaseColumn {
 	}
 	
 	public void addCheckConstraint(CheckConstraint argCC) {
-		Validate.notNull(argCC);
+		Objects.requireNonNull(argCC);
 		getCheckConstraints().add(argCC);
 	}
 	

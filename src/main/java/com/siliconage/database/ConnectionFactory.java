@@ -47,6 +47,7 @@ import com.siliconage.util.FactoryException;
 	 * @see com.siliconage.util.Factory#create(java.lang.Object)
 	 */
 	@Override
+	@SuppressWarnings("resource") // We are returning a Connection that the caller must close.
 	public Connection create(Object argParameters) throws FactoryException {
 		return create();
 	}
@@ -55,14 +56,11 @@ import com.siliconage.util.FactoryException;
 	 * @see com.siliconage.util.Factory#create(java.util.Map)
 	 */
 	@Override
+	@SuppressWarnings("resource") // We are returning a Connection that the caller must close.
 	public Connection create(Map<String, Object> argParameters) throws FactoryException {
 		return create();
 	}
 	
-//	public Connection create(ReadableStringKeyMap argParameters) throws FactoryException {
-//		return create();
-//	}
-//
 	public DirectConnectionPool getDirectConnectionPool() {
 		return myDirectConnectionPool;
 	}

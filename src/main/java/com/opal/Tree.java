@@ -7,9 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Stream;
-
-import org.apache.commons.lang3.Validate;
 
 public class Tree<T> implements Iterable<T> {
 	private final T myNode;
@@ -183,7 +182,7 @@ public class Tree<T> implements Iterable<T> {
 	}
 	
 	public void acquireAncestors(Collection<T> argCollection, boolean argIncludeMyself) {
-		Validate.notNull(argCollection);
+		Objects.requireNonNull(argCollection);
 		
 		Iterator<T> lclAI = ancestorIterator(argIncludeMyself);
 		while (lclAI.hasNext()) {

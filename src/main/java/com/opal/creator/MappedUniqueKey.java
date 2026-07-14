@@ -1,6 +1,7 @@
 package com.opal.creator;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.Validate;
@@ -28,7 +29,7 @@ public class MappedUniqueKey {
 		super();
 		myMappedClass = argMC;
 		myIndex = argIndex;
-		mySpecifiedType = Validate.notNull(argSpecifiedType);
+		mySpecifiedType = Objects.requireNonNull(argSpecifiedType);
 		setPrimaryKey(argPrimaryKey);
 		
 		resolveColumnNames();
@@ -140,7 +141,7 @@ public class MappedUniqueKey {
 	}
 		
 	public String generateNotNullJavaCondition(String argLocalVariable) {
-		Validate.notNull(argLocalVariable);
+		Objects.requireNonNull(argLocalVariable);
 		StringBuilder lclSB = new StringBuilder(128);
 		boolean lclFirst = true;
 		Iterator<ClassMember> lclI = createClassMemberIterator();
@@ -166,7 +167,7 @@ public class MappedUniqueKey {
 	}
 	
 	public String generateOpalKeyConstructorArguments(String argLocalVariable) {
-		Validate.notNull(argLocalVariable);
+		Objects.requireNonNull(argLocalVariable);
 		StringBuilder lclSB = new StringBuilder(128);
 		Iterator<ClassMember> lclI = createClassMemberIterator();
 		boolean lclFirst = true;
@@ -189,7 +190,7 @@ public class MappedUniqueKey {
 	}
 	
 	public String generateOpalKeyConstructorCall(String argLocalVariable) {
-		Validate.notNull(argLocalVariable);
+		Objects.requireNonNull(argLocalVariable);
 		StringBuilder lclSB = new StringBuilder(128);
 		lclSB.append("new ");
 		lclSB.append(getOpalKeyClassName());
@@ -201,8 +202,8 @@ public class MappedUniqueKey {
 	
 	/* Don't call unless argNewArray already doesn't represent a null value for this key */
 	public String generateKeyEqualityCondition(String argOldArray, String argNewArray) {
-		Validate.notNull(argOldArray);
-		Validate.notNull(argNewArray);
+		Objects.requireNonNull(argOldArray);
+		Objects.requireNonNull(argNewArray);
 		StringBuilder lclSB = new StringBuilder(128);
 		boolean lclFirst = true;
 		Iterator<ClassMember> lclI = createClassMemberIterator();

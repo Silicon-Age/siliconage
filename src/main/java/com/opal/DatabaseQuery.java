@@ -1,9 +1,9 @@
 package com.opal;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author topquark
@@ -19,8 +19,7 @@ public class DatabaseQuery extends Query {
 	public DatabaseQuery(String argSQL, Object... argParameters) {
 		super();
 		
-		Validate.notNull(argSQL);
-		mySQL = argSQL;
+		mySQL = Objects.requireNonNull(argSQL);
 		
 		myParameters = argParameters; // Can be null 
 	}

@@ -1,6 +1,6 @@
 package com.opal;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public abstract class EphemeralOpal<U extends UserFacing/*<U>*/> implements Opal<U> { // OPALFIXME
 	
@@ -11,7 +11,7 @@ public abstract class EphemeralOpal<U extends UserFacing/*<U>*/> implements Opal
 	protected <O extends Opal<U>> EphemeralOpal(OpalFactory<U, O> argOpalFactory, Object[] argValues) {
 		super();
 		
-		Validate.notNull(argValues);
+		Objects.requireNonNull(argValues);
 		myValues = argValues;
 	}
 	

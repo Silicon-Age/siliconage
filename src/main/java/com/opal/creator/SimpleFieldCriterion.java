@@ -1,6 +1,6 @@
 package com.opal.creator;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public class SimpleFieldCriterion extends ComparatorCriterion {
 	private final ClassMember myClassMember;
@@ -12,8 +12,7 @@ public class SimpleFieldCriterion extends ComparatorCriterion {
 	public SimpleFieldCriterion(ClassMember argCM, boolean argInverted) {
 		super(argInverted);
 		
-		Validate.notNull(argCM);
-		myClassMember = argCM;
+		myClassMember = Objects.requireNonNull(argCM);
 		
 		return;
 	}

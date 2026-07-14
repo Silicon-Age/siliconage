@@ -1,9 +1,8 @@
 package com.siliconage.web.form;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Collection;
-
-import org.apache.commons.lang3.Validate;
 
 public class SingleValueProvider implements FormValueProvider {
 	private final long myConstructionTime;
@@ -21,7 +20,7 @@ public class SingleValueProvider implements FormValueProvider {
 		myConstructionTime = System.currentTimeMillis();
 		myValue = argValue; // which may be null
 		myDisabled = false;
-		myRequirement = Validate.notNull(argRequirement);
+		myRequirement = Objects.requireNonNull(argRequirement);
 	}
 	
 	@Override

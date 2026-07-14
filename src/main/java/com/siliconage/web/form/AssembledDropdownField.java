@@ -5,11 +5,10 @@ import java.util.Collections;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import org.apache.commons.lang3.Validate;
 
 public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> extends StandardDropdownField<T, C> {
 	// private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(AssembledDropdownField.class.getName());
@@ -18,7 +17,7 @@ public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> e
 	private Comparator<? super C> myComparator = null;
 	private boolean myDoNotSort = false;
 	private DropdownEntryAssembler<C> myAssembler = IdentityNameCodeExtractor.getInstance();
-	private Predicate<C> myDisableCondition = x -> false;
+	private Predicate<C> myDisableCondition = _ -> false;
 	private DropdownEntryAssemblerGroupingSpecification<C, ?> myGroupingSpecification = DropdownEntryAssemblerGroupingSpecification.noGrouping();
 	
 	public AssembledDropdownField(String argName, Collection<C> argCurrentValues, FormValueProvider argEnteredValueProvider) {
@@ -38,7 +37,7 @@ public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> e
 	}
 	
 	public T choices(Collection<C> argChoices) {
-		Validate.notNull(argChoices);
+		Objects.requireNonNull(argChoices);
 		
 		myChoices = new ArrayList<>(argChoices);
 		
@@ -51,7 +50,7 @@ public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> e
 	
 	// This method basically exists to be overridden, as for OpalDropdownField
 	protected List<C> determineChoices() {
-		Validate.notNull(myChoices);
+		Objects.requireNonNull(myChoices);
 		return myChoices;
 	}
 	
@@ -60,7 +59,7 @@ public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> e
 	}
 	
 	public T comparator(Comparator<? super C> argC) {
-		myComparator = Validate.notNull(argC);
+		myComparator = Objects.requireNonNull(argC);
 		
 		return castThis();
 	}
@@ -92,7 +91,7 @@ public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> e
 	}
 	
 	public T assembler(DropdownEntryAssembler<C> argAssembler) {
-		myAssembler = Validate.notNull(argAssembler);
+		myAssembler = Objects.requireNonNull(argAssembler);
 		
 		return castThis();
 	}
@@ -102,8 +101,8 @@ public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> e
 	}
 	
 	public T namer(Function<? super C, String> argNamer, Function<? super C, String> argCoder) {
-		Validate.notNull(argNamer);
-		Validate.notNull(argCoder);
+		Objects.requireNonNull(argNamer);
+		Objects.requireNonNull(argCoder);
 		
 		return namer(new FunctionalNameCodeExtractor<>(argNamer, argCoder));
 	}
@@ -121,7 +120,7 @@ public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> e
 	}
 	
 	public T disableOptionIf(Predicate<? super C> argCondition) {
-		Validate.notNull(argCondition);
+		Objects.requireNonNull(argCondition);
 		
 		myDisableCondition = myDisableCondition.or(argCondition);
 		
@@ -180,7 +179,7 @@ public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> e
 			try {
 				NameCodeExtractor<? super C> lclNCE = (NameCodeExtractor<? super C>) lclAssembler;
 				return lclNCE.extractCode(argChoice);
-			} catch (ClassCastException lclE) {
+			} catch (ClassCastException _) {
 				// Fall through
 			}
 		}
@@ -204,7 +203,7 @@ public class AssembledDropdownField<T extends AssembledDropdownField<?, C>, C> e
 				if (lclHasNull) {
 					lclChoices.add(0, null); // THINK: Can we get a reasonable way to put it at the end?
 				}
-			} catch (ClassCastException lclE) {
+			} catch (ClassCastException _) {
 				// Leave it unsorted
 			}
 		} else {

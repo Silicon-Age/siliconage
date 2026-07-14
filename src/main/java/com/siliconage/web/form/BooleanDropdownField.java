@@ -1,5 +1,6 @@
 package com.siliconage.web.form;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.Validate;
@@ -22,7 +23,7 @@ public class BooleanDropdownField<T extends BooleanDropdownField<T>> extends Ass
 	}
 	
 	public T namer(Function<Boolean, String> argNamer) {
-		Validate.notNull(argNamer);
+		Objects.requireNonNull(argNamer);
 		
 		return namer(new FunctionalNameCodeExtractor<>(argNamer, DefaultBooleanDropdownNameCodeExtractor.getInstance()::extractCode));
 	}

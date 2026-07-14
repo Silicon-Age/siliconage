@@ -2,19 +2,14 @@ package com.opal.cma;
 
 import java.security.Principal;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.ArrayDeque;
 import java.util.Map;
-import java.util.stream.Collectors;
-import javax.naming.InitialContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-import org.apache.commons.collections4.EnumerationUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -178,7 +173,7 @@ public class OpalFormController extends ControllerServlet {
 		}
 	}
 	
-	private boolean checkSecurityDigest(HttpServletRequest argRequest) {
+	private static boolean checkSecurityDigest(HttpServletRequest argRequest) {
 		String lclDynamicSalt = argRequest.getParameter(OpalFormSecurityUtil.DYNAMIC_SALT_FIELD_NAME);
 		if (StringUtils.isBlank(lclDynamicSalt)) {
 			return false;
@@ -200,7 +195,7 @@ public class OpalFormController extends ControllerServlet {
 		return lclProvidedDigest.equals(lclExpectedDigest);
 	}
 	
-	private List<Pair<String, String>> getParameterList(HttpServletRequest argRequest) {
+	private static List<Pair<String, String>> getParameterList(HttpServletRequest argRequest) {
 		return argRequest.getParameterMap().entrySet().stream()
 			.map(argEntry -> Pair.of(argEntry.getKey(), Arrays.toString(argEntry.getValue())))
 			.toList();

@@ -2,10 +2,7 @@ package com.opal;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.List;
 import java.io.IOException;
-
-import org.apache.commons.lang3.Validate;
 
 public interface Opal<U extends UserFacing/*<U>*/> { // OPALFIXME
 

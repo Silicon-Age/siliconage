@@ -1,5 +1,7 @@
 package com.siliconage.web.form;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
@@ -55,7 +57,7 @@ public class TextAreaField<T extends TextAreaField<?>> extends SingleValueFormFi
 	}
 	
 	public T placeholder(String argPlaceholder) {
-		Validate.notNull(argPlaceholder);
+		Objects.requireNonNull(argPlaceholder);
 		
 		return attribute("placeholder", argPlaceholder);
 	}

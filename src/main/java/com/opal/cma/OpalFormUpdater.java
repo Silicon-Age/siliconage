@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -33,7 +35,6 @@ import com.opal.FactoryPolymorphicCreator;
 import com.opal.FieldUtility;
 import com.opal.IdentityFactory;
 import com.opal.IdentityUserFacing;
-import com.opal.OpalStringField;
 import com.opal.OpalUtility;
 import com.opal.TransactionContext;
 import com.opal.UserFacing;
@@ -153,7 +154,9 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 		if (uf == null) {
 			throw new IllegalStateException("getUserFacingClass() called when getUserFacing() was null.");
 		}
-		return (Class<U>) uf.getClass();
+		@SuppressWarnings("unchecked")
+		Class<U> returnValue = (Class<U>) uf.getClass(); // This variable only exists for the warning suppression 
+		return returnValue;
 	}
 	
 	protected String generateFullyQualifiedName(String argName) {
@@ -161,19 +164,19 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 	}
 	
 	protected String getPrefixedParameter(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		return getRequest().getParameter(generateFullyQualifiedName(argName));
 	}
 	
 	protected String getInstructions(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 	
 		return getPrefixedParameter(argName + "_Special");
 	}
 	
 	protected String[] getPrefixedParameterValues(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		return getRequest().getParameterValues(generateFullyQualifiedName(argName));
 	}
@@ -382,7 +385,22 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 			if (getPrefixedReferenceName() != null) {
 				OpalUtility.attachChild(getUserFacing(), getParent(), getPrefixedReferenceName());
 			}
+			
+			/* If there are defaults custom to the OpalForms using this Updater (as distinct from database-/Opal-wide
+			 * defaults, set them now.
+			 */
+			setCustomDefaults();
 		}
+	}
+	
+	/* This method can be overridden to set defaults that are specific to the OpalForms using this Updater (as distinct
+	 * from universal defaults set in the database (or configuration file).  For instance, if a parent P can have
+	 * children C of different types T and a page is set up to allow the editing of type-T1 children only, then
+	 * there won't be an input column for type but this method can be used to set a newly created C's type to T1.
+	 */
+	@RequiresActiveTransaction
+	protected void setCustomDefaults() {
+		return;
 	}
 	
 	protected U createProperSubclass(@SuppressWarnings("unused") FactoryPolymorphicCreator<U, ?> argFactory) {
@@ -412,8 +430,11 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 				Long lclPreviousSubmission = OpalFormUpdateTimes.getInstance().get(lclUserFacing); // may be null
 				
 				if (lclPreviousSubmission != null && lclThisFormLoaded <= lclPreviousSubmission.longValue()) { // Equality is a weird situation.  Complaining seems like the safest choice.
-					String lclConflictMessage = getPrefixedParameter("SubmissionConflictMessage");
-					if (lclConflictMessage != null) {
+					String lclConflictMessage = StringUtils.trimToNull(getRequest().getParameter(OpalForm.FULLY_QUALIFIED_NAME_SEPARATOR + "SubmissionConflictMessage")); // not getPrefixedParameter because it is global to the OpalMainForm
+					if (lclConflictMessage == null) {
+						ourLogger.warn("When submitting {}, there is a conflict, but no conflict message parameter was found in the form");
+						return; // I guess
+					} else {
 						addError(lclConflictMessage);
 						return;
 					}
@@ -583,7 +604,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 					 */
 					try {
 						lclNewValue = convertSafely(argFieldName, lclFieldType, lclProvidedValue);
-					} catch (DateTimeParseException lclE) {
+					} catch (DateTimeParseException _) {
 						String lclTypeName;
 						if (lclFieldType == LocalDate.class) {
 							lclTypeName = "date";
@@ -706,7 +727,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 		} catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException lclE) {
 			throw new IllegalStateException("Could not create Updater object of class " + argUpdaterClass.getName(), lclE);
 		}
-		Validate.notNull(lclUpdater);
+		Objects.requireNonNull(lclUpdater);
 		
 		return lclUpdater.handlesDeletionFor(argFieldName);
 	}
@@ -726,7 +747,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 	}
 	
 	public static boolean specifiesDefault(Class<? extends OpalFormUpdater<?>> argUpdaterClass, String argFieldName) {
-		Validate.notNull(argUpdaterClass);
+		Objects.requireNonNull(argUpdaterClass);
 		Validate.notBlank(argFieldName);
 		
 		if (argUpdaterClass.equals(OpalFormUpdater.class)) {
@@ -750,13 +771,13 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 		} catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException lclE) {
 			throw new IllegalStateException("Could not create Updater object of class " + argUpdaterClass.getName(), lclE);
 		}
-		Validate.notNull(lclUpdater);
+		Objects.requireNonNull(lclUpdater);
 		
 		return lclUpdater.providesDefaultFor(argFieldName);
 	}
 	
 	protected void validateAgainstAnnotations(String argFieldName, String argValue) {
-		Validate.notNull(argFieldName);
+		Objects.requireNonNull(argFieldName);
 		// ourLogger.debug("Validating against annotations for " + argFieldName + " and " + argValue);
 		
 		U uf = getUserFacing();
@@ -843,7 +864,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 	}
 	
 	protected boolean displayed(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		String[] lclFieldNames = getPrefixedParameterValues("Displayed");
 		
 		String lclPrefixedName = generateFullyQualifiedName(argName);
@@ -860,7 +881,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 	}
 	
 	protected boolean special(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		return getPrefixedParameter("SpecialHandler_" + argName) != null;
 	}
@@ -919,7 +940,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 	}
 	
 	protected void markField(String argFieldName) {
-		Validate.notNull(argFieldName);
+		Objects.requireNonNull(argFieldName);
 		getIncorrectFields().add(generateFullyQualifiedName(argFieldName));
 	}
 	
@@ -987,7 +1008,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 	@RequiresActiveTransaction
 	protected void automaticReference(String argFieldName, Class<? extends IdentityUserFacing> argType) {
 		Validate.notBlank(argFieldName);
-		Validate.notNull(argType);
+		Objects.requireNonNull(argType);
 		
 		String lclParam = getPrefixedParameter(argFieldName);
 		IdentityUserFacing/*<U>*/ lclUF = getUserFacing(); // OPALFIXME
@@ -1047,9 +1068,9 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 	
 	@RequiresActiveTransaction
 	protected <T extends IdentityUserFacing/*<T>*/> IdentityUserFacing/*<T>*/ handleSpecialReference(String argName, IdentityFactory<T> argTargetFactory) { // OPALFIXME
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		String lclSpecialHandlerClassName = getPrefixedParameter("SpecialHandler_" + argName);
-		Validate.notNull(lclSpecialHandlerClassName);
+		Objects.requireNonNull(lclSpecialHandlerClassName);
 		try {
 			@SuppressWarnings("unchecked")
 			Class<? extends SpecialHandler<T>> lclHandlerClass = (Class<? extends SpecialHandler<T>>) Class.forName(lclSpecialHandlerClassName);
@@ -1064,7 +1085,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 	 * a reference (foreign key) from the Opal being edited.  This is currently only called by automaticReferences. 
 	 */
 	protected <I extends IdentityUserFacing/*<I>*/> IdentityFactory<I> determineReferenceFactory(String argName, Class<I> argUserFacingClass) { // OPALFIXME
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		/* We look up the name of the Factory that was specified (via a HIDDEN form field) in the request.  This will
 		 * be specified by the OpalForm.dropdown(...) method. 
@@ -1262,7 +1283,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 				if (lclArrayType.isArray()) {
 //					Class<?> lclType = lclArrayType.getComponentType();
 					String lclMethodName = lclM.getName();
-					String lclPrefixedReferenceName = StringUtils.removeEnd(StringUtils.removeStart(lclMethodName, "create"), "Array");
+					String lclPrefixedReferenceName = Strings.CS.removeEnd(Strings.CS.removeStart(lclMethodName, "create"), "Array");
 					String lclChildUniqueString;
 					for (int lclI = 0; (lclChildUniqueString = getPrefixedParameter(lclPrefixedReferenceName + OpalForm.FULLY_QUALIFIED_NAME_SEPARATOR + lclI + OpalForm.FULLY_QUALIFIED_NAME_SEPARATOR + "UserFacingUniqueString")) != null; ++lclI) {
 						if (ourLogger.isDebugEnabled()) {
@@ -1325,7 +1346,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 						if (lclData || StringUtils.isNotEmpty(lclChildUniqueString) || mustCreateChild(lclPrefixedReferenceName)) {
 							OpalFormUpdater<?> lclChildUpdater;
 							lclChildUpdater = createChildUpdater(lclPrefixedReferenceName + OpalForm.FULLY_QUALIFIED_NAME_SEPARATOR + lclI, (Validator<?>) null, lclPrefixedReferenceName);
-							Validate.notNull(lclChildUpdater);
+							Objects.requireNonNull(lclChildUpdater);
 							lclChildUpdater.update();
 							
 							/* THINK: How do we handle the incorrect fields and errors from the child? */

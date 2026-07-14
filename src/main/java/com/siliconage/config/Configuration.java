@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -265,7 +266,7 @@ public abstract class Configuration extends HashMap<String, Object> {
 	 * password is <code>null</code>
 	 */
 	protected void loadFromDatabase() throws SQLException {
-		DataSource lclS = Validate.notNull(getDataSource());
+		DataSource lclS = Objects.requireNonNull(getDataSource());
 		
 		try (Connection lclC = lclS.getConnection()) {
 			try (ResultSet lclRS = DatabaseUtility.select(lclC, "SELECT * FROM " + getConfigurationTableName())) {
@@ -285,6 +286,7 @@ public abstract class Configuration extends HashMap<String, Object> {
 		loadFromDatabase();
 	}
 	
+	@SuppressWarnings("resource") // We are returning an InputStream for the caller to close.
 	protected InputStream getPropertiesInputStream(String argFilename) {
 		InputStream lclIS = this.getClass().getResourceAsStream(argFilename);
 		
@@ -377,9 +379,9 @@ public abstract class Configuration extends HashMap<String, Object> {
 		}
 		try {
 			return ((Boolean) lclObject).booleanValue();
-		} catch (ClassCastException lclE) {
-			if (lclObject instanceof Number) {
-				return ((Number) lclObject).intValue() != 0;
+		} catch (ClassCastException _) {
+			if (lclObject instanceof Number n) {
+				return n.intValue() != 0;
 			} else {
 				String lclS = lclObject.toString();
 				if ("TRUE".equalsIgnoreCase(lclS)) {
@@ -406,7 +408,7 @@ public abstract class Configuration extends HashMap<String, Object> {
 		}
 		try {
 				return ((Number) lclObject).byteValue();
-		} catch (ClassCastException lclE) {
+		} catch (ClassCastException _) {
 				return Byte.parseByte(lclObject.toString());
 		}
 	}
@@ -422,7 +424,7 @@ public abstract class Configuration extends HashMap<String, Object> {
 		}
 		try {
 			return ((Number) lclObject).doubleValue();
-		} catch (ClassCastException lclE) {
+		} catch (ClassCastException _) {
 			return Double.parseDouble(lclObject.toString());
 		}
 	}
@@ -438,7 +440,7 @@ public abstract class Configuration extends HashMap<String, Object> {
 		}
 		try {
 			return ((Number) lclObject).floatValue();
-		} catch (ClassCastException lclE) {
+		} catch (ClassCastException _) {
 			return Float.parseFloat(lclObject.toString());
 		}
 	}
@@ -454,7 +456,7 @@ public abstract class Configuration extends HashMap<String, Object> {
 		}
 		try {
 			return ((Number) lclObject).intValue();
-		} catch (ClassCastException lclE) {
+		} catch (ClassCastException _) {
 			return Integer.parseInt(lclObject.toString());
 		}
 	}
@@ -470,7 +472,7 @@ public abstract class Configuration extends HashMap<String, Object> {
 		}
 		try {
 			return ((Number) lclObject).longValue();
-		} catch (ClassCastException lclE) {
+		} catch (ClassCastException _) {
 			return Long.parseLong(lclObject.toString());
 		}
 	}
@@ -491,7 +493,7 @@ public abstract class Configuration extends HashMap<String, Object> {
 		}
 		try {
 			return ((Number) lclObject).shortValue();
-		} catch (ClassCastException lclE) {
+		} catch (ClassCastException _) {
 			return Short.parseShort(lclObject.toString());
 		}
 	}
@@ -517,7 +519,7 @@ public abstract class Configuration extends HashMap<String, Object> {
 		} else {
 			try {
 				return LocalDate.parse(lclStringifiedDate, LOCAL_DATE_FORMAT);
-			} catch (DateTimeParseException lclE) {
+			} catch (DateTimeParseException _) {
 				ourLogger.warn("Could not parse \"" + lclStringifiedDate + "\", which is a configuration value under the key \"" + argKey + "\" as a date.");
 				return argDefault;
 			}

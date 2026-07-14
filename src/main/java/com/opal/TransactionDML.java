@@ -3,6 +3,7 @@ package com.opal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 
@@ -15,19 +16,20 @@ public class TransactionDML extends AbstractTransactionAware {
 	private final String mySQL;
 	private final Object[] myParameters;
 	
+	@SuppressWarnings("resource") // We are not responsible for closing the active TransactionContext that we access.
 	public TransactionDML(DataSource argDS, String argSQL, Object[] argParameters) {
 		super();
 		
-		Validate.notNull(argDS);
+		Objects.requireNonNull(argDS);
 		myDataSource = argDS;
 		
-		Validate.notNull(argSQL);
+		Objects.requireNonNull(argSQL);
 		mySQL = argSQL;
 		
 		myParameters = argParameters;
 		
 		TransactionContext lclTC = TransactionContext.getActive();
-		Validate.notNull(lclTC, "Cannot create a TransactionDML without being inside a TransactionContext.");
+		Objects.requireNonNull(lclTC, "Cannot create a TransactionDML without being inside a TransactionContext.");
 		joinTransactionContext(lclTC);
 		
 		return;
@@ -51,7 +53,7 @@ public class TransactionDML extends AbstractTransactionAware {
 	
 	@Override
 	protected void commitPhaseOneInternal(TransactionParameter argTP) throws PersistenceException {
-		Validate.notNull(argTP);
+		Objects.requireNonNull(argTP);
 		Validate.isTrue(argTP instanceof DatabaseTransactionParameter);
 		DatabaseTransactionParameter lclDTP = (DatabaseTransactionParameter) argTP;
 		try (Connection lclC = lclDTP.getConnection()) {
@@ -66,8 +68,9 @@ public class TransactionDML extends AbstractTransactionAware {
 	}
 	
 	@Override
+	@SuppressWarnings("resource") // We create (but are not responsible for closing) the DatabaseTransactionParameter.
 	public TransactionParameter extractTransactionParameter(Map<DataSource, TransactionParameter> argTPMap) throws PersistenceException {
-		Validate.notNull(argTPMap);
+		Objects.requireNonNull(argTPMap);
 		DataSource lclDS = getDataSource();
 		TransactionParameter lclTP = argTPMap.get(lclDS);
 		if (lclTP == null) {

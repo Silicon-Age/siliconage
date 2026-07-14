@@ -2,12 +2,13 @@ package com.siliconage.web.form;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.Flat3Map;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
@@ -43,7 +44,7 @@ public abstract class FormField<T extends FormField<?, V>, V> {
 	protected FormField(String argName, Collection<V> argSavedValues, FormValueProvider argEnteredValueProvider) {
 		super();
 		
-		myName = Validate.notNull(argName); // but it may be empty
+		myName = Objects.requireNonNull(argName); // but it may be empty
 		mySavedValues = argSavedValues; // which may be null
 		myEnteredValueProvider = argEnteredValueProvider; // which may be null
 		
@@ -156,7 +157,7 @@ public abstract class FormField<T extends FormField<?, V>, V> {
 	}
 	
 	public T addCssClass(String argClass) {
-		Validate.notNull(argClass);
+		Objects.requireNonNull(argClass);
 		
 		setCssClass((ObjectUtils.firstNonNull(getCssClass(), "") + ' ' + argClass).trim());
 		return castThis();
@@ -296,7 +297,7 @@ public abstract class FormField<T extends FormField<?, V>, V> {
 	}
 	
 	public T setRequirement(FormFieldRequirement argR) {
-		myRequirement = Validate.notNull(argR);
+		myRequirement = Objects.requireNonNull(argR);
 		return castThis();
 	}
 	
@@ -457,7 +458,7 @@ public abstract class FormField<T extends FormField<?, V>, V> {
 	}
 	
 	protected void appendHiddenParameters(StringBuilder argSB) {
-		Validate.notNull(argSB);
+		Objects.requireNonNull(argSB);
 		if (myHiddenParameters == null || myHiddenParameters.size() == 0) {
 			return;
 		}
@@ -472,7 +473,7 @@ public abstract class FormField<T extends FormField<?, V>, V> {
 	}
 	
 	public boolean hasAttribute(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		return getAttributes().keySet().stream().anyMatch(argName::equalsIgnoreCase);
 	}

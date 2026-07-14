@@ -1,6 +1,6 @@
 package com.opal;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 /**
  * @author topquark
@@ -10,11 +10,8 @@ public class DatabaseReportQuery {
 	private final String[] myColumnNames;
 	
 	public DatabaseReportQuery(String argSQL, String[] argColumnNames) {
-		Validate.notNull(argSQL);
-		// argColumnNames may be null
-		
-		mySQL = argSQL;
-		myColumnNames = argColumnNames;
+		mySQL = Objects.requireNonNull(argSQL);
+		myColumnNames = argColumnNames; // might be null
 	}
 	
 	public String getSQL() {

@@ -4,9 +4,9 @@ import java.io.PrintWriter;
 /**
  * @author topquark
  */
+@SuppressWarnings("resource") // We are not responsible for closing our PrintWriter.
 public class JavadocHelper {
 	private final PrintWriter myPrintWriter;
-//	private final int myWidth;
 	
 	private int myIndent;
 	private boolean myFirstParagraph = true;
@@ -14,7 +14,6 @@ public class JavadocHelper {
 	public JavadocHelper(PrintWriter argPrintWriter) {
 		super();
 		myPrintWriter = argPrintWriter;
-//		myWidth = argWidth;
 	}
 	
 	private void indent() {

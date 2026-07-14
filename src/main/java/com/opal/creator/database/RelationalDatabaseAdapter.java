@@ -95,8 +95,7 @@ public abstract class RelationalDatabaseAdapter {
 	protected RelationalDatabaseAdapter(DataSource argDataSource) {
 		super();
 		
-		Validate.notNull(argDataSource);
-		myDataSource = argDataSource;
+		myDataSource = Objects.requireNonNull(argDataSource);
 	}
 	
 	protected String createSpecificOpalFactoryClassName(MappedClass argMC) {
@@ -249,7 +248,7 @@ public abstract class RelationalDatabaseAdapter {
 				array, just for show. */
 				lclBW.print("\tprivate static final String[] ourPrimaryKeyWhereClauseColumns = new String[] {");
 				
-				Validate.notNull(lclPK);
+				Objects.requireNonNull(lclPK);
 				lclI = lclPK.createClassMemberIterator();
 				while (lclI.hasNext()) {
 					ClassMember lclCM = lclI.next();
@@ -334,9 +333,9 @@ public abstract class RelationalDatabaseAdapter {
 			
 			if (argMC.requiresTypedCreate() && argMC.implementsPolymorphicCreator()) {
 				PolymorphicData lclPD = argMC.getPolymorphicData();
-				Validate.notNull(lclPD);
+				Objects.requireNonNull(lclPD);
 				MappedClass lclTDMC = lclPD.getUltimateConcreteTypeDeterminer();
-				Validate.notNull(lclTDMC);
+				Objects.requireNonNull(lclTDMC);
 				String lclTDMCICN = lclTDMC.getFullyQualifiedInterfaceClassName();
 				lclBW.println("\t@Override");
 				lclBW.println("\tpublic " + lclOCN + " create(" + lclTDMCICN + " argT) {");
@@ -739,7 +738,7 @@ public abstract class RelationalDatabaseAdapter {
 			}
 			
 			if (argMC.isEphemeral() == false) {
-				Validate.notNull(lclPK);
+				Objects.requireNonNull(lclPK);
 				
 				/* getPrimaryKeyWhereClauseColumns() */
 				lclBW.println("\t@Override");
@@ -1194,7 +1193,7 @@ public abstract class RelationalDatabaseAdapter {
 	}
 	
 	protected Class<?> determineCollectionClassFromStatistics(MappedClass argMC, ForeignKey argFK) throws SQLException {
-		Validate.notNull(argFK);
+		Objects.requireNonNull(argFK);
 		
 		String lclSQL = generateForeignKeyStatisticsSQL(argFK);
 		
@@ -1324,8 +1323,7 @@ public abstract class RelationalDatabaseAdapter {
 			lclBW.println();
 			Iterator<MappedClass> lclI = argMappedClasses.iterator();
 			while (lclI.hasNext()) {
-				MappedClass lclMC = lclI.next();
-				Validate.notNull(lclMC);
+				MappedClass lclMC = Objects.requireNonNull(lclI.next());
 				if (lclMC.isDeprecated()) {
 					lclBW.println("\t@Deprecated");
 				}
@@ -1435,7 +1433,7 @@ public abstract class RelationalDatabaseAdapter {
 			lclBW.println();
 			
 			for (MappedClass lclMC : argMappedClasses) {
-				Validate.notNull(lclMC);
+				Objects.requireNonNull(lclMC);
 				
 				String lclSpecificOpalFactoryClassName = getDatabaseOpalPrefix() + lclMC.getOpalFactoryInterfaceName();
 	//			String lclSpecificOpalFactoryPackageName = lclMC.getOpalFactoryPackageName() + getDatabasePackageSuffix();
@@ -1609,29 +1607,29 @@ public abstract class RelationalDatabaseAdapter {
 		determineSourceColumnsForArtificialForeignKeys(/* argMCs */);
 		
 		for (MappedClass lclMC : argMCs.values()) {
-			Validate.notNull(lclMC);
+			Objects.requireNonNull(lclMC);
 			processMappedClassFirstPass(argMCs, lclMC);
 		}
 		
 		for (MappedClass lclMC : argMCs.values()) {
-			Validate.notNull(lclMC);
+			Objects.requireNonNull(lclMC);
 			processMappedClassSecondPass(argMCs, lclMC /*, argSampleCollections */);
 		}
 		
 		// THINK: Can the following two loops be combined?
 		for (MappedClass lclMC : argMCs.values()) {
-			Validate.notNull(lclMC);
+			Objects.requireNonNull(lclMC);
 			processMappedClassThirdPass(argMCs, lclMC);
 		}
 		
 		for (MappedClass lclMC : argMCs.values()) {
-			Validate.notNull(lclMC);
+			Objects.requireNonNull(lclMC);
 			lclMC.validateAndResolveInheritance();
 		}
 	}
 	
 	public void generateClasses(OpalParseContext argOPC) throws IOException, SQLException {
-		Validate.notNull(argOPC);
+		Objects.requireNonNull(argOPC);
 		
 		Map<TableName, MappedClass> lclMappedClasses = argOPC.getMappedClasses();
 		
@@ -1701,7 +1699,7 @@ public abstract class RelationalDatabaseAdapter {
 	}
 	
 	public ArrayList<ForeignKey> getForeignKeysFrom(TableName argT) {
-		Validate.notNull(argT);
+		Objects.requireNonNull(argT);
 		
 		ArrayList<ForeignKey> lclAL = new ArrayList<>();
 		
@@ -1715,7 +1713,7 @@ public abstract class RelationalDatabaseAdapter {
 	}
 	
 	public ArrayList<ForeignKey> getForeignKeysTo(TableName argT) {
-		Validate.notNull(argT);
+		Objects.requireNonNull(argT);
 		
 		ArrayList<ForeignKey> lclAL = new ArrayList<>();
 		
@@ -1740,7 +1738,7 @@ public abstract class RelationalDatabaseAdapter {
 	}
 	
 	public PrimaryKey getPrimaryKey(TableName argT) {
-		Validate.notNull(argT);
+		Objects.requireNonNull(argT);
 		Iterator<PrimaryKey> lclI = getPrimaryKeys().iterator();
 		while (lclI.hasNext()) {
 			PrimaryKey lclPK = lclI.next();
@@ -1764,7 +1762,7 @@ public abstract class RelationalDatabaseAdapter {
 	}
 	
 	public Collection<Index> getUniqueIndexes(TableName argTableName) {
-		Validate.notNull(argTableName);
+		Objects.requireNonNull(argTableName);
 		
 		ArrayList<Index> lclResult = new ArrayList<>();
 		
@@ -1872,7 +1870,7 @@ public abstract class RelationalDatabaseAdapter {
 					generateGeneratedKeysMethodInternal(argPW, lclCM);
 				}
 			}
-			argPW.println("\t\t} catch (SQLException lclE) {");
+			argPW.println("\t\t} catch (SQLException _) {");
 			argPW.println("\t\t\tthrow new PersistenceException(\"Could not process generated keys.\");");
 			argPW.println("\t\t}");
 			argPW.println("\t}");
@@ -1917,7 +1915,7 @@ public abstract class RelationalDatabaseAdapter {
 						generateGeneratedKeysMethodInternal(argPW, lclCM);
 					}
 				}
-				argPW.println("\t\t} catch (SQLException lclE) {");
+				argPW.println("\t\t} catch (SQLException _) {");
 				argPW.println("\t\t\tthrow new PersistenceException(\"Could not process generated keys.\");");
 				argPW.println("\t\t}");
 				argPW.println("\t}");

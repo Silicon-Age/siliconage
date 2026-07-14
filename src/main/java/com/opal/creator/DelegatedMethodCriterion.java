@@ -1,6 +1,6 @@
 package com.opal.creator;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public class DelegatedMethodCriterion extends ComparatorCriterion {
 	private final MethodDelegation myMethodDelegation;
@@ -12,8 +12,7 @@ public class DelegatedMethodCriterion extends ComparatorCriterion {
 	public DelegatedMethodCriterion(MethodDelegation argMD, boolean argInverted) {
 		super(argInverted);
 		
-		Validate.notNull(argMD);
-		myMethodDelegation = argMD;
+		myMethodDelegation = Objects.requireNonNull(argMD);
 	}
 	
 	public MethodDelegation getMethodDelegation() {

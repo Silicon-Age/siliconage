@@ -2,7 +2,7 @@ package com.opal.creator.database.oracle;
 
 import com.opal.creator.database.TableName;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public class OracleTableName extends TableName {
 	private final String mySchemaName;
@@ -11,10 +11,10 @@ public class OracleTableName extends TableName {
 	public OracleTableName(String argSchemaName, String argTableName) {
 		super();
 		
-		Validate.notNull(argSchemaName);
+		Objects.requireNonNull(argSchemaName);
 		mySchemaName = argSchemaName;
 		
-		Validate.notNull(argTableName);
+		Objects.requireNonNull(argTableName);
 		myTableName = argTableName;
 		
 		return;

@@ -1,9 +1,11 @@
 package com.siliconage.database;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.sql.Connection;
 import java.sql.Date;
@@ -66,8 +68,8 @@ public abstract class DatabaseUtility {
 	 * array of parameters won't produce a SQL statement that finds the proper row (because NULL <> NULL).
 	 */
 	public static String buildDeleteString(String argFullyQualifiedTableName, String[] argWhereClauseColumns) {
-		Validate.notNull(argFullyQualifiedTableName);
-		Validate.notNull(argWhereClauseColumns);
+		Objects.requireNonNull(argFullyQualifiedTableName);
+		Objects.requireNonNull(argWhereClauseColumns);
 		
 		StringBuilder lclSQL = new StringBuilder(128);
 		lclSQL.append("DELETE FROM ");
@@ -95,8 +97,8 @@ public abstract class DatabaseUtility {
 	 * @return An insert string ready to be run with parameters as a prepared statement
 	 */
 	public static String buildInsertString(Iterator<String> argI, String argTableName) {
-		Validate.notNull(argI);
-		Validate.notNull(argTableName);
+		Objects.requireNonNull(argI);
+		Objects.requireNonNull(argTableName);
 		
 		StringBuilder lclSQL = new StringBuilder(128); // THINK: How to compute?
 		lclSQL.append("INSERT INTO ");
@@ -135,8 +137,8 @@ public abstract class DatabaseUtility {
 	}
 	
 	public static String buildInsertString(Iterator<String> argI, String[] argOutputColumns, String argTableName) {
-		Validate.notNull(argI);
-		Validate.notNull(argTableName);
+		Objects.requireNonNull(argI);
+		Objects.requireNonNull(argTableName);
 		
 		StringBuilder lclSQL = new StringBuilder(128); // THINK: How to compute?
 		lclSQL.append("INSERT INTO ");
@@ -200,10 +202,10 @@ public abstract class DatabaseUtility {
 	 * @return String - SQL Statement
 	 */
 	public static String buildUpdateString(Iterator<String> argI, String argFullyQualifiedTableName, String[] argWhereClauseColumns) {
-		Validate.notNull(argI);
+		Objects.requireNonNull(argI);
 		Validate.isTrue(argI.hasNext()); // Check that there is at least one value in the iterator
-		Validate.notNull(argFullyQualifiedTableName);
-		Validate.notNull(argWhereClauseColumns);
+		Objects.requireNonNull(argFullyQualifiedTableName);
+		Objects.requireNonNull(argWhereClauseColumns);
 		
 		StringBuilder lclSQL = new StringBuilder(128); // THINK: How to pre-compute the size?
 		lclSQL.append("UPDATE ");
@@ -245,10 +247,10 @@ public abstract class DatabaseUtility {
 	 * @param argIDColumnName The name of a key column that will be used to indicate the row to update (using a parameter that will be incorporated later in a prepared statement)
 	 */
 	public static String buildUpdateString(Iterator<String> argI, String argFullyQualifiedTableName, String argIDColumnName) {
-		Validate.notNull(argI);
+		Objects.requireNonNull(argI);
 		Validate.isTrue(argI.hasNext()); // Check that there is at least one value in the iterator
-		Validate.notNull(argFullyQualifiedTableName);
-		Validate.notNull(argIDColumnName);
+		Objects.requireNonNull(argFullyQualifiedTableName);
+		Objects.requireNonNull(argIDColumnName);
 				
 		StringBuilder lclSQL = new StringBuilder(128); // THINK: How to compute?
 		lclSQL.append("UPDATE ");
@@ -663,7 +665,7 @@ public abstract class DatabaseUtility {
 			} else {
 				try {
 					argPS.setNString(argIndex, s);
-				} catch (@SuppressWarnings("unused") AbstractMethodError lclE) {
+				} catch (AbstractMethodError _) {
 					// The jTDS driver doesn't implement setNString
 					argPS.setString(argIndex, s);
 				}
@@ -671,11 +673,11 @@ public abstract class DatabaseUtility {
 			break;
 		case java.time.LocalDate ld:
 			log.warn("Encountered LocalDate while setting query parameter.");
-			argPS.setObject(argIndex, argV);
+			argPS.setObject(argIndex, ld);
 			break;
 		case java.time.LocalDateTime ldt:
 			log.warn("Encountered LocalDateTime while setting query parameter.");
-			argPS.setObject(argIndex, argV);
+			argPS.setObject(argIndex, ldt);
 			break;
 		default:
 			argPS.setObject(argIndex, argV);
@@ -1032,7 +1034,25 @@ public abstract class DatabaseUtility {
 		}
 	}
 
-	public static <T> List<T> select(DataSource argDS, java.util.function.Function<ResultSet, ? extends T> argF, String argSQL, Object... argParameters) throws SQLException {
+	/* This is a copy of the java.util.function.Function functional interface except that it requires the input argument to be
+	 * a ResultSet, and it allows the method to throw a SQLException (as is common when working with JDBC objects.
+	 */
+	public interface ResultSetFunction<R> {
+		R apply(ResultSet rs) throws SQLException;
+	}
+	
+	/* This method embodies the idea of "run this SQL query and turn each row of the ResultSet into an object of type T.
+	 * The user passes a DataSource, the SQL query, and the parameters, along with a ResultSetFunction that can transform
+	 * one row of a ResultSet into a T.  This method calls that Function for each row, then returns a List of the resulting
+	 * objects (an empty List if the ResultSet had no rows).
+	 * 
+	 * The Function should never call ResultSet::next.
+	 * 
+	 * The user does not need to think about Connections, Statements, or closing a ResultSet.
+	 * 
+	 * FIXME: Maybe this should be renamed selectList.
+	 */
+	public static <T> List<T> select(DataSource argDS, ResultSetFunction<? extends T> argF, String argSQL, Object... argParameters) throws SQLException {
 		List<T> lclTs = null;
 		try (Connection conn = argDS.getConnection()) {
 			try (ResultSet rs = select(conn, argSQL, argParameters)) {
@@ -1054,6 +1074,50 @@ public abstract class DatabaseUtility {
 		}
 	}
 	
+	/* This method runs the provided query (with the provided parameters) on a Connection obtained from the provided DataSource and
+	 * turns each row of the ResultSet into a key of type K and a value of type V.  If both are non-null, it is inserted into a
+	 * new HashMap and returned.
+	 * 
+	 * An empty ResultSet leads to an empty Map. 
+
+ 	 * The user does not need to think about Connections, Statements, or closing a ResultSet.
+
+	 * FIXME: Should the user be allowed to specify an existing Map that is augmented?
+	 * FIXME: Should the user be allowed to specify a Supplier<Map>?
+	 */
+	public static <K, V> Map<K, V> selectMap(DataSource argDS, ResultSetFunction<? extends K> argK, ResultSetFunction<? extends V> argV, String argSQL, Object... argParameters) throws SQLException {
+		Map<K, V> lclMap = new HashMap<>();
+		try (Connection conn = argDS.getConnection()) {
+			try (ResultSet rs = select(conn, argSQL, argParameters)) {
+				while (rs.next()) {
+					K lclK = argK.apply(rs);
+					if (lclK != null) {
+						V lclV = argV.apply(rs);
+						if (lclV != null) {
+							lclMap.put(lclK, lclV);
+						}
+					}
+				}
+			} // close rs
+		} // close conn
+		return lclMap;
+	}
+	
+	/* This method embodies the notion of "run this SQL query and turn the entire ResultSet into a single object of type T (likely
+	 * the result of some sort of aggregation).  The user passes the DataSource, the SQL query, and the parameters, along with a
+	 * ResultSetFunction that can transform an entire ResultSet into a T).  Unlike the select method above, this Function
+	 * should call ResultSet::next to read everything.
+	 * 
+	 * The user does not need to think about Connections, Statements, or closing a ResultSet.
+	 */
+	public static <R> R query(DataSource argDS, ResultSetFunction<? extends R> argF, String argSQL, Object... argParameters) throws SQLException {
+		try (Connection conn = argDS.getConnection()) {
+			try (ResultSet rs = select(conn, argSQL, argParameters)) {
+				return argF.apply(rs);
+			} // close rs
+		} // close conn
+	}
+
 	public static int update(Connection argConnection, String argTableName, Map<String, Object> argMap, String[] argWhereClauseColumns, Object... argWhereClauseValues) throws SQLException {
 		if (argConnection == null) {
 			throw new IllegalArgumentException("argConnection is null");

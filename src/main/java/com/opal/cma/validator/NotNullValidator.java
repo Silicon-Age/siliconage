@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * @author topquark
  */
-@Deprecated
 public class NotNullValidator extends FieldValidator {
 	private static final NotNullValidator ourInstance = new NotNullValidator();
 	

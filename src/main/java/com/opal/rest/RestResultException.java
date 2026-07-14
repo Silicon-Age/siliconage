@@ -1,6 +1,6 @@
 package com.opal.rest;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public class RestResultException extends Exception {
 
@@ -13,8 +13,7 @@ public class RestResultException extends Exception {
 	
 	public RestResultException(RestResult argRR) {
 		super();
-		Validate.notNull(argRR);
-		myRestResult = argRR;
+		myRestResult = Objects.requireNonNull(argRR);
 	}
 	
 	public RestResult getRestResult() {

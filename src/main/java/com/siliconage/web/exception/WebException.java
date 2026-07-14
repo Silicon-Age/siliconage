@@ -18,7 +18,7 @@ public abstract class WebException extends Exception {
 	private String myHtmlMessageForUser;
 	
 	protected WebException(String argDefaultHeaderForUser, String argMessageForUser) {
-		this(argMessageForUser, argMessageForUser, null);
+		this(argDefaultHeaderForUser, argMessageForUser, null);
 	}
 	
 	protected WebException(String argDefaultHeaderForUser, String argMessageForUser, Throwable argCause) {

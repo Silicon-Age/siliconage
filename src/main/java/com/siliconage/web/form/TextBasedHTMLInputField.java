@@ -1,5 +1,7 @@
 package com.siliconage.web.form;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.Validate;
 
 public abstract class TextBasedHTMLInputField<T extends HTMLInputField<?, V>, V> extends HTMLInputField<T, V> {
@@ -31,13 +33,13 @@ public abstract class TextBasedHTMLInputField<T extends HTMLInputField<?, V>, V>
 	}
 	
 	public T pattern(String argPattern) {
-		Validate.notNull(argPattern);
+		Objects.requireNonNull(argPattern);
 		
 		return attribute("pattern", argPattern);
 	}
 	
 	public T placeholder(String argPlaceholder) {
-		Validate.notNull(argPlaceholder);
+		Objects.requireNonNull(argPlaceholder);
 		
 		return attribute("placeholder", argPlaceholder);
 	}

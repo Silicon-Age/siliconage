@@ -8,7 +8,6 @@ import com.opal.UserFacing;
 /**
  * @author topquark
  */
-@Deprecated
 public abstract class WholeValidator<U extends UserFacing> {
 	protected WholeValidator() {
 		super();

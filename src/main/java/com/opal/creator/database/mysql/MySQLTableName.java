@@ -1,7 +1,6 @@
 package com.opal.creator.database.mysql;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 import com.opal.creator.database.TableName;
 
@@ -15,7 +14,7 @@ public class MySQLTableName extends TableName {
 //		Validate.notNull(argDatabaseName); // Can be null, indicating that one should use the default database for the connection
 		myDatabaseName = argDatabaseName;
 		
-		Validate.notNull(argTableName);
+		Objects.requireNonNull(argTableName);
 		myTableName = argTableName;
 	}
 	
@@ -41,7 +40,7 @@ public class MySQLTableName extends TableName {
 		}
 		MySQLTableName lclTableName = (MySQLTableName) argObject;
 		
-		return StringUtils.equals(getTableName(), lclTableName.getTableName()) && StringUtils.equals(getDatabaseName(), lclTableName.getDatabaseName()); 
+		return Objects.equals(getTableName(), lclTableName.getTableName()) && Objects.equals(getDatabaseName(), lclTableName.getDatabaseName()); 
 	}
 	
 	@Override

@@ -8,10 +8,9 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Objects;
 
 import javax.sql.DataSource;
-
-import org.apache.commons.lang3.Validate;
 
 import com.opal.types.StringSerializable;
 import com.siliconage.database.DatabaseUtility;
@@ -85,9 +84,12 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing/
 	 * I don't know if this method works correctly if any of the values in argParameters is null because it builds a
 	 * PreparedStatement that always uses "column_1 = ?".
 	 */
+	@SuppressWarnings("resource") // We return a ResultSet for the caller to close.
 	protected static final ResultSet generateResultSet(Connection argConnection, String argFullyQualifiedTableName, String[] argColumnNames, String[] argWhereClauseColumnNames, Object[] argParameters, String argOrderBy) throws SQLException {
-		Validate.notNull(argConnection);
-		Validate.notNull(argFullyQualifiedTableName);
+		if (argConnection == null) {
+			throw new IllegalArgumentException("argConnection is null.");
+		}
+		Objects.requireNonNull(argFullyQualifiedTableName);
 		
 		StringBuilder lclSB = new StringBuilder(512);
 		if (argColumnNames == null) {
@@ -134,7 +136,7 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing/
 		ResultSet lclRS = DatabaseUtility.select(argConnection, lclSB.toString(), argParameters);
 //		System.out.println("Done with select");
 		
-		return lclRS;
+		return lclRS; // This escaping ResultSet is why we suppress "resource" warnings.
 	}
 	
 	/* This method returns the Opal-specific array of column names in the Opal's underlying table.
@@ -332,6 +334,7 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing/
 	}
 	
 	/* CHECK: This method is shared with AbstractDatabaseOpalFactory; consolidate */
+	@SuppressWarnings("resource") // Necessary because we return a ResultSet for the caller to close.
 	protected ResultSet createResultSet(Connection argConnection, Query argQuery) throws SQLException {
 		if (argQuery instanceof ImplicitTableDatabaseQuery) {
 			ImplicitTableDatabaseQuery lclITDQ = (ImplicitTableDatabaseQuery) argQuery;
@@ -368,8 +371,8 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing/
 	public void acquireForQuery(Collection<O> argCollection, Query argQuery) throws PersistenceException {
 		long lclA = System.currentTimeMillis();
 		
-		Validate.notNull(argCollection);
-		Validate.notNull(argQuery);
+		Objects.requireNonNull(argCollection);
+		Objects.requireNonNull(argQuery);
 		
 		try (Connection lclC = getDataSource().getConnection();
 			ResultSet lclRS = createResultSet(lclC, argQuery)) {

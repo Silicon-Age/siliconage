@@ -4,9 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
 
 import com.opal.IdentityUserFacing;
 import com.siliconage.util.Fast3Set;
@@ -32,7 +31,7 @@ public abstract class Validator<U extends IdentityUserFacing> {
 			Method lclM = this.getClass().getMethod(lclMethodName, String.class);
 			assert lclM != null;
 			lclM.invoke(this, argValue);
-		} catch (NoSuchMethodException lclE) {
+		} catch (NoSuchMethodException _) {
 //			System.out.println("Did not find it.");
 			return;
 		} catch (IllegalAccessException lclE) {
@@ -73,7 +72,7 @@ public abstract class Validator<U extends IdentityUserFacing> {
 	public final void validate(Object argO) {
 		try {
 			validate((U) argO);
-		} catch (ClassCastException lclE) {
+		} catch (ClassCastException _) {
 			throw new IllegalStateException("Validator was passed the wrong kind of object.");
 		}
 	}
@@ -87,15 +86,12 @@ public abstract class Validator<U extends IdentityUserFacing> {
 	}
 	
 	public void addError(String argError) {
-		Validate.notNull(argError);
-		getErrors().add(argError);
+		getErrors().add(Objects.requireNonNull(argError));
 	}
 	
 	public void addError(String argFieldName, String argError) {
-		Validate.notNull(argFieldName);
-		Validate.notNull(argError);
-		addError(argError);
-		markField(argFieldName);
+		addError(Objects.requireNonNull(argError));
+		markField(Objects.requireNonNull(argFieldName));
 	}
 	
 	public Set<String> getIncorrectFields() {
@@ -107,7 +103,6 @@ public abstract class Validator<U extends IdentityUserFacing> {
 	}
 	
 	public void markField(String argFieldName) {
-		Validate.notNull(argFieldName);
-		getIncorrectFields().add(argFieldName);
+		getIncorrectFields().add(Objects.requireNonNull(argFieldName));
 	}
 }

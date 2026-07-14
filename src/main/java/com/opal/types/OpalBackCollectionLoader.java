@@ -1,13 +1,12 @@
 package com.opal.types;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
-
-import org.apache.commons.lang3.Validate;
 
 import com.opal.Opal;
 
@@ -25,13 +24,13 @@ public class OpalBackCollectionLoader<C extends Opal<?>, P extends Opal<?>> {
 	public OpalBackCollectionLoader(Function<P, Set<C>> argLoader, ToIntFunction<P> argCounter, BiConsumer<C, P> argSafeChildMutator, BiConsumer<C, P> argUnsafeChildMutator, Function<C, P> argChildAccessor, Supplier<Set<C>> argDefaultSetSupplier, Function<Collection<C>, Set<C>> argCopySetSupplier, boolean argRemovalAllowed) {
 		super();
 		
-		myLoader = Validate.notNull(argLoader);
-		myCounter = Validate.notNull(argCounter);
-		mySafeChildMutator = Validate.notNull(argSafeChildMutator);
-		myUnsafeChildMutator = Validate.notNull(argUnsafeChildMutator);
-		myChildAccessor = Validate.notNull(argChildAccessor);
-		myDefaultSetSupplier = Validate.notNull(argDefaultSetSupplier);
-		myCopySetSupplier = Validate.notNull(argCopySetSupplier);
+		myLoader = Objects.requireNonNull(argLoader);
+		myCounter = Objects.requireNonNull(argCounter);
+		mySafeChildMutator = Objects.requireNonNull(argSafeChildMutator);
+		myUnsafeChildMutator = Objects.requireNonNull(argUnsafeChildMutator);
+		myChildAccessor = Objects.requireNonNull(argChildAccessor);
+		myDefaultSetSupplier = Objects.requireNonNull(argDefaultSetSupplier);
+		myCopySetSupplier = Objects.requireNonNull(argCopySetSupplier);
 		myRemovalAllowed = argRemovalAllowed;
 	}
 	

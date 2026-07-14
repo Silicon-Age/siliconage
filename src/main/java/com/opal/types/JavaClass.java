@@ -1,8 +1,8 @@
 package com.opal.types;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 
 public class JavaClass<T> implements StringSerializable, Comparable<JavaClass<?>> {
@@ -15,7 +15,7 @@ public class JavaClass<T> implements StringSerializable, Comparable<JavaClass<?>
 	protected JavaClass(String argClassName) throws ClassNotFoundException {
 		super();
 		
-		myClassName = Validate.notNull(argClassName);
+		myClassName = Objects.requireNonNull(argClassName);
 		
 		myClass = (Class<T>) Class.forName(argClassName); // may throw ClassNotFoundException
 	}
@@ -57,7 +57,7 @@ public class JavaClass<T> implements StringSerializable, Comparable<JavaClass<?>
 	public static <U> JavaClass<U> fromSerializedString(String argClassName) {
 		try {
 			return new JavaClass<>(argClassName);
-		} catch (ClassNotFoundException lclE) {
+		} catch (ClassNotFoundException _) {
 			ourLogger.warn("Couldn't find {}", argClassName);
 			return null;
 		}

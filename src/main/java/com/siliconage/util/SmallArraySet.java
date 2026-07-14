@@ -33,7 +33,7 @@ public class SmallArraySet<T> implements Set<T> {
 		if (argT == null) {
 			return false;
 		}
-		for(int lclI = 0; lclI < mySize; ++lclI) {
+		for (int lclI = 0; lclI < mySize; ++lclI) {
 			if (argT.equals(myItems[lclI])) {
 				return true;
 			}
@@ -56,13 +56,13 @@ public class SmallArraySet<T> implements Set<T> {
 				try {
 					return myItems[myIndex++];
 				} catch (ArrayIndexOutOfBoundsException lclE) {
-					throw new NoSuchElementException();
+					throw new NoSuchElementException("myIndex was " + (myIndex - 1) + "; myItems.length = " + myItems.length, lclE);
 				}
 			}
 			
 			@Override
 			public void remove() {
-				SmallArraySet.this.remove(myIndex);
+				SmallArraySet.this.remove(myIndex); // FIXME: Does this method actually work?  Passing an int index to remove seems wrong, and myIndex might be one too large.
 			}
 		};
 	}
@@ -140,6 +140,7 @@ public class SmallArraySet<T> implements Set<T> {
 	}
 	
 	@Override
+	@SuppressWarnings("unlikely-arg-type")
 	public boolean containsAll(Collection<?> argC) {
 		for (Object lclO : argC) {
 			if (!contains(lclO)) {

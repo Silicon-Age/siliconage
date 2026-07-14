@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.HashMap;
 
 import javax.sql.DataSource;
@@ -144,8 +145,8 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 	 */
 	@SuppressWarnings("resource") // We are not responsible for closing argConnection
 	protected static final ResultSet generateResultSet(Connection argConnection, String argFullyQualifiedTableName, String[] argColumnNames, String[] argWhereClauseColumnNames, Object[] argParameters, String argOrderBy) throws SQLException {
-		Validate.notNull(argConnection);
-		Validate.notNull(argFullyQualifiedTableName);
+		Objects.requireNonNull(argConnection);
+		Objects.requireNonNull(argFullyQualifiedTableName);
 		Validate.isTrue((argWhereClauseColumnNames != null) ? (argParameters != null && argParameters.length == argWhereClauseColumnNames.length) : (argParameters == null));
 		
 		StringBuilder lclSB = new StringBuilder(512);
@@ -345,12 +346,9 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 		ResultSet lclRS = null;
 		try {
 			/* Construct the SQL statement identify the rows, turn it into a PreparedStatement, execute it, and grab
-			 * the resulting ResultSet.
+			 * the resulting ResultSet (which should never be null).
 			 */
-			lclRS = generateResultSet(argConnection, argFullyQualifiedTableName, getColumnNames(), argFieldNames, argParameters, argOrderBy);
-			
-			/* Which should never be null. */
-			Validate.notNull(lclRS);
+			lclRS = Objects.requireNonNull(generateResultSet(argConnection, argFullyQualifiedTableName, getColumnNames(), argFieldNames, argParameters, argOrderBy));
 			
 			/* Convert that ResultSet into Opals (either by looking them up in the OpalCache or by constructing new Opals
 			 * from the data in it, then add them to argCollection.
@@ -462,10 +460,11 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 		return;
 	}
 	
-	@SuppressWarnings("resource") // We are not responsible for closing argRS
 	protected final O extractSingleOpalFromResultSet(OpalCache<O> argOC, ResultSet argRS, boolean argCanonicalColumnOrder) throws SQLException {
-		Validate.notNull(argOC);
-		Validate.notNull(argRS);
+		Objects.requireNonNull(argOC);
+		if (argRS == null) {
+			throw new IllegalArgumentException("argRS is null");
+		}		
 		/* We are about to instantiate an Opal for the row returned by the query, but before
 		we create a new object, we need to make sure that an object for that rows hasn't already
 		been created.  We do this by creating a key from the database row and checking with the
@@ -571,6 +570,7 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 		}
 	}
 	
+	@SuppressWarnings("resource") // Necessary because we create a ResultSet for the caller to close.
 	protected ResultSet createResultSet(Connection argConnection, Query argQuery) throws SQLException {
 		if (argQuery instanceof ImplicitTableDatabaseQuery lclITDQ) {
 			Object[] lclParameters = lclITDQ.getParameters();
@@ -602,8 +602,8 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 	public void acquireForQuery(Collection<O> argCollection, Query argQuery) throws PersistenceException {
 //		long lclA = System.currentTimeMillis();
 		
-		Validate.notNull(argCollection);
-		Validate.notNull(argQuery);
+		Objects.requireNonNull(argCollection);
+		Objects.requireNonNull(argQuery);
 		
 		Connection lclConnection = null;
 		ResultSet lclRS = null;
@@ -905,8 +905,9 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 	
 	/* I'd like this to be protected */
 	@Override
+	@SuppressWarnings("resource") // When the TransactionContext is committed or rolled back, all TransactionParameters will be closed (releasing this Connection).
 	public TransactionParameter extractTransactionParameter(Map<DataSource, TransactionParameter> argTPMap) throws PersistenceException {
-		Validate.notNull(argTPMap);
+		Objects.requireNonNull(argTPMap);
 		TransactionParameter lclTP = argTPMap.get(getDataSource());
 		if (lclTP == null) {
 			try {
@@ -920,8 +921,8 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 	
 	@Override
 	public void reloadForQuery(Collection<? extends O> argC, Query argQ) throws PersistenceException {
-		Validate.notNull(argC);
-		Validate.notNull(argQ);
+		Objects.requireNonNull(argC);
+		Objects.requireNonNull(argQ);
 		
 		throw new UnimplementedOperationException();
 		

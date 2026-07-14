@@ -1,14 +1,12 @@
 package com.opal;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
-
-import org.apache.commons.lang3.Validate;
 
 /**
  * @author topquark
@@ -103,7 +101,7 @@ public interface OpalFactory<U extends UserFacing/*<U>*/, O extends Opal<? exten
 	public void acquireForQuery(Collection<O> argCollection, Query argQuery);
 
 	default public O getOpalForQuery(Query argQuery) {
-		Validate.notNull(argQuery);
+		Objects.requireNonNull(argQuery);
 		ArrayList<O> lclAL = new ArrayList<>();
 		acquireForQuery(lclAL, argQuery);
 		if (lclAL.isEmpty()) {

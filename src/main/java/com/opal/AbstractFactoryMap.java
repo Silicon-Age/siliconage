@@ -32,12 +32,19 @@ public abstract class AbstractFactoryMap implements Map<Class<? extends Identity
 		getMap().clear();
 	}
 	
+	/* The warning suppression here is a little frustrating.  Eclipse doesn't want me to pass an Object to the contains()
+	 * method of the backing map, but I can't just instanceof Class? extends IdentityUserFacing> because that's not
+	 * reifiable.  I could check to see that key is an instance of Class and that that Class is assignable to
+	 * IdentityUserFacing, but that adds two type into something that might plausibly be called in a hot path.
+	 */
 	@Override
+	@SuppressWarnings("unlikely-arg-type")
 	public boolean containsKey(Object key) {
 		return getMap().containsKey(key);
 	}
 	
 	@Override
+	@SuppressWarnings("unlikely-arg-type") // See note on containsKey()
 	public boolean containsValue(Object value) {
 		return getMap().containsValue(value);
 	}
@@ -48,6 +55,7 @@ public abstract class AbstractFactoryMap implements Map<Class<? extends Identity
 	}
 	
 	@Override
+	@SuppressWarnings("unlikely-arg-type") // See note on containsKey()
 	public IdentityFactory<?> get(Object key) {
 		return getMap().get(key);
 	}
@@ -73,6 +81,7 @@ public abstract class AbstractFactoryMap implements Map<Class<? extends Identity
 	}
 	
 	@Override
+	@SuppressWarnings("unlikely-arg-type") // See note on containsKey()
 	public IdentityFactory<?> remove(Object key) {
 		return getMap().remove(key);
 	}

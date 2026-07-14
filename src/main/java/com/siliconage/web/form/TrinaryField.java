@@ -1,5 +1,6 @@
 package com.siliconage.web.form;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.Validate;
@@ -24,13 +25,13 @@ public class TrinaryField<T extends TrinaryField<T>> extends AssembledDropdownFi
 	}
 	
 	public T namer(Function<Trinary, String> argNamer) {
-		Validate.notNull(argNamer);
+		Objects.requireNonNull(argNamer);
 		
 		return namer(new FunctionalNameCodeExtractor<>(argNamer, DefaultTrinaryNameCodeExtractor.getInstance()::extractCode));
 	}
 	
 	public T namer(String... argLabels) {
-		Validate.notNull(argLabels);
+		Objects.requireNonNull(argLabels);
 		Validate.isTrue(argLabels.length == Trinary.values().length, "List of names must have " + Trinary.values().length + " elements");
 		
 		return namer(x -> argLabels[x.ordinal()]);

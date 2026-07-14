@@ -79,25 +79,25 @@ public abstract class Handle<I extends IdentityUserFacing/*<? super I>*/> implem
 	}
 	
 	public static <U extends IdentityUserFacing/*<U>*/> Set<Handle<U>> onAll(Set<U> argRaw) { // OPALFIXME
-		Validate.notNull(argRaw);
+		Objects.requireNonNull(argRaw);
 		
 		return argRaw.stream().map(Handle::on).collect(Collectors.toSet());
 	}
 	
 	public static <U extends IdentityUserFacing/*<U>*/> List<Handle<U>> onAll(Collection<U> argRaw) { // OPALFIXME
-		Validate.notNull(argRaw);
+		Objects.requireNonNull(argRaw);
 		
 		return argRaw.stream().map(Handle::on).collect(Collectors.toList());
 	}
 	
 	public static <U extends IdentityUserFacing/*<U>*/> Set<U> pullAll(Set<Handle<U>> argHandles) { // OPALFIXME
-		Validate.notNull(argHandles);
+		Objects.requireNonNull(argHandles);
 		
 		return argHandles.stream().map(Handle::pull).collect(Collectors.toSet());
 	}
 	
 	public static <U extends IdentityUserFacing/*<U>*/> List<U> pullAll(Collection<Handle<U>> argHandles) { // OPALFIXME
-		Validate.notNull(argHandles);
+		Objects.requireNonNull(argHandles);
 		
 		return argHandles.stream().map(Handle::pull).collect(Collectors.toList());
 	}
@@ -130,7 +130,7 @@ public abstract class Handle<I extends IdentityUserFacing/*<? super I>*/> implem
 		/* package */ WrapperHandle(I argI) {
 			super();
 			
-			Validate.notNull(argI);
+			Objects.requireNonNull(argI);
 			Validate.isTrue(argI instanceof Serializable, "Must be Serializable!");
 			myI = argI;
 		}
@@ -152,7 +152,7 @@ public abstract class Handle<I extends IdentityUserFacing/*<? super I>*/> implem
 		/* package */ FactoryBasedHandle(I argU) {
 			super();
 			
-			Validate.notNull(argU);
+			Objects.requireNonNull(argU);
 			Validate.isTrue(argU instanceof OpalBacked);
 			Validate.isTrue(!argU.isNew(), "Handles cannot be created on new objects");
 			

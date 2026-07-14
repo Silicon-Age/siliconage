@@ -1,8 +1,7 @@
 package com.opal.cma;
 
 import java.util.Comparator;
-
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 import com.opal.IdentityUserFacing;
 
@@ -11,7 +10,7 @@ public class OpalFormComparator<U extends IdentityUserFacing/*<U>*/> implements 
 	
 	public OpalFormComparator(Comparator<U> argComparator) {
 		super();
-		Validate.notNull(argComparator);
+		Objects.requireNonNull(argComparator);
 		myComparator = argComparator;
 	}
 	
@@ -21,8 +20,8 @@ public class OpalFormComparator<U extends IdentityUserFacing/*<U>*/> implements 
 	
 	@Override
 	public int compare(OpalForm<U> argA, OpalForm<U> argB) {
-		Validate.notNull(argA);
-		Validate.notNull(argB);
+		Objects.requireNonNull(argA);
+		Objects.requireNonNull(argB);
 		
 		U lclA = argA.getUserFacing();
 		U lclB = argB.getUserFacing();

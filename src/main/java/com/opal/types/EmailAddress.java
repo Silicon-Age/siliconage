@@ -32,7 +32,7 @@ public class EmailAddress implements Cloneable, Serializable, Comparable<EmailAd
 		try {
 			return super.clone();
 		} catch (CloneNotSupportedException lclE) {
-			throw new IllegalStateException("Clone is supposed to be supported");
+			throw new IllegalStateException("Clone is supposed to be supported", lclE);
 		}
 	}
 	

@@ -1,6 +1,6 @@
 package com.opal;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public abstract non-sealed class UpdatableOpal<U extends IdentityUserFacing/*<U>*/> extends IdentityOpal<U> { // OPALFIXME
 
@@ -131,9 +131,9 @@ public abstract non-sealed class UpdatableOpal<U extends IdentityUserFacing/*<U>
 		setOldOpalExists(doesNewOpalExist());
 		
 		/* THINK: If this Opal has been deleted, should we null out both of these arrays? */
-		Validate.notNull(myNewValues);
+		Objects.requireNonNull(myNewValues);
 		
-		if (myNewValues != null) {
+		if (myNewValues != null) { // FIXME: How could this ever not be the case?
 			myOldValues = myNewValues;
 			myNewValues = null;
 		}

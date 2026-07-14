@@ -2,8 +2,7 @@ package com.opal.creator.database;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 import com.opal.creator.UniqueKeyType;
 
@@ -17,17 +16,10 @@ public class Index {
 	private boolean myUniqueStringKey = false;
 	
 	public Index(TableName argTableName, String argIndexName, boolean argUnique, String argFilter) {
-		super();
-		
-		Validate.notNull(argTableName);
-		myTableName = argTableName;
-		
-		Validate.notNull(argIndexName);
-		
-		myIndexName = argIndexName;
-		
-		myUnique = argUnique;
-		
+		super();		
+		myTableName = Objects.requireNonNull(argTableName);
+		myIndexName = Objects.requireNonNull(argIndexName);		
+		myUnique = argUnique;		
 		myFilter = argFilter;
 		
 		return;

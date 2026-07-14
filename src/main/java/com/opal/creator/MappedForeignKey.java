@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -82,13 +83,13 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 	public MappedForeignKey(ForeignKey argFK, MappedClass argSourceMC, MappedClass argTargetMC) {
 		super();
 		
-		Validate.notNull(argFK);
+		Objects.requireNonNull(argFK);
 		myForeignKey = argFK;
 		
-		Validate.notNull(argSourceMC);
+		Objects.requireNonNull(argSourceMC);
 		mySourceMappedClass = argSourceMC;
 		
-		Validate.notNull(argTargetMC);
+		Objects.requireNonNull(argTargetMC);
 		myTargetMappedClass = argTargetMC;
 		
 		determineSourceAndTarget();
@@ -224,7 +225,7 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 	}
 	
 	protected String prependSourceRole(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		/* Not sure that this will ever do anything. */
 		
 		String lclRolePrefix = getSourceRolePrefix();
@@ -300,13 +301,13 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 	
 	public String getRoleCollectionLoaderName() {
 		Validate.isTrue(representsManyToOneRelationship());
-		Validate.notNull("Cannot call getRoleCollectionLoaderName() when there is no collection.");
+		Objects.requireNonNull("Cannot call getRoleCollectionLoaderName() when there is no collection.");
 		return STATIC_MEMBER_PREFIX + prependTargetRole(getSourceMappedClass().getOpalClassName() + LOADER_SUFFIX);
 	}
 	
 	public String getRoleCollectionMemberName() {
 		Validate.isTrue(representsManyToOneRelationship());
-		Validate.notNull("Cannot call getRoleCollectionMemberName() when there is no collection.");
+		Objects.requireNonNull("Cannot call getRoleCollectionMemberName() when there is no collection.");
 		return MEMBER_PREFIX + getRoleCollectionName();
 	}
 	
@@ -322,7 +323,7 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 		if (mySourceRolePrefix == null) {
 			mySourceRolePrefix = determineSourceRolePrefix();
 		}
-		Validate.notNull(mySourceRolePrefix);
+		Objects.requireNonNull(mySourceRolePrefix);
 		return mySourceRolePrefix;
 	}
 	
@@ -371,7 +372,7 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 		if (myTargetRolePrefix == null) {
 			myTargetRolePrefix = determineTargetRolePrefix();
 		}
-		Validate.notNull(myTargetRolePrefix);
+		Objects.requireNonNull(myTargetRolePrefix);
 		return myTargetRolePrefix;
 	}
 	
@@ -439,7 +440,7 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 	public String getRoleCollectionItemName() {
 		if (myDeterminedRoleCollectionItemName == null) {
 			myDeterminedRoleCollectionItemName = determineRoleCollectionItemName();
-			Validate.notNull(myDeterminedRoleCollectionItemName);
+			Objects.requireNonNull(myDeterminedRoleCollectionItemName);
 		}
 		return myDeterminedRoleCollectionItemName;
 	}
@@ -456,7 +457,7 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 	public String getRoleCollectionName() {
 		if (myDeterminedRoleCollectionName == null) {
 			myDeterminedRoleCollectionName = determineRoleCollectionName();
-			Validate.notNull(myDeterminedRoleCollectionName);
+			Objects.requireNonNull(myDeterminedRoleCollectionName);
 		}
 		return myDeterminedRoleCollectionName;
 	}
@@ -472,7 +473,7 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 	public String getRoleOpalCollectionName() {
 		if (myDeterminedRoleOpalCollectionName == null) {
 			myDeterminedRoleOpalCollectionName = determineRoleOpalCollectionName();
-			Validate.notNull(myDeterminedRoleOpalCollectionName);
+			Objects.requireNonNull(myDeterminedRoleOpalCollectionName);
 		}
 		return myDeterminedRoleOpalCollectionName;
 	}
@@ -500,7 +501,7 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 	public Class<?> getCollectionType() {
 		if (myCollectionType == null) {
 			myCollectionType = determineCollectionType();
-			Validate.notNull(myCollectionType);
+			Objects.requireNonNull(myCollectionType);
 		}
 		return myCollectionType;
 	}
@@ -541,7 +542,7 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 			if (lclB == null) {
 				getTargetMappedClass().complain(MessageLevel.Warning, "Collection class for " + getForeignKey() + " is null.");
 			}
-			Validate.notNull(lclB);
+			Objects.requireNonNull(lclB);
 			Class<?> lclC;
 			if (Set.class.isAssignableFrom(lclB)) {				
 				lclC = lclB;
@@ -787,7 +788,7 @@ public class MappedForeignKey implements Comparable<MappedForeignKey> {
 	
 	@Override
 	public int compareTo(MappedForeignKey that) {
-		Validate.notNull(that);
+		Objects.requireNonNull(that);
 		
 		return this.getForeignKey().getName().compareTo(that.getForeignKey().getName());
 	}

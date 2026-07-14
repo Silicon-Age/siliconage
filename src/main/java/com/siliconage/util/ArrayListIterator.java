@@ -81,7 +81,7 @@ public class ArrayListIterator<T> implements ListIterator<T> {
 	protected T get(int argIndex) throws NoSuchElementException {
 		try {
 			return myArray[argIndex];
-		} catch (IndexOutOfBoundsException lclIndexOutOfBoundsException) {
+		} catch (IndexOutOfBoundsException _) {
 			throw new NoSuchElementException();
 		}
 	}

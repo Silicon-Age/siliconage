@@ -4,7 +4,6 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.List;
-import java.util.ArrayList;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -68,7 +67,7 @@ import com.siliconage.web.form.HiddenField;
 	}
 	
 	/* package */ static String generateSecurityFields(Collection<String> argFieldNames) {
-		String lclDynamicSalt = RandomStringUtils.randomAlphanumeric(DYNAMIC_SALT_LENGTH);
+		String lclDynamicSalt = RandomStringUtils.secure().nextAlphanumeric(DYNAMIC_SALT_LENGTH); // TODO: Ask Jonah about this.
 		
 		String lclDigestString = generateDigest(argFieldNames, lclDynamicSalt);
 		

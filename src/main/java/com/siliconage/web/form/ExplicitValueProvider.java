@@ -3,6 +3,7 @@ package com.siliconage.web.form;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -22,8 +23,7 @@ public class ExplicitValueProvider implements FormValueProvider {
 	public ExplicitValueProvider(Map<String, Collection<String>> argMap, long argLoadTime, Collection<String> argDisabledFields, Collection<String> argIncorrectFields, Map<String, FormFieldRequirement> argFieldRequirements, Collection<Pair<String, String>> argCheckedFields) {
 		super();
 		
-		Validate.notNull(argMap); // but it could be empty. I guess.
-		myMap = new HashMap<>(argMap); // defensive copy
+		myMap = new HashMap<>(Objects.requireNonNull(argMap)); // defensive copy
 		
 		myLoadTime = argLoadTime;
 		
@@ -55,7 +55,7 @@ public class ExplicitValueProvider implements FormValueProvider {
 	public ExplicitValueProvider(String... argInterleavedKeysAndValues) {
 		myLoadTime = System.currentTimeMillis();
 		
-		Validate.notNull(argInterleavedKeysAndValues);
+		Objects.requireNonNull(argInterleavedKeysAndValues);
 		Validate.isTrue(argInterleavedKeysAndValues.length % 2 == 0, "Must have an even number of arguments");
 		
 		myMap = new HashMap<>(argInterleavedKeysAndValues.length / 2);
@@ -96,7 +96,7 @@ public class ExplicitValueProvider implements FormValueProvider {
 	
 	@Override
 	public Collection<String> getAll(String argKey) {
-		Validate.notNull(argKey);
+		Objects.requireNonNull(argKey);
 		
 		return getMap().get(argKey); // which may be null, either because argKey is literally mapped to null, or there is no mapping for argKey
 	}
@@ -110,11 +110,6 @@ public class ExplicitValueProvider implements FormValueProvider {
 	public boolean isIncorrect(String argKey) {
 		return getIncorrectFields().contains(argKey);
 	}
-	
-//	@Override
-//	public boolean isChecked(String argKey, String argValue) {
-//		return getCheckedNameValuePairs().contains(Pair.of(argKey, argValue)); // relies on Pair.equals comparing argKey and argValue with equals()
-//	}
 	
 	@Override
 	public boolean isDisabled(String argKey) {

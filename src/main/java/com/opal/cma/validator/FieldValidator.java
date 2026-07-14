@@ -2,13 +2,14 @@ package com.opal.cma.validator;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 /**
  * @author topquark
  */
-@Deprecated
+/* This class (and its subclasses like WholeValidator) will probably have their functionality moved into the OpalField
+ * objects once that development work is done.
+ */
 public abstract class FieldValidator {
 	protected FieldValidator() {
 		super();
@@ -33,8 +34,8 @@ public abstract class FieldValidator {
 			ArrayList<String> lclAL = new ArrayList<>(); /* FIXME:  Lots of ArrayLists being built here */
 			validateInternal(lclAL, argObject);
 			return lclAL;
-		} catch (IllegalArgumentException lclE) {
-			Validate.notNull(argObject);
+		} catch (IllegalArgumentException _) {
+			Objects.requireNonNull(argObject);
 			ArrayList<String> lclAL = new ArrayList<>();
 			lclAL.add("Parameter " + argObject + " of class " + argObject.getClass() + " as a " + getParameterType() + ".");
 			return lclAL;
