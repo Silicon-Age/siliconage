@@ -9,12 +9,12 @@
 	
 	<groupId>com.siliconage</groupId>
 	<artifactId>siliconage</artifactId>
-	<version>3.3.1</version>
+	<version>3.4.0</version>
 	
 	<properties>
-		<maven.compiler.source>21</maven.compiler.source>
-		<maven.compiler.target>21</maven.compiler.target>
-		<maven.compiler.release>21</maven.compiler.release>
+		<maven.compiler.source>25</maven.compiler.source>
+		<maven.compiler.target>25</maven.compiler.target>
+		<maven.compiler.release>25</maven.compiler.release>
 	</properties>
 	
 	<dependencies>
@@ -44,11 +44,18 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>commons-text</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.15.0</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.9.1</version>
 		</dependency>
 		
+		<!-- The comment on this one is surely no longer true since it now contains the Opal XMLCreator code. -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
