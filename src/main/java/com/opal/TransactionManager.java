@@ -59,7 +59,7 @@ public final class TransactionManager {
 					
 					try {
 						Thread.sleep(lclSleepTime);
-					} catch (InterruptedException lclE) {
+					} catch (InterruptedException _) {
 						if (ourLogger.isDebugEnabled()) {
 							ourLogger.debug("TransactionReaperThread:  Interrupted while sleeping.");
 						}
@@ -161,7 +161,7 @@ public final class TransactionManager {
 							lclReapCalledThisAttempt = false;
 						}
 					}
-				} catch (InterruptedException lclE) {
+				} catch (InterruptedException _) {
 					ourLogger.error("TransactionReaperThread: Interrupted while trying to lock " + lclTC + " to reap it.");
 					lclReapCalledThisAttempt = false;
 				}
@@ -255,7 +255,9 @@ public final class TransactionManager {
 	}
 	
 	protected void addTransactionContext(TransactionContext argTC) {
-		Validate.notNull(argTC);
+		if (argTC == null) {
+			throw new IllegalArgumentException("argTC is null.");
+		}
 		
 		if (!isActive()) {
 			throw new IllegalStateException("Tried to add a new TransactionContext after the TransactionManager has been shut down.");
@@ -280,6 +282,7 @@ public final class TransactionManager {
 //		}
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller may or may not be responsible for closing.
 	public TransactionContext getTransactionContext(long argID) {
 		TransactionContext[] lclTCs = getTransactionContexts().toArray(new TransactionContext[0]);
 		

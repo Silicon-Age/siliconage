@@ -2,6 +2,7 @@ package com.opal.creator.database;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import org.apache.commons.lang3.Validate;
 
@@ -26,7 +27,7 @@ public final class CurrentUTCTimestampDefaultValue extends DefaultValue {
 	
 	@Override
 	public String generateAnnotation(Class<?> argType) {
-		Validate.notNull(argType);
+		Objects.requireNonNull(argType);
 		
 		if (argType == LocalDate.class) {
 			return "@" + CurrentUTCDateDefault.class.getName();

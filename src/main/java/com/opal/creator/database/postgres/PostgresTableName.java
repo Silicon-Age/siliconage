@@ -1,7 +1,8 @@
 package com.opal.creator.database.postgres;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
+
+import org.apache.commons.lang3.Strings;
 
 import com.opal.creator.database.TableName;
 
@@ -19,7 +20,7 @@ public class PostgresTableName extends TableName {
 			myDatabaseName = argDatabaseName;
 		}
 		
-		Validate.notNull(argTableName);
+		Objects.requireNonNull(argTableName);
 		String lclTableName = argTableName.toLowerCase(); // postgresql is case-insensitive
 		if (argTableName.startsWith("public.")) {
 			myTableName = lclTableName.substring(7); // 7 == "public.".length()
@@ -52,7 +53,7 @@ public class PostgresTableName extends TableName {
 		
 		// System.out.println("this.getTableName() = '" + this.getTableName() + "'; that.getTableName() = '" + lclTableName.getTableName() + "'; this.getDatabaseName() = '" + this.getDatabaseName() + "'; that.getDatabaseName() = '" + lclTableName.getDatabaseName() + "'");
 		
-		return ((getTableName() == null && lclTableName.getTableName() == null) || StringUtils.equalsIgnoreCase(getTableName(), lclTableName.getTableName())) && StringUtils.equalsIgnoreCase(getDatabaseName(), lclTableName.getDatabaseName()); 
+		return ((getTableName() == null && lclTableName.getTableName() == null) || Strings.CI.equals(getTableName(), lclTableName.getTableName())) && Strings.CI.equals(getDatabaseName(), lclTableName.getDatabaseName()); 
 	}
 	
 	@Override

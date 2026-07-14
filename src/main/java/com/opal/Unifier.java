@@ -35,8 +35,8 @@ public class Unifier<U extends IdentityUserFacing> { // OPALFIXME
 	public Unifier(Factory<U> argFactory, U argGood, Collection<U> argBads) {
 		super();
 		
-		myFactory = Validate.notNull(argFactory);
-		myGood = Validate.notNull(argGood);
+		myFactory = Objects.requireNonNull(argFactory);
+		myGood = Objects.requireNonNull(argGood);
 		myBads = new ArrayList<>(Validate.notEmpty(argBads)); // defensive copy
 	}
 	
@@ -93,8 +93,8 @@ public class Unifier<U extends IdentityUserFacing> { // OPALFIXME
 	@SuppressWarnings("unchecked")
 	public <R> Unifier<U> firstReferenceSatisfying(String argReferenceName, Class<R> argType, Predicate<R> argCondition, R argValueToUseIfNoneMatch) {
 		Validate.notEmpty(argReferenceName);
-		Validate.notNull(argType);
-		Validate.notNull(argCondition);
+		Objects.requireNonNull(argType);
+		Objects.requireNonNull(argCondition);
 		// argValueToUseIfNoneMatch may be null
 		
 		Method lclAccessor;

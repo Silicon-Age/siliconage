@@ -3,6 +3,8 @@ package com.opal.cma;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Validate;
 
@@ -29,13 +31,11 @@ public class OpalSubform<U extends IdentityUserFacing/*<U>*/> extends OpalForm<U
 	protected OpalSubform(OpalForm<?> argParent, String argLocalPrefix, U argUF, IdentityFactory<U> argFactory) {
 		super(argLocalPrefix);
 		
-		Validate.notNull(argParent);
-		myParent = argParent;
+		myParent = Objects.requireNonNull(argParent);
 		
 		myUserFacing = argUF;
 		
-		Validate.notNull(argFactory);
-		myFactory = argFactory;
+		myFactory = Objects.requireNonNull(argFactory);
 	}
 	
 	public OpalForm<?> getParent() {
@@ -188,7 +188,7 @@ public class OpalSubform<U extends IdentityUserFacing/*<U>*/> extends OpalForm<U
 	
 	@Override
 	protected String fullyQualifyIfNecessary(String argFieldName) {
-		Validate.notNull(argFieldName);
+		Objects.requireNonNull(argFieldName);
 		
 		if (argFieldName.startsWith(getPrefix())) {
 			return argFieldName;

@@ -12,8 +12,8 @@ import java.util.Comparator;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.Function;
@@ -97,11 +97,18 @@ public class ClassGenerator {
 	
 	@SuppressWarnings("rawtypes") private static final Class<? extends Collection> ACQUIRE_COLLECTION_INTERFACE = Collection.class;
 	private static final Class<? extends HttpServletRequest> HTTP_REQUEST_CLASS = HttpServletRequest.class;
-	@SuppressWarnings("rawtypes") private static final Class<? extends Collection> HTTP_MULTIPLE_INTERMEDIATE_COLLECTION_CLASS = LinkedList.class; // FIXME: Turn this into ArrayList
-	@SuppressWarnings("rawtypes") private static final Class<? extends Collection> CREATE_ARRAY_INTERMEDIATE_COLLECTION_CLASS = LinkedList.class; // FIXME: Turn this into ArrayList
+
+	/* Way back when (c. 2000), it was generally supposed that LinkedLists would provide better performance for Lists
+	 * that had a lot of inserts and deletions (and especially so if they weren't used for random access).  In accordance
+	 * with that, Opal used a lot of LinkedLists when instantiating the results of various queries.  In practice,
+	 * by 2025, it seems to be generally accepted that ArrayLists are just better in essentially all circumstances
+	 * (primarily due to greater access locality).
+	 */
+	@SuppressWarnings("rawtypes") private static final Class<? extends Collection> HTTP_MULTIPLE_INTERMEDIATE_COLLECTION_CLASS = ArrayList.class;
+	@SuppressWarnings("rawtypes") private static final Class<? extends Collection> CREATE_ARRAY_INTERMEDIATE_COLLECTION_CLASS = ArrayList.class;
 	
 	@SuppressWarnings("rawtypes") private static final Class<? extends Collection> MULTIPLE_LOOK_UP_COLLECTION_INTERFACE = List.class;
-	@SuppressWarnings("rawtypes") private static final Class<? extends Collection> MULTIPLE_LOOK_UP_COLLECTION_CLASS = LinkedList.class; // FIXME: Turn this into ArrayList
+	@SuppressWarnings("rawtypes") private static final Class<? extends Collection> MULTIPLE_LOOK_UP_COLLECTION_CLASS = ArrayList.class;
 
 	private final MappedClass myMappedClass;
 	
@@ -808,7 +815,7 @@ public class ClassGenerator {
 					lclArguments.append(lclVN);
 				}
 				lclBW.println("\t\t\treturn " + lclMethodName.toString() + "(" + lclArguments.toString() + ");");
-				lclBW.println("\t\t} catch (" + lclSW + "Exception lclE) {");
+				lclBW.println("\t\t} catch (" + lclSW + "Exception _) {");
 				// We could warn, but we'll just get a lot of crap from SQL injection attempts
 				lclBW.println("\t\t\treturn null;");
 				lclBW.println("\t\t}");
@@ -859,7 +866,7 @@ public class ClassGenerator {
 					lclBW.println("\t\t\t\t\tif (lclResult != null) {");
 					lclBW.println("\t\t\t\t\t\targCollection.add(lclResult);");
 					lclBW.println("\t\t\t\t\t}");
-					lclBW.println("\t\t\t\t} catch (" + lclSW + "Exception e) {");
+					lclBW.println("\t\t\t\t} catch (" + lclSW + "Exception _) {");
 					// We could warn, but we'll just get a lot of crap from SQL injection attempts
 					lclBW.println("\t\t\t\t\t// Swallow");
 					lclBW.println("\t\t\t\t}");
@@ -2754,7 +2761,7 @@ public class ClassGenerator {
 				/* getPrimaryKeyWhereClauseValues() */
 				lclBW.println("\t@Override");
 				lclBW.println("\tpublic Object[] getPrimaryKeyWhereClauseValues() {");
-				MappedUniqueKey lclPK = Validate.notNull(lclMC.getPrimaryKey());
+				MappedUniqueKey lclPK = Objects.requireNonNull(lclMC.getPrimaryKey());
 				
 				lclBW.println("\t\treturn new Object[] {");
 				lclCMI = lclPK.createClassMemberIterator();
@@ -2787,7 +2794,7 @@ public class ClassGenerator {
 				/* THINK: Should this return values from getNewValues() when it is part of cascading foreign key?  If not, it can't call getPKWCV() */
 				lclBW.println("\t@Override");
 				lclBW.println("\tpublic Object[] getUniqueStringKeyWhereClauseValues() {");
-				MappedUniqueKey lclUSK = Validate.notNull(lclMC.getUniqueStringKey());
+				MappedUniqueKey lclUSK = Objects.requireNonNull(lclMC.getUniqueStringKey());
 				if (lclUSK == lclPK) {
 					lclBW.println("\t\treturn getPrimaryKeyWhereClauseValues();");
 				} else {
@@ -3128,7 +3135,7 @@ public class ClassGenerator {
 										break;
 									case SOFT:
 									case WEAK:
-										Validate.notNull(lclReferenceClass);
+										Objects.requireNonNull(lclReferenceClass);
 										lclBW.println("\t\t" + lclDeclaredTypeName + lclTA + " lclS;");
 										lclBW.println("\t\t" + lclFieldTypeWithReference + " lclR = " + lclC + ";");
 										lclBW.println("\t\tif (lclR == null || ((lclS = lclR.get()) == null)) {");
@@ -3442,9 +3449,9 @@ public class ClassGenerator {
 			
 			if (lclMC.requiresTypedCreate() && lclMC.implementsPolymorphicCreator()) {
 				PolymorphicData lclPD = lclMC.getPolymorphicData();
-				Validate.notNull(lclPD);
+				Objects.requireNonNull(lclPD);
 				MappedClass lclTDMC = lclPD.getUltimateConcreteTypeDeterminer();
-				Validate.notNull(lclTDMC);
+				Objects.requireNonNull(lclTDMC);
 				String lclTDMCICN = lclTDMC.getFullyQualifiedInterfaceClassName();
 				lclBW.println("\t@Override");
 				lclBW.println("\tpublic " + lclOCN + " create(" + lclTDMCICN + " argT) {");
@@ -4090,7 +4097,7 @@ public class ClassGenerator {
 			
 	@SuppressWarnings("resource")
 	protected void printRequiresActiveTransactionAnnotation(PrintWriter argW, int argIndentations) {
-		Validate.notNull(argW);
+		Objects.requireNonNull(argW);
 		Validate.isTrue(argIndentations >= 0);
 		
 		argW.println(StringUtils.repeat('\t', argIndentations) + "@" + RequiresActiveTransaction.class.getName());

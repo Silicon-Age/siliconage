@@ -1,9 +1,7 @@
 package com.opal.creator;
 
 import java.lang.reflect.Type;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public class MethodDelegation {
 	private final String myClassName;
@@ -24,15 +22,15 @@ public class MethodDelegation {
 	protected MethodDelegation(String argClassName, String argMethodName, String argLocalMethodName, Type argReturnType, Type[] argParameters, Type[] argExceptions) {
 		super();
 		
-		Validate.notNull(argClassName);
+		Objects.requireNonNull(argClassName);
 		myClassName = argClassName;
 		
-		Validate.notNull(argMethodName);
+		Objects.requireNonNull(argMethodName);
 		myMethodName = argMethodName;
 		
-		myLocalMethodName = StringUtils.defaultString(argLocalMethodName, argMethodName);
+		myLocalMethodName = Objects.requireNonNullElse(argLocalMethodName, argMethodName); // I hate this method name.
 		
-		Validate.notNull(argReturnType);
+		Objects.requireNonNull(argReturnType);
 		myReturnType = argReturnType;
 		
 		myParameters = argParameters; // Might be null

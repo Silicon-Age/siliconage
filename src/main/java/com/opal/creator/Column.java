@@ -1,5 +1,7 @@
 package com.opal.creator;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Node;
 
@@ -121,8 +123,7 @@ public class Column extends OpalXMLElement {
 		} else if ("Method".equalsIgnoreCase(lclComputedString)) {
 			lclCM.setComputedType(ClassMember.COMPUTED_METHOD);
 			lclCM.setCached(true);
-			String lclComputedText = getSingleChildContent("Method");
-			Validate.notNull(lclComputedText);
+			String lclComputedText = Objects.requireNonNull(getSingleChildContent("Method"));
 			lclCM.setComputedMethod(lclComputedText);
 			/* TODO: Reformat the method; should that be done here? */
 		} else {

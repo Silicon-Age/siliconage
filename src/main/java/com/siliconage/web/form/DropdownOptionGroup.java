@@ -3,9 +3,8 @@ package com.siliconage.web.form;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.ArrayList;
-
-import org.apache.commons.lang3.Validate;
 
 import com.siliconage.util.WebDataFilter;
 
@@ -32,7 +31,7 @@ public class DropdownOptionGroup<E extends DropdownEntry<?>> extends DropdownEnt
 	}
 	
 	public E addAtBeginning(DropdownEntry<?> argEntry) {
-		Validate.notNull(argEntry);
+		Objects.requireNonNull(argEntry);
 		
 		getChildrenInternal().add(0, argEntry);
 		
@@ -40,7 +39,7 @@ public class DropdownOptionGroup<E extends DropdownEntry<?>> extends DropdownEnt
 	}
 	
 	public E add(DropdownEntry<?> argEntry) {
-		Validate.notNull(argEntry);
+		Objects.requireNonNull(argEntry);
 		
 		getChildrenInternal().add(argEntry);
 		

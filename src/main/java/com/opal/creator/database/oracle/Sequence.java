@@ -1,6 +1,6 @@
 package com.opal.creator.database.oracle;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public class Sequence {
 	private final String myOwner;
@@ -9,11 +9,9 @@ public class Sequence {
 	public Sequence(String argOwner, String argName) {
 		super();
 		
-		Validate.notNull(argOwner);
-		myOwner = argOwner;
+		myOwner = Objects.requireNonNull(argOwner);
 		
-		Validate.notNull(argName);
-		myName = argName;
+		myName = Objects.requireNonNull(argName);
 	}
 	
 	public String getName() {

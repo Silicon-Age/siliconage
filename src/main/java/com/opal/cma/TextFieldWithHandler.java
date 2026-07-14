@@ -1,6 +1,6 @@
 package com.opal.cma;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 import com.siliconage.web.form.TextField;
 
@@ -13,8 +13,8 @@ public class TextFieldWithHandler<T extends TextFieldWithHandler<?>> extends Tex
 		super(argOF.generateFullyQualifiedName(argName), null, argOF, argSize);
 		
 		myForm = argOF; // No sense in Validate.notNull()'ing, since the superclass constructor call will already have thrown an NPE if argOF == null
-		myUnprefixedName = Validate.notNull(argName);
-		myHandler = Validate.notNull(argHandler);
+		myUnprefixedName = Objects.requireNonNull(argName);
+		myHandler = Objects.requireNonNull(argHandler);
 	}
 	
 	public OpalForm<?> getOpalForm() {

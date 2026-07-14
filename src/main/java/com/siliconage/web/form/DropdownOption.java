@@ -1,7 +1,7 @@
 package com.siliconage.web.form;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import com.siliconage.util.WebDataFilter;
 

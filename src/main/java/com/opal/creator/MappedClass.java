@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.SortedSet;
@@ -146,28 +147,28 @@ public class MappedClass {
 		
 		super();
 		
-		Validate.notNull(argTableName);
+		Objects.requireNonNull(argTableName);
 		myTableName = argTableName;
 		
-		Validate.notNull(argTypeName);
+		Objects.requireNonNull(argTypeName);
 		myTypeName = argTypeName;
 		
 		// myPackageRoot = Validate.notNull(argPackageRoot);
 		// myPackageRoot = "ZZZ"; /* Not used */
 		
-		Validate.notNull(argApplicationPackage);
+		Objects.requireNonNull(argApplicationPackage);
 		myApplicationPackage = argApplicationPackage;
 		
-		Validate.notNull(argPersistencePackage);
+		Objects.requireNonNull(argPersistencePackage);
 		myPersistencePackage = argPersistencePackage;
 		
-		Validate.notNull(argCMAPackage);
+		Objects.requireNonNull(argCMAPackage);
 		myCMAPackage = argCMAPackage;
 		
-		Validate.notNull(argSourceDirectory);
+		Objects.requireNonNull(argSourceDirectory);
 		mySourceDirectory = argSourceDirectory;
 		
-		Validate.notNull(argAuthor);
+		Objects.requireNonNull(argAuthor);
 		myAuthor = argAuthor;
 		
 		myView = argView;
@@ -190,8 +191,7 @@ public class MappedClass {
 		// mySampleCollections = argSampleCollections;
 		
 		myDeprecated = argDeprecated;
-		Validate.notNull(argMessageLevel);
-		myMessageLevel = argMessageLevel;
+		myMessageLevel = Objects.requireNonNull(argMessageLevel);
 		
 		generateNames();
 	}
@@ -201,13 +201,13 @@ public class MappedClass {
 	}
 	
 	public void addClassMember(ClassMember argCM) {
-		Validate.notNull(argCM);
+		Objects.requireNonNull(argCM);
 		argCM.setFieldIndex(myClassMemberCount++);
 		getClassMembers().add(argCM);
 	}
 	
 	public void addLargeClassMember(ClassMember argCM) {
-		Validate.notNull(argCM);
+		Objects.requireNonNull(argCM);
 		argCM.setFieldIndex(myClassMemberCount++);
 		getLargeClassMembers().add(argCM);
 	}
@@ -359,7 +359,7 @@ public class MappedClass {
 	}
 	
 	public ClassMember getClassMemberByColumnName(String argColumnName) {
-		Validate.notNull(argColumnName);
+		Objects.requireNonNull(argColumnName);
 		
 		Iterator<ClassMember> lclI = createClassMemberIterator();
 		while (lclI.hasNext()) {
@@ -373,7 +373,7 @@ public class MappedClass {
 	}
 	
 	public ClassMember getClassMemberByBaseName(String argMemberName) {
-		Validate.notNull(argMemberName);
+		Objects.requireNonNull(argMemberName);
 		
 		Iterator<ClassMember> lclI = createClassMemberIterator();
 		while (lclI.hasNext()) {
@@ -626,7 +626,7 @@ public class MappedClass {
 	}
 	
 	public void setTrueEntityType(EntityType argET) {
-		myTrueEntityType = Validate.notNull(argET);
+		myTrueEntityType = Objects.requireNonNull(argET);
 	}
 	
 	public Trinary getCreatable() {
@@ -915,8 +915,8 @@ public class MappedClass {
 	
 	/* package */ ClassMember determineCode() {
 		MappedUniqueKey lclPK = getPrimaryKey();
-		Validate.notNull(lclPK);
-		Validate.notNull(lclPK.getClassMembers());
+		Objects.requireNonNull(lclPK);
+		Objects.requireNonNull(lclPK.getClassMembers());
 		
 		if (lclPK.getClassMembers().size() == 1) {
 			ClassMember lclCM = lclPK.getClassMembers().get(0);
@@ -954,7 +954,7 @@ public class MappedClass {
 	}
 	
 	public void add(MethodDelegation argMD) {
-		Validate.notNull(argMD);
+		Objects.requireNonNull(argMD);
 		getMethodDelegations().add(argMD);
 	}
 	
@@ -1058,7 +1058,7 @@ public class MappedClass {
 	
 	protected void validateAndResolveSingleTablePolymorphicData() {
 		PolymorphicData lclPD = getPolymorphicData();
-		Validate.notNull(lclPD);
+		Objects.requireNonNull(lclPD);
 		Validate.isTrue(lclPD instanceof SingleTablePolymorphicData);
 		
 		SingleTablePolymorphicData lclSPD = (SingleTablePolymorphicData) lclPD;
@@ -1113,7 +1113,7 @@ public class MappedClass {
 	
 	protected void validateAndResolveSubtablePolymorphicData() {
 		PolymorphicData lclPD = getPolymorphicData();
-		Validate.notNull(lclPD);
+		Objects.requireNonNull(lclPD);
 		Validate.isTrue(lclPD instanceof SubtablePolymorphicData);
 		
 		SubtablePolymorphicData lclSPD = (SubtablePolymorphicData) lclPD;
@@ -1351,7 +1351,7 @@ public class MappedClass {
 			/* Determine ClassMember dependencies */
 			
 			String lclText = lclCM.getRawComputedExpressionText();
-			Validate.notNull(lclText);
+			Objects.requireNonNull(lclText);
 			Iterator<ClassMember> lclJ = createClassMemberIterator();
 			while (lclJ.hasNext()) {
 				ClassMember lclCM2 = lclJ.next();
@@ -1585,7 +1585,7 @@ public class MappedClass {
 	}
 	
 	public void setStaticBindings(Trinary argStaticBindings) {
-		myStaticBindings = Validate.notNull(argStaticBindings);
+		myStaticBindings = Objects.requireNonNull(argStaticBindings);
 	}
 	
 	public boolean generateStaticBindings() {
@@ -1627,7 +1627,7 @@ public class MappedClass {
 	}
 	
 	public void setMone(Trinary argMone) {
-		Validate.notNull(argMone);
+		Objects.requireNonNull(argMone);
 		myMone = argMone;
 	}
 	
@@ -1664,13 +1664,13 @@ public class MappedClass {
 	}
 	
 	public void setPoolName(String argPoolName) {
-		Validate.notNull(argPoolName);
+		Objects.requireNonNull(argPoolName);
 		myPoolName = argPoolName;
 	}
 	
 	@SuppressWarnings("resource")
 	protected void printRequiresActiveTransactionAnnotation(PrintWriter argW, int argIndentations) {
-		Validate.notNull(argW);
+		Objects.requireNonNull(argW);
 		Validate.isTrue(argIndentations >= 0);
 		
 		argW.println(StringUtils.repeat('\t', argIndentations) + "@" + RequiresActiveTransaction.class.getName());

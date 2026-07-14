@@ -9,10 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
-
-import org.apache.commons.lang3.Validate;
 
 import org.w3c.dom.Element;
 
@@ -120,21 +119,21 @@ public class SQLServerAdapter extends RelationalDatabaseAdapter {
 		try {
 			int lclI = Integer.parseInt(lclDefaultString);
 			return new ConstantDefaultValue(Integer.valueOf(lclI));
-		} catch (NumberFormatException lclE) {
+		} catch (NumberFormatException _) {
 			/* Okay, not an int */
 		}
 		
 		try {
 			long lclL = Long.parseLong(lclDefaultString);
 			return new ConstantDefaultValue(Long.valueOf(lclL));
-		} catch (NumberFormatException lclE) {
+		} catch (NumberFormatException _) {
 			/* Okay, not a long */
 		}
 		
 		try {
 			double lclD = Double.parseDouble(lclDefaultString);
 			return new ConstantDefaultValue(Double.valueOf(lclD));
-		} catch (NumberFormatException lclE) {
+		} catch (NumberFormatException _) {
 			/* Okay, not a double */
 		}
 		
@@ -181,7 +180,7 @@ public class SQLServerAdapter extends RelationalDatabaseAdapter {
 	
 	@Override
 	public SQLServerTableName createTableName(Element argElement) {
-		Validate.notNull(argElement);
+		Objects.requireNonNull(argElement);
 		
 		String lclDatabaseName = XMLElement.getAttributeValue(argElement, "Database");
 		if (lclDatabaseName == null) {
@@ -201,7 +200,7 @@ public class SQLServerAdapter extends RelationalDatabaseAdapter {
 		if (lclTableName == null) {
 			lclTableName = XMLElement.getAttributeValue(argElement, "View");
 		}
-		Validate.notNull(lclTableName);
+		Objects.requireNonNull(lclTableName);
 		
 		return new SQLServerTableName(lclDatabaseName, lclOwnerName, lclTableName);
 	}
@@ -221,7 +220,7 @@ public class SQLServerAdapter extends RelationalDatabaseAdapter {
 	
 	@Override
 	public Class<?> determineJavaType(DatabaseColumn argDatabaseColumn) {
-		Validate.notNull(argDatabaseColumn);
+		Objects.requireNonNull(argDatabaseColumn);
 		/* Other things to think about:  NVARCHAR2, NCHAR, NVARCHAR, UNDEFINED, SDO_DIM_ARRAY, SDO_GEOMETRY, ROWID */
 		final String lclName = argDatabaseColumn.getName().toUpperCase();
 		
@@ -233,7 +232,7 @@ public class SQLServerAdapter extends RelationalDatabaseAdapter {
 					try {
 						Class<?> lclC = Class.forName(lclJavaType);
 						return lclC;
-					} catch (ClassNotFoundException lclE) {
+					} catch (ClassNotFoundException _) {
 						System.out.println("*** Could not convert user-specific type mapping of \"" + lclJavaType + "\" into an actual type using Class.forName() ***");
 					}
 				}
@@ -511,8 +510,8 @@ public class SQLServerAdapter extends RelationalDatabaseAdapter {
 										
 					if ((lclFK == null) || (!lclFK.getName().equals(lclConstraintName))) {
 						
-						ReferentialAction lclDeleteAction = Validate.notNull(determineDeleteAction(lclRS.getInt("delete_referential_action")));
-						ReferentialAction lclUpdateAction = Validate.notNull(determineUpdateAction(lclRS.getInt("update_referential_action")));
+						ReferentialAction lclDeleteAction = Objects.requireNonNull(determineDeleteAction(lclRS.getInt("delete_referential_action")));
+						ReferentialAction lclUpdateAction = Objects.requireNonNull(determineUpdateAction(lclRS.getInt("update_referential_action")));
 						
 						lclFKs.add(
 								lclFK = new ForeignKey(
@@ -660,7 +659,7 @@ public class SQLServerAdapter extends RelationalDatabaseAdapter {
 	
 	@Override
 	protected String generateForeignKeyStatisticsSQL(ForeignKey argFK) {
-		Validate.notNull(argFK);
+		Objects.requireNonNull(argFK);
 		
 		StringBuilder lclSB = new StringBuilder(1024);
 		lclSB.append("SELECT min(T.num) AS min, avg(T.num) AS avg, max(T.num) AS max, stdev(T.num) AS stdev ");

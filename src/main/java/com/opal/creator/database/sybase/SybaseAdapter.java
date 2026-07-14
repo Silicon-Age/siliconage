@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 
@@ -136,7 +137,7 @@ public class SybaseAdapter extends RelationalDatabaseAdapter {
 	
 	@Override
 	public SybaseTableName createTableName(Element argElement) {
-		Validate.notNull(argElement);
+		Objects.requireNonNull(argElement);
 		
 		String lclDatabaseName = XMLElement.getAttributeValue(argElement, "Database");
 		if (lclDatabaseName == null) {
@@ -149,14 +150,14 @@ public class SybaseAdapter extends RelationalDatabaseAdapter {
 		}
 		
 		String lclTableName = XMLElement.getAttributeValue(argElement, "Table");
-		Validate.notNull(lclTableName, "Element does not supply a table name.");
+		Objects.requireNonNull(lclTableName, "Element does not supply a table name.");
 		
 		return new SybaseTableName(lclDatabaseName, lclOwnerName, lclTableName);
 	}
 	
 	@Override
 	public boolean isLargeDatabaseType(DatabaseColumn argDatabaseColumn) {
-		Validate.notNull(argDatabaseColumn);
+		Objects.requireNonNull(argDatabaseColumn);
 		return false;
 	}
 	

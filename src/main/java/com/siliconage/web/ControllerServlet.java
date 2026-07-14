@@ -439,8 +439,8 @@ public abstract class ControllerServlet extends HttpServlet {
 		if (lclLoadTimeObj != null) {
 			try {
 				lclLoadTime = Long.parseLong(StringUtils.trimToNull(lclLoadTimeObj.toString()));
-			} catch (NumberFormatException lclE) {
-				ourLogger.warn("Could not parse '" + lclLoadTime + "' as a long");
+			} catch (NumberFormatException _) {
+				ourLogger.warn("Could not parse '" + lclLoadTime + "' as a long.");
 			}
 		}
 		

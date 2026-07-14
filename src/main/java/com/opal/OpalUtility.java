@@ -17,6 +17,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
@@ -354,7 +355,7 @@ public abstract class OpalUtility {
 					throw new IllegalStateException("Attempting to convert the value \"" + lclValue + "\" using the fromSerializedString factory method on " + argToClass.getName() + " produced an Exception.", lclE);
 				}
 			} catch (NoSuchMethodException lclE) {
-				throw new IllegalStateException("Could not find fromSerializedString method on " + argToClass.getName() + ".");
+				throw new IllegalStateException("Could not find fromSerializedString method on " + argToClass.getName() + ".", lclE);
 			}
 		} else if (argToClass == Class.class) {
 			String lclS = String.valueOf(argValue);
@@ -433,7 +434,7 @@ public abstract class OpalUtility {
 	}
 	
 	public static String generateTypeName(Class<?> argClass, boolean argGeneric) {
-		Validate.notNull(argClass);
+		Objects.requireNonNull(argClass);
 		
 		/* TODO: This won't work for multidimensional arrays */
 		if (argClass.isArray()) {
@@ -450,9 +451,9 @@ public abstract class OpalUtility {
 	}
 	
 	public static String getCodeToConvert(Class<?> argTo, Class<?> argFrom, String argVariableName, boolean argTrimStrings) {
-		Validate.notNull(argTo);
-		Validate.notNull(argFrom);
-		Validate.notNull(argVariableName);
+		Objects.requireNonNull(argTo);
+		Objects.requireNonNull(argFrom);
+		Objects.requireNonNull(argVariableName);
 		
 		String lclVariableTrimmed = argTrimStrings ? "org.apache.commons.lang3.StringUtils.trimToNull(" + argVariableName + ")" : argVariableName;
 		
@@ -497,7 +498,7 @@ public abstract class OpalUtility {
 	}
 	
 	public static String generateJavaDeclaration(Type argType) {
-		Validate.notNull(argType);
+		Objects.requireNonNull(argType);
 		
 		if (argType instanceof Class) { // FIXME: Use pattern-matching when available
 			Class<?> lclC = (Class<?>) argType;
@@ -541,8 +542,8 @@ public abstract class OpalUtility {
 	
 	@RequiresActiveTransaction
 	public static <C extends UserFacing, P extends UserFacing> void attachChild(C argChild, P argParent, String argRolePrefixedBackCollectionName) {
-		Validate.notNull(argChild);
-		Validate.notNull(argParent);
+		Objects.requireNonNull(argChild);
+		Objects.requireNonNull(argParent);
 		Validate.notEmpty(argRolePrefixedBackCollectionName); // This is the name from the parent to the children, like "ChaperoneTeam" for Contact.getChaperoneTeamSet(), *not* "ChaperoneContact" for Team.getChaperoneContact().
 		
 		Method lclCollectionAccessor = null;

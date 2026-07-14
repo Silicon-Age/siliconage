@@ -3,10 +3,9 @@ package com.opal;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
-
-import org.apache.commons.lang3.Validate;
 
 import com.siliconage.util.UnimplementedOperationException;
 
@@ -19,7 +18,7 @@ public class UserFacingBackCollectionSet<U extends UserFacing/*<U>*/, O extends 
 	public UserFacingBackCollectionSet(Set<O> argOpalSet) {
 		super();
 		
-		myOpalSet = Validate.notNull(argOpalSet);
+		myOpalSet = Objects.requireNonNull(argOpalSet);
 	}
 	
 	protected O determineOpal(U argU) {
@@ -70,6 +69,7 @@ public class UserFacingBackCollectionSet<U extends UserFacing/*<U>*/, O extends 
 	}
 	
 	@Override
+	@SuppressWarnings("unlikely-arg-type") // We can't check whether lclO is a U before calling contains()
 	public boolean containsAll(Collection<?> argOs) {
 		for (Object lclO : argOs) {
 			if (contains(lclO) == false) {
@@ -106,6 +106,7 @@ public class UserFacingBackCollectionSet<U extends UserFacing/*<U>*/, O extends 
 	}
 	
 	@Override
+	@SuppressWarnings("unlikely-arg-type") // We can't check whether lclO is a U before calling remove(lclO)
 	public boolean removeAll(Collection<?> argUs) {
 		boolean lclResult = false;
 		for (Object lclO : argUs) {
@@ -116,7 +117,7 @@ public class UserFacingBackCollectionSet<U extends UserFacing/*<U>*/, O extends 
 	
 	@Override
 	public boolean removeIf(Predicate<? super U> argPredicate) {
-		Validate.notNull(argPredicate);
+		Objects.requireNonNull(argPredicate);
 		return myOpalSet.removeIf(x -> argPredicate.test(x.getUserFacing()));
 	}
 	

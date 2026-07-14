@@ -1,6 +1,7 @@
 package com.siliconage.util;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
@@ -39,7 +40,7 @@ public class PairComparator<L, R> implements Comparator<Pair<? extends L, ? exte
 	@Override
 	public int compare(Pair<? extends L, ? extends R> argA, Pair<? extends L, ? extends R> argB) {
 		if (getLeftComparator() == null) {
-			Validate.notNull(getRightComparator());
+			Objects.requireNonNull(getRightComparator());
 			return getRightComparator().compare(argA.getRight(), argB.getRight());
 		} else {
 			if (myLeftFirst || getRightComparator() == null) {

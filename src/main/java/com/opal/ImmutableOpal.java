@@ -1,9 +1,8 @@
 package com.opal;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
 
 public abstract non-sealed class ImmutableOpal<U extends IdentityUserFacing/*<U>*/> extends IdentityOpal<U> { // OPALFIXME
 
@@ -14,8 +13,7 @@ public abstract non-sealed class ImmutableOpal<U extends IdentityUserFacing/*<U>
 	protected <O extends IdentityOpal<U>> ImmutableOpal(IdentityOpalFactory<U, O> argOpalFactory, Object[] argValues) {
 		super(argOpalFactory);
 		
-		Validate.notNull(argValues);
-		myValues = argValues;
+		myValues = Objects.requireNonNull(argValues);
 	}
 	
 	/* Should only be used to create placeholder NOT_YET_LOADED Opals */

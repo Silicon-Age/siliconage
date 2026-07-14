@@ -10,10 +10,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
-
-import org.apache.commons.lang3.Validate;
 
 import org.w3c.dom.Element;
 
@@ -141,7 +140,7 @@ public class MySQLAdapter extends RelationalDatabaseAdapter {
 		if (lclTableName == null) {
 			lclTableName = XMLElement.getAttributeValue(argElement, "View");
 		}
-		Validate.notNull(lclTableName);
+		Objects.requireNonNull(lclTableName);
 		
 //		System.out.println("Creating table name: " + lclDatabaseName + "/" + lclTableName);
 		return new MySQLTableName(lclDatabaseName, lclTableName);
@@ -546,8 +545,8 @@ public class MySQLAdapter extends RelationalDatabaseAdapter {
 				if (lclIndex == null) {
 					lclNewIndex = true;
 				} else {
-					Validate.notNull(lclLastIndexName);
-					Validate.notNull(lclLastTableName);
+					Objects.requireNonNull(lclLastIndexName);
+					Objects.requireNonNull(lclLastTableName);
 					if (!lclLastIndexName.equals(lclIndexName) || (!lclLastTableName.equals(lclTableName))) {
 						lclNewIndex = true;
 					}
@@ -571,7 +570,7 @@ public class MySQLAdapter extends RelationalDatabaseAdapter {
 					lclLastIndexName = lclIndexName;
 					lclLastTableName = lclTableName;
 				}
-				Validate.notNull(lclIndex);
+				Objects.requireNonNull(lclIndex);
 				lclIndex.getColumnNames().add(lclRS.getString("column_name"));
 			}
 			
@@ -619,7 +618,7 @@ public class MySQLAdapter extends RelationalDatabaseAdapter {
 	
 	@Override
 	protected String generateForeignKeyStatisticsSQL(ForeignKey argFK) {
-		Validate.notNull(argFK);
+		Objects.requireNonNull(argFK);
 		
 		StringBuilder lclSB = new StringBuilder(1024);
 		lclSB.append("SELECT min(T.num) AS min, avg(T.num) AS avg, max(T.num) AS max, std(T.num) AS stdev ");

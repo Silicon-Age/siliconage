@@ -3,6 +3,7 @@ package com.opal.creator;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,8 +59,8 @@ public class ClassMember {
 	
 	public ClassMember(DatabaseColumn argDC, Class<?> argClass) {
 		super();
-		Validate.notNull(argDC);
-		Validate.notNull(argClass);
+		Objects.requireNonNull(argDC);
+		Objects.requireNonNull(argClass);
 		
 		myDatabaseColumn = argDC;
 		myMemberType = argClass;
@@ -343,7 +344,7 @@ public class ClassMember {
 	}
 
 	public void suggestType(String argTypeName) {
-		Validate.notNull(argTypeName);
+		Objects.requireNonNull(argTypeName);
 		try {
 			Class<?> lclClass = Class.forName(argTypeName);
 			setSpecifiedType(lclClass);
@@ -504,7 +505,7 @@ public class ClassMember {
 	}
 	
 	public void setPublic(Trinary argPublic) {
-		Validate.notNull(argPublic);
+		Objects.requireNonNull(argPublic);
 		myPublic = argPublic;
 	}
 	
@@ -517,7 +518,7 @@ public class ClassMember {
 	}
 	
 	public void setInverseAccessor(Trinary argInverseAccessor) {
-		Validate.notNull(argInverseAccessor);
+		Objects.requireNonNull(argInverseAccessor);
 		myInverseAccessor = argInverseAccessor;
 	}
 	
@@ -574,7 +575,7 @@ public class ClassMember {
 		if (argPW == null) {
 			throw new IllegalArgumentException("argPW is null");
 		}
-		Validate.notNull(argMC);
+		Objects.requireNonNull(argMC);
 		
 		argPW.println("\t@" + Updatability.class.getName() + "(updatable = " + (isUpdatable() && argMC.isUpdatable()) + ")");
 		argPW.println("\t@" + Nullability.class.getName() + "(nullable = " + isNullAllowed() + ")");

@@ -2,7 +2,7 @@ package com.opal.creator.database.sqlserver;
 
 import com.opal.creator.database.TableName;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public class SQLServerTableName extends TableName {
 	private final String myDatabaseName;
@@ -12,14 +12,9 @@ public class SQLServerTableName extends TableName {
 	public SQLServerTableName(String argDatabaseName, String argOwnerName, String argTableName) {
 		super();
 		
-		Validate.notNull(argDatabaseName);
-		myDatabaseName = argDatabaseName;
-		
-		Validate.notNull(argOwnerName);
-		myOwnerName = argOwnerName;
-		
-		Validate.notNull(argTableName);
-		myTableName = argTableName;
+		myDatabaseName = Objects.requireNonNull(argDatabaseName);
+		myOwnerName = Objects.requireNonNull(argOwnerName);
+		myTableName = Objects.requireNonNull(argTableName);
 		
 		return;
 	}

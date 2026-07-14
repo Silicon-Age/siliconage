@@ -3,6 +3,8 @@ package com.opal.cma;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -56,16 +58,16 @@ public class OpalMainForm<U extends IdentityUserFacing/*<U>*/> extends OpalForm<
 	
 	private OpalFormConfiguration myConfiguration = OpalFormConfiguration.getInstance();
 	
-	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory/*<U>*/ argFactory, String argParameterName) { // OPALFIXME
+	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory<U> argFactory, String argParameterName) { // OPALFIXME
 		super("");
 		
-		mySession = Validate.notNull(argSession);
-		myRequest = Validate.notNull(argRequest);
-		myFormAction = Validate.notNull(argFormAction);
-		myFactory = Validate.notNull(argFactory);
-		myUniqueStringParameterName = Validate.notNull(argParameterName);
+		mySession = Objects.requireNonNull(argSession);
+		myRequest = Objects.requireNonNull(argRequest);
+		myFormAction = Objects.requireNonNull(argFormAction);
+		myFactory = Objects.requireNonNull(argFactory);
+		myUniqueStringParameterName = Objects.requireNonNull(argParameterName);
 		myUserFacing = extractUserFacing(); // May be null
-		myPassBackCode = Validate.notNull(generatePassBackCode());
+		myPassBackCode = Objects.requireNonNull(generatePassBackCode());
 		
 		setFormMethod("post");
 		
@@ -75,14 +77,14 @@ public class OpalMainForm<U extends IdentityUserFacing/*<U>*/> extends OpalForm<
 		setDeleteURI(null);
 	}
 	
-	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, U argUserFacing, IdentityFactory/*<U>*/ argFactory, String argParameterName) { // OPALFIXME
+	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, U argUserFacing, IdentityFactory<U> argFactory, String argParameterName) { // OPALFIXME
 		super("");
 		
-		mySession = Validate.notNull(argSession);
-		myRequest = Validate.notNull(argRequest);
-		myFormAction = Validate.notNull(argFormAction);
-		myFactory = Validate.notNull(argFactory);
-		myUniqueStringParameterName = Validate.notNull(argParameterName);
+		mySession = Objects.requireNonNull(argSession);
+		myRequest = Objects.requireNonNull(argRequest);
+		myFormAction = Objects.requireNonNull(argFormAction);
+		myFactory = Objects.requireNonNull(argFactory);
+		myUniqueStringParameterName = Objects.requireNonNull(argParameterName);
 		if (argUserFacing != null) {
 			myUserFacing = argUserFacing;
 		} else {
@@ -98,7 +100,7 @@ public class OpalMainForm<U extends IdentityUserFacing/*<U>*/> extends OpalForm<
 		setDeleteURI(null);
 	}
 	
-	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory/*<U>*/ argFactory) { // OPALFIXME
+	public OpalMainForm(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory<U> argFactory) { // OPALFIXME
 		this(argSession, argRequest, argFormAction, argFactory, DEFAULT_UNIQUE_STRING_PARAMETER_NAME);
 	}
 	
@@ -169,7 +171,7 @@ public class OpalMainForm<U extends IdentityUserFacing/*<U>*/> extends OpalForm<
 	}
 	
 	protected void setFormMethod(String argFormMethod) {
-		Validate.notNull(argFormMethod);
+		Objects.requireNonNull(argFormMethod);
 		if (argFormMethod.equalsIgnoreCase("get")) {
 			myFormMethod = argFormMethod;
 		} else if (argFormMethod.equalsIgnoreCase("post")) {
@@ -186,7 +188,7 @@ public class OpalMainForm<U extends IdentityUserFacing/*<U>*/> extends OpalForm<
 	}
 	
 	public void setConfiguration(OpalFormConfiguration argConfig) {
-		myConfiguration = Validate.notNull(argConfig);
+		myConfiguration = Objects.requireNonNull(argConfig);
 	}
 	
 	@Override
@@ -565,7 +567,7 @@ public class OpalMainForm<U extends IdentityUserFacing/*<U>*/> extends OpalForm<
 	
 	@Override
 	protected String fullyQualifyIfNecessary(String argFieldName) {
-		Validate.notNull(argFieldName);
+		Objects.requireNonNull(argFieldName);
 		
 		if (argFieldName.startsWith(OpalForm.FULLY_QUALIFIED_NAME_SEPARATOR)) {
 			return argFieldName;

@@ -18,7 +18,7 @@ public abstract class NetworkUtils {
 				!address.isLinkLocalAddress() &&
 				!address.isLoopbackAddress() &&
 				!address.isMulticastAddress();
-		} catch (UnknownHostException e) {
+		} catch (UnknownHostException _) {
 			return false;
 		}
 	}

@@ -25,8 +25,6 @@ public class DirectConnectionPool implements javax.sql.DataSource {
 	private final String myUsername;
 	private final String myPassword;
 	
-	private PrintWriter myPrintWriter;
-	
 	private final Pool<Connection> myPoolConnections;
 	
 	/**
@@ -118,6 +116,7 @@ public class DirectConnectionPool implements javax.sql.DataSource {
 	 * @throws SQLException if there is a problem creating the connection
 	 */
 	@Override
+	@SuppressWarnings("resource") // We are returning a Connection that the caller must close.
 	public Connection getConnection() throws SQLException  {
 		try {
 			return myPoolConnections.get();
@@ -168,10 +167,12 @@ public class DirectConnectionPool implements javax.sql.DataSource {
 	
 	/* (non-Javadoc)
 	 * @see javax.sql.DataSource#getLogWriter()
+	 * 
+	 * Callers are required by the spec to check for a null LogWriter before actually logging anything.
 	 */
 	@Override
 	public PrintWriter getLogWriter() {
-		return myPrintWriter;
+		return null;
 	}
 	
 	/* (non-Javadoc)
@@ -179,7 +180,7 @@ public class DirectConnectionPool implements javax.sql.DataSource {
 	 */
 	@Override
 	public void setLogWriter(PrintWriter argPW) {
-		myPrintWriter = argPW;
+		// Do nothing.  We do not support storing a PrintWriter for use in logging.
 	}
 	
 	/* (non-Javadoc)

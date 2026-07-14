@@ -19,7 +19,7 @@ public class Fast3Set<T> extends AbstractSet<T> {
 		Class<?> lclC;
 		try {
 			lclC = Class.forName("gnu.trove.set.hash.THashSet");
-		} catch (ClassNotFoundException lclE) {
+		} catch (ClassNotFoundException _) {
 			lclC = HashSet.class;
 		}
 		assert lclC != null;
@@ -27,7 +27,7 @@ public class Fast3Set<T> extends AbstractSet<T> {
 			Constructor<?> lclConstructor;
 			try {
 				lclConstructor = lclC.getConstructor();
-			} catch (NoSuchMethodException lclE) {
+			} catch (NoSuchMethodException _) {
 				lclConstructor = null;
 			}
 			ourEnlargementSetConstructor = lclConstructor;
@@ -37,7 +37,7 @@ public class Fast3Set<T> extends AbstractSet<T> {
 			Constructor<?> lclConstructor;
 			try {
 				lclConstructor = lclC.getConstructor(int.class);
-			} catch (NoSuchMethodException lclE) {
+			} catch (NoSuchMethodException _) {
 				lclConstructor = null;
 			}
 			ourEnlargementSetCapacityConstructor = lclConstructor;
@@ -121,15 +121,15 @@ public class Fast3Set<T> extends AbstractSet<T> {
 			case 3:
 				if (myThird.equals(argO)) {
 					return true;
-				} /* Fallthrough! */
+				} /* $FALL-THROUGH$ */
 			case 2:
 				if (mySecond.equals(argO)) {
 					return true;
-				} /* Fallthrough! */
+				}/* $FALL-THROUGH$ */
 			case 1:
 				if (myFirst.equals(argO)) {
 					return true;
-				} /* Fallthrough! */
+				}/* $FALL-THROUGH$ */
 			case 0:
 				return false;
 			default:
@@ -215,17 +215,17 @@ public class Fast3Set<T> extends AbstractSet<T> {
 					--mySize;
 					return true;
 				}
-				/* Fallthrough! */
+				/* $FALL-THROUGH$ */
 			case 2:
 				if (mySecond.equals(argT)) {
-					mySecond = lclReplacement;
+					mySecond = lclReplacement; // FIXME: This might keep a reference to an Object that is unreachable via the Fast3Set's public interface.
 					--mySize;
 					return true;
 				}
-				/* Fallthrough! */
+				/* $FALL-THROUGH$ */
 			case 1:
 				if (myFirst.equals(argT)) {
-					myFirst = lclReplacement;
+					myFirst = lclReplacement; // FIXME: This might keep a reference to an Object that is unreachable via the Fast3Set's public interface.
 					--mySize;
 					return true;
 				}

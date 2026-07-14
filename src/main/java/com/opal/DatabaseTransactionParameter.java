@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import com.siliconage.database.DatabaseUtility;
 
 public class DatabaseTransactionParameter extends TransactionParameter {
+	@SuppressWarnings("resource") // We own this Connection supplied in our ctor, and we are responsible for closing it.
 	private final Connection myConnection;
 	private boolean myClosed = false;
 	
@@ -28,19 +29,15 @@ public class DatabaseTransactionParameter extends TransactionParameter {
 			throw new IllegalStateException("Tried to close " + this + " when it was already closed.");
 		}
 		myClosed = true;
-		DatabaseUtility.closeConnection(getConnection());
+		DatabaseUtility.closeConnection(myConnection);
 	}
 	
 	@Override
 	public void commitPhaseOne() throws TransactionException {
 		try {
-//			ourLogger.debug("Committing the SQL");
-			getConnection().commit();
-//			ourLogger.debug("Commit completed");
+			myConnection.commit();
 		} catch (Exception lclE) {
 			throw new TransactionException("Exception thrown while committing database transaction", lclE);
-		} finally {
-//			ourLogger.debug("Leaving commitPhaseOne()");
 		}
 	}
 	
@@ -51,22 +48,10 @@ public class DatabaseTransactionParameter extends TransactionParameter {
 	@Override
 	public void rollback() throws TransactionException {
 		try {
-			getConnection().rollback();
+			myConnection.rollback();
 		} catch (Exception lclE) {
 			throw new TransactionException("Exception thrown while rolling back database transaction ", lclE);
 		}
 	}
-
-	/* finalize() is now officially deprecated, so let's see if this was doing this any good. */
-//	@Override
-//	protected void finalize() throws Throwable {
-//		try {
-//			if (myClosed == false) {
-//				close();
-//			}
-//		} finally {
-//			super.finalize();
-//		}
-//	}
 		
 }

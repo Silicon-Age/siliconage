@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import org.apache.commons.collections4.map.AbstractReferenceMap;
 import org.apache.commons.collections4.map.ReferenceMap;
-import org.apache.commons.lang3.Validate;
 
 public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing>> { // OPALFIXME
 	private /* package */ static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OpalCache.class.getName());
@@ -37,8 +36,8 @@ public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing
 //		System.out.println("Adding OpalKey " + argOK + " (" + argOK.hashCode() + ") for opal " + argOpal + " to cache " + this);
 		ensureLock();
 		
-		Validate.notNull(argOK);
-		Validate.notNull(argOpal);
+		Objects.requireNonNull(argOK);
+		Objects.requireNonNull(argOpal);
 		
 		Object lclOldObject;
 		if ((lclOldObject = getCache().put(argOK, argOpal)) != null) {
@@ -68,7 +67,7 @@ public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing
 	/* One must already have a lock on this (i.e., the OpalCache for the factory) to call this. */
 	public /* synchronized */ I removeOpal(OpalKey<I> argOK) {
 		ensureLock();
-		Validate.notNull(argOK);
+		Objects.requireNonNull(argOK);
 //		ourLogger.debug("Removing " + argOK + " (" + argOK.hashCode() + ") from " + this); 
 		return getCache().remove(argOK);
 	}
@@ -76,7 +75,7 @@ public final class OpalCache<I extends IdentityOpal<? extends IdentityUserFacing
 	/* One must already have a lock on this (i.e., the OpalCache for the factory) to call this. */
 	public /* synchronized */ I forOpalKey(OpalKey<I> argOK) {
 		ensureLock();
-		Validate.notNull(argOK);
+		Objects.requireNonNull(argOK);
 		
 //		ourLogger.debug("Asked OpalCache " + this + " for " + argOK + " (" + argOK.hashCode() + ")");
 		

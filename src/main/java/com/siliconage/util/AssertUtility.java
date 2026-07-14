@@ -1,9 +1,8 @@
 package com.siliconage.util;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.ArrayList;
-
-import org.apache.commons.lang3.Validate;
 
 public abstract class AssertUtility {
 
@@ -22,8 +21,8 @@ public abstract class AssertUtility {
 			throw new IllegalStateException("argC1 is not null, argC2 is null.");
 		}
 		
-		Validate.notNull(argC1);
-		Validate.notNull(argC2);
+		Objects.requireNonNull(argC1);
+		Objects.requireNonNull(argC2);
 		
 		ArrayList<E> lclAL1 = new ArrayList<>(argC1.size());
 		ArrayList<E> lclAL2 = new ArrayList<>(argC2.size());
@@ -32,7 +31,7 @@ public abstract class AssertUtility {
 		lclAL2.addAll(argC2);
 		
 		for (int lclIndex1 = 0; lclIndex1 < lclAL1.size(); lclIndex1++) {
-			Object lclO1 = lclAL1.get(lclIndex1);
+			E lclO1 = lclAL1.get(lclIndex1);
 			if (lclO1 == null) {
 				throw new IllegalStateException("null found in argC1");
 			}
@@ -40,7 +39,7 @@ public abstract class AssertUtility {
 			if (lclIndex2 < 0) {
 				throw new IllegalStateException(lclO1 + " not found in argC2");
 			}
-			Object lclO2 = lclAL2.get(lclIndex2);
+			E lclO2 = lclAL2.get(lclIndex2);
 			if (lclO2 == null) {
 				throw new IllegalStateException("null found in argC2");
 			}

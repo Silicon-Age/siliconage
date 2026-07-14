@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -61,9 +62,9 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	public OpalBackCollectionDoubleSet(P argOwner, OpalBackCollectionLoader<C, P> argLoader, boolean argNew) {
 		super();
 		
-		myOwner = Validate.notNull(argOwner);
+		myOwner = Objects.requireNonNull(argOwner);
 		
-		myLoader = Validate.notNull(argLoader);
+		myLoader = Objects.requireNonNull(argLoader);
 		
 		if (argNew) {
 			TransactionContext.assertActive();
@@ -79,7 +80,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	
 	protected /* synchronized */ Set<C> determineSet(boolean argX) {
 		ensureMonitor();
-		return Validate.notNull(argX ? getNewSet() : getOldSet());
+		return Objects.requireNonNull(argX ? getNewSet() : getOldSet());
 	}
 
 	protected /* synchronized */ Set<C> determineSet() {
@@ -96,7 +97,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	
 	protected /* synchronized */ Set<C> createSet(Set<C> argC) {
 		ensureMonitor();
-		Validate.notNull(argC);
+		Objects.requireNonNull(argC);
 		return getLoader().getCopySetSupplier().apply(argC);
 	}
 	
@@ -117,7 +118,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	}
 	
 	protected Set<C> store(Set<C> argCs) {
-		Validate.notNull(argCs);
+		Objects.requireNonNull(argCs);
 		int lclSize = argCs.size();
 		if (lclSize == 0) {
 			return Collections.emptySet();
@@ -138,7 +139,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		ensureMonitor();
 		Validate.isTrue(myOldSet == null); // Synonymous with isLoaded() == false
 		P lclOwner = getOwner();
-		Set<C> lclLoadedCs = Validate.notNull(getLoader().getLoader().apply(lclOwner));
+		Set<C> lclLoadedCs = Objects.requireNonNull(getLoader().getLoader().apply(lclOwner));
 		if (ourLogger.isDebugEnabled()) {
 			ourLogger.debug("Loaded {} owned by {}.  Size is {}.",
 					defaultToString(),
@@ -207,7 +208,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	protected /* synchronized */ Set<C> getOldSet() {
 		ensureMonitor();
 		ensureLoaded();
-		return Validate.notNull(myOldSet);
+		return Objects.requireNonNull(myOldSet);
 	}
 	
 	/* This will not return null. */ 
@@ -221,7 +222,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 							getOwner()
 							);
 				}
-				myNewSet = Validate.notNull(createSet(getOldSet())); // FIXME: This may be unnecessary; do we actually need to copy it until we know we are changing things?  Can we handle Iterator.remove()?
+				myNewSet = Objects.requireNonNull(createSet(getOldSet())); // FIXME: This may be unnecessary; do we actually need to copy it until we know we are changing things?  Can we handle Iterator.remove()?
 			} else {
 				if (ourLogger.isDebugEnabled()) {
 					ourLogger.debug("Initializing myNewSet with a new set for cached operations in  owned by {}.",
@@ -232,7 +233,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 				myNewSet = createSet(); // This will be a temporary set in which to cache added and removed C's in the current TransactionContext.
 			}
 		}
-		Validate.notNull(myNewSet);
+		Objects.requireNonNull(myNewSet);
 		return myNewSet;
 	}
 	
@@ -602,7 +603,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		
 		private RemovalEnabledIterator(Iterator<C> argIterator, boolean argAccess) {
 			super();
-			myIterator = Validate.notNull(argIterator);
+			myIterator = Objects.requireNonNull(argIterator);
 			myLastC = null;
 			myAccess = argAccess;
 			if (ourLogger.isDebugEnabled()) {
