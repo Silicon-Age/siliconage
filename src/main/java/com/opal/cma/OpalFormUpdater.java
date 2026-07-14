@@ -430,8 +430,11 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 				Long lclPreviousSubmission = OpalFormUpdateTimes.getInstance().get(lclUserFacing); // may be null
 				
 				if (lclPreviousSubmission != null && lclThisFormLoaded <= lclPreviousSubmission.longValue()) { // Equality is a weird situation.  Complaining seems like the safest choice.
-					String lclConflictMessage = getPrefixedParameter("SubmissionConflictMessage");
-					if (lclConflictMessage != null) {
+					String lclConflictMessage = StringUtils.trimToNull(getRequest().getParameter(OpalForm.FULLY_QUALIFIED_NAME_SEPARATOR + "SubmissionConflictMessage")); // not getPrefixedParameter because it is global to the OpalMainForm
+					if (lclConflictMessage == null) {
+						ourLogger.warn("When submitting {}, there is a conflict, but no conflict message parameter was found in the form");
+						return; // I guess
+					} else {
 						addError(lclConflictMessage);
 						return;
 					}
