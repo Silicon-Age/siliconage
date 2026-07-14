@@ -1,8 +1,7 @@
 package com.opal.creator.database;
 
+import java.util.Objects;
 import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
 
 public class ForeignKey {
 	
@@ -76,17 +75,14 @@ public class ForeignKey {
 	) {
 		super();
 		
-		Validate.notNull(argSourceKey);
-		mySourceKey = argSourceKey;
+		mySourceKey = Objects.requireNonNull(argSourceKey);
 		
-		Validate.notNull(argTargetKey);
-		myTargetKey = argTargetKey;
+		myTargetKey = Objects.requireNonNull(argTargetKey);
 		
-		Validate.notNull(argName);
-		myName = argName;
+		myName = Objects.requireNonNull(argName);
 		
-		myDeleteAction = Validate.notNull(argDeleteAction);
-		myUpdateAction = Validate.notNull(argUpdateAction);
+		myDeleteAction = Objects.requireNonNull(argDeleteAction);
+		myUpdateAction = Objects.requireNonNull(argUpdateAction);
 		
 		mySourceRolePrefix = argSourceRolePrefix; // Can be null
 		

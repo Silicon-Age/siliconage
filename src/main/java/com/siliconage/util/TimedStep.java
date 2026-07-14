@@ -1,6 +1,7 @@
 package com.siliconage.util;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.OptionalLong;
 
 import org.apache.commons.lang3.Validate;
@@ -16,7 +17,7 @@ public abstract class TimedStep implements AutoCloseable {
 	protected TimedStep(String argEventName) {
 		super();
 		
-		myEventName = Validate.notNull(argEventName);
+		myEventName = Objects.requireNonNull(argEventName);
 		myStartTime = System.currentTimeMillis();
 	}
 	
@@ -59,26 +60,32 @@ public abstract class TimedStep implements AutoCloseable {
 	
 	public abstract void emit(String argMessage);
 	
+	@SuppressWarnings("resource") // We are returning a TimedStep that the caller must close.
 	public static final TimedStep logging(String argEventName, Logger argLogger, Level argLevel) {
 		return new LoggedTimedStep(argEventName, argLogger, argLevel);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TimedStep that the caller must close.
 	public static final TimedStep logging(String argEventName, Logger argLogger) {
 		return new LoggedTimedStep(argEventName, argLogger);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TimedStep that the caller must close.
 	public static final TimedStep appending(String argEventName, Appendable argAppendable) {
 		return new AppendableTimedStep(argEventName, argAppendable);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TimedStep that the caller must close.
 	public static final TimedStep timingOnly(String argEventName) {
 		return new NonWritingTimedStep(argEventName);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TimedStep that the caller must close.
 	public static final TimedStep toStandardOut(String argEventName) {
 		return appending(argEventName, System.out);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TimedStep that the caller must close.
 	public static final TimedStep toStandardError(String argEventName) {
 		return appending(argEventName, System.err);
 	}
@@ -92,8 +99,8 @@ public abstract class TimedStep implements AutoCloseable {
 		protected LoggedTimedStep(String argEventName, Logger argLogger, Level argLevel) {
 			super(argEventName);
 			
-			myLogger = Validate.notNull(argLogger);
-			myLevel = Validate.notNull(argLevel);
+			myLogger = Objects.requireNonNull(argLogger);
+			myLevel = Objects.requireNonNull(argLevel);
 		}
 		
 		protected LoggedTimedStep(String argEventName, Logger argLogger) {
@@ -120,7 +127,7 @@ public abstract class TimedStep implements AutoCloseable {
 		protected AppendableTimedStep(String argEventName, Appendable argAppendable) {
 			super(argEventName);
 			
-			myAppendable = Validate.notNull(argAppendable);
+			myAppendable = Objects.requireNonNull(argAppendable);
 		}
 		
 		protected Appendable getAppendable() {

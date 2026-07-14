@@ -1,6 +1,6 @@
 package com.siliconage.web.form;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public abstract class HTMLInputField<T extends HTMLInputField<?, V>, V> extends SingleValueFormField<T, V> {
 	protected HTMLInputField(String argName, V argSavedValue, FormValueProvider argEnteredValueProvider) {
@@ -21,7 +21,7 @@ public abstract class HTMLInputField<T extends HTMLInputField<?, V>, V> extends 
 	
 	@Override
 	protected void appendFormField(StringBuilder argSB) {
-		Validate.notNull(argSB);
+		Objects.requireNonNull(argSB);
 		
 		argSB.append("<input")
 			.append(outputAttribute("type", getInputType()))

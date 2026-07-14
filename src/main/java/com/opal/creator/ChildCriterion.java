@@ -2,8 +2,7 @@ package com.opal.creator;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public class ChildCriterion extends ComparatorCriterion {
 	private final String myChildName;
@@ -16,10 +15,10 @@ public class ChildCriterion extends ComparatorCriterion {
 	public ChildCriterion(String argChildName, String argComparatorName, boolean argInverted) {
 		super(argInverted);
 		
-		Validate.notNull(argChildName);
+		Objects.requireNonNull(argChildName);
 		myChildName = argChildName;
 		
-		Validate.notNull(argComparatorName);
+		Objects.requireNonNull(argComparatorName);
 		myComparatorName = argComparatorName;
 		
 		return;
@@ -61,7 +60,7 @@ public class ChildCriterion extends ComparatorCriterion {
 	@Override
 	public String generateComparisonCode(MappedClass argMC) {
 		MappedForeignKey lclMFK = determineMappedForeignKey(argMC);
-		Validate.notNull(argMC);
+		Objects.requireNonNull(argMC);
 		
 		String lclCN = getComparatorName();
 		MappedClass lclTarget = lclMFK.getTargetMappedClass();

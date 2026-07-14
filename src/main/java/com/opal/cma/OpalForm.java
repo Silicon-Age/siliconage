@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
@@ -81,13 +82,13 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	protected OpalForm(String argLocalPrefix) {
 		super();
 		
-		myLocalPrefix = Validate.notNull(argLocalPrefix);
+		myLocalPrefix = Objects.requireNonNull(argLocalPrefix);
 	}
 	
 	public static <U extends IdentityUserFacing/*<U>*/> OpalMainForm<U> create(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, IdentityFactory<U> argFactory, String argParameterName) { // OPALFIXME
-		Validate.notNull(argSession);
-		Validate.notNull(argRequest);
-		Validate.notNull(argFactory);
+		Objects.requireNonNull(argSession);
+		Objects.requireNonNull(argRequest);
+		Objects.requireNonNull(argFactory);
 		
 		return new OpalMainForm<>(argSession, argRequest, argFormAction, argFactory, argParameterName);
 	}
@@ -104,9 +105,9 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public static <U extends IdentityUserFacing/*<U>*/> OpalMainForm<U> create(HttpSession argSession, HttpServletRequest argRequest, String argFormAction, U argUserFacing, IdentityFactory<U> argFactory, String argParameterName) { // OPALFIXME
-		Validate.notNull(argSession);
-		Validate.notNull(argRequest);
-		Validate.notNull(argFactory);
+		Objects.requireNonNull(argSession);
+		Objects.requireNonNull(argRequest);
+		Objects.requireNonNull(argFactory);
 		
 		return new OpalMainForm<>(argSession, argRequest, argFormAction, argUserFacing, argFactory, argParameterName);
 	}
@@ -137,14 +138,14 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	protected String getSavedValueAsString(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		Object lclO = getSavedValue(argName);
 		return lclO == null ? null : String.valueOf(lclO);
 	}
 	
 	protected String getPriorInputValue(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		return getPriorInput().get(generateFullyQualifiedName(argName));
 	}
@@ -232,7 +233,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	protected abstract PriorInput getPriorInput();
 	
 	/* package */ static String generateFullyQualifiedName(String argPrefix, String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		String lclPrefix = StringUtils.trimToEmpty(argPrefix);
 		if (argName.startsWith(lclPrefix)) {
@@ -261,7 +262,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	protected abstract void recordDescendant(OpalForm<?> argOF);
 	
 	public void noteDisplayedField(String argName, boolean argMultipleAllowed) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		if (argName.startsWith("Target:") == false) {
 			requireOpened();
@@ -311,7 +312,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	protected FormField<?, String> display(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -330,7 +331,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public TextField<?> text(String argName, int argSize) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		Validate.isTrue(argSize > 0);
 		
 		requireOpened();
@@ -341,7 +342,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public EmailField<?> email(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -351,7 +352,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public NumberField<?> number(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -361,7 +362,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public PhoneField<?> phone(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -371,7 +372,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public ZipField<?> zip(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -381,7 +382,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public SearchField<?> search(String argName, int argSize) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		Validate.isTrue(argSize > 0);
 		
 		requireOpened();
@@ -392,7 +393,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public UrlField<?> url(String argName, int argSize) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		Validate.isTrue(argSize > 0);
 		
 		requireOpened();
@@ -403,7 +404,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public PasswordField<?> password(String argName, int argSize) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		Validate.isTrue(argSize > 0);
 		
 		requireOpened();
@@ -414,13 +415,13 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public static String generateVerifyName(String argS) {
-		Validate.notNull(argS);
+		Objects.requireNonNull(argS);
 		
 		return argS.equals("") ? "Verify" : argS + "_Verify";
 	}
 	
 	public PasswordField<?> passwordVerify(String argName, int argSize) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		Validate.isTrue(argSize > 0);
 		
 		requireOpened();
@@ -433,9 +434,9 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public <T extends IdentityUserFacing/*<T>*/> TextFieldWithHandler<?> special(String argName, int argSize, Class<? extends SpecialHandler<T>> argHandlerClass) { // OPALFIXME
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		Validate.isTrue(argSize > 0);
-		Validate.notNull(argHandlerClass);
+		Objects.requireNonNull(argHandlerClass);
 		
 		requireOpened();
 		
@@ -451,7 +452,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public OpalCheckboxField<?> checkbox(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -466,7 +467,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	protected OpalCheckboxField<?> checkbox(String argName, String argValue) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 
@@ -479,7 +480,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	protected OpalCheckboxField<?> checkbox(String argName, String argValue, boolean argChecked) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -493,7 +494,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public String field(String argName, String argNullString) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -501,7 +502,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public TextAreaField<?> textarea(String argName, int argCols, int argRows) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -521,7 +522,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public DateField<?> date(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -530,7 +531,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 		DateField<?> lclField = null;
 		try {
 			lclField = new DateField<>(generateFullyQualifiedName(argName), (LocalDate) getSavedValue(argName), this);
-		} catch (ClassCastException lclE) {
+		} catch (ClassCastException _) {
 			LocalDateTime lclLDT = (LocalDateTime) getSavedValue(argName);
 			lclField = new DateField<>(generateFullyQualifiedName(argName), lclLDT == null ? (LocalDate) null : lclLDT.toLocalDate(), this);
 		}
@@ -538,7 +539,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public DateTimeField<?> datetime(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -548,7 +549,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public TimeField<?> time(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -557,7 +558,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 		TimeField<?> lclField = null;
 		try {
 			lclField = new TimeField<>(generateFullyQualifiedName(argName), (LocalTime) getSavedValue(argName), this);
-		} catch (ClassCastException lclE) {
+		} catch (ClassCastException _) {
 			LocalDateTime lclLDT = (LocalDateTime) getSavedValue(argName);
 			lclField = new TimeField<>(generateFullyQualifiedName(argName), lclLDT == null ? (LocalTime) null : lclLDT.toLocalTime(), this);
 		}
@@ -569,7 +570,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public MoneyField<?> money(String argName, int argSize) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -587,8 +588,8 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public String link(String argPage, String argParameter, String argLinkText) {
-		Validate.notNull(argPage);
-		Validate.notNull(argParameter);
+		Objects.requireNonNull(argPage);
+		Objects.requireNonNull(argParameter);
 		
 		requireOpened();
 		
@@ -608,7 +609,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public BooleanDropdownField<?> booleanDropdown(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -621,7 +622,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public TrinaryField<?> trinary(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -649,7 +650,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public <T extends IdentityUserFacing/*<T>*/> OpalDropdownField<?, T> dropdown(String argName, IdentityFactory<T> argFactory, Comparator<? super T> argComparator, NameCodeExtractor<? super T> argNCE) { // OPALFIXME
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		requireOpened();
 		
@@ -676,7 +677,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 					IdentityFactory<T> lclTempIF = (IdentityFactory<T>) lclAFM.get(lclReturnTypeOfAccessor); // lclTempIF only exists to suppress warnings
 					lclIF = lclTempIF;
 					
-				} catch (NamingException lclE) {
+				} catch (NamingException _) {
 					throw new IllegalStateException("Could not get an InitialContext or could not look up the FactoryMap.");
 				}
 			} catch (NoSuchMethodException lclE) {
@@ -698,9 +699,9 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 	
 	public <T extends IdentityUserFacing> RadioField<?> radio(String argName, T argValue, NameCodeExtractor<T> argNCE, boolean argChecked) {
-		Validate.notNull(argName);
-		Validate.notNull(argValue);
-		Validate.notNull(argNCE);
+		Objects.requireNonNull(argName);
+		Objects.requireNonNull(argValue);
+		Objects.requireNonNull(argNCE);
 		
 		requireOpened();
 		
@@ -792,8 +793,8 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	}
 
 	public <T extends IdentityUserFacing/*<T>*/> List<OpalForm<T>> children(String argName, String argAccessorName, IdentityFactory<T> argFactory, int argNew, Predicate<? super T> argFilter, Comparator<? super T> argComparator) { // OPALFIXME
-		Validate.notNull(argName);
-		Validate.notNull(argAccessorName);
+		Objects.requireNonNull(argName);
+		Objects.requireNonNull(argAccessorName);
 		
 		// argNew should be positive to put argNew blank records after all the existing child records.
 		// If argNew is negative, we will put abs(argNew) blank records *before* the existing child records.
@@ -852,8 +853,8 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	
 	@SuppressWarnings("unchecked")
 	public <T extends IdentityUserFacing/*<T>*/> T target(String argName, IdentityFactory<T> argFactory) { // OPALFIXME
-		Validate.notNull(argName);
-		Validate.notNull(argFactory);
+		Objects.requireNonNull(argName);
+		Objects.requireNonNull(argFactory);
 		
 		U lclUF = getUserFacing();
 		if (lclUF == null) {
@@ -901,13 +902,13 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	
 	@Override
 	public void disable(String argFieldName) {
-		Validate.notNull(argFieldName);
+		Objects.requireNonNull(argFieldName);
 		getPriorInput().disable(generateFullyQualifiedName(argFieldName));
 	}
 	
 	@Override
 	public void enable(String argFieldName) {
-		Validate.notNull(argFieldName);
+		Objects.requireNonNull(argFieldName);
 		getPriorInput().enable(generateFullyQualifiedName(argFieldName));
 	}
 	
@@ -918,7 +919,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	public abstract void undisableCompletely();
 	
 	protected <F extends FormField<?, ?>> F prepareField(F argField, String argName) {
-		Validate.notNull(argField);
+		Objects.requireNonNull(argField);
 		Validate.notBlank(argName);
 		
 		if (argField instanceof TextBasedHTMLInputField && ((argField instanceof TextFieldWithHandler) == false)) {
@@ -934,7 +935,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	
 	protected <F extends TextBasedHTMLInputField<?, ?>> F incorporateMaximumLength(F argField, String argFieldName) {
 		Validate.notBlank(argFieldName);
-		Validate.notNull(argField);
+		Objects.requireNonNull(argField);
 		
 		if (argField instanceof NumberField) {
 			// Do nothing.  NumberFields are not allowed to have a maxlength attribute.
@@ -991,7 +992,7 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 	
 	@Override
 	public final boolean isDisabled(String argFieldName) {
-		Validate.notNull(argFieldName);
+		Objects.requireNonNull(argFieldName);
 		
 		return isCompletelyDisabled() || getPriorInput().isDisabled(fullyQualifyIfNecessary(argFieldName));
 	}

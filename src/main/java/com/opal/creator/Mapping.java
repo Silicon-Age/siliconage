@@ -6,10 +6,10 @@ import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Arrays;
 import java.util.ArrayList;
 
-import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -361,7 +361,7 @@ public class Mapping extends OpalXMLElement {
 	}
 	
 	protected void generateAutomaticDelegates(OpalParseContext argContext) {
-		Validate.notNull(argContext);
+		Objects.requireNonNull(argContext);
 		
 		generateAutomaticDelegatesFromClass(argContext, DEFAULT_DELEGATE_CLASS_NAME);
 		
@@ -376,7 +376,7 @@ public class Mapping extends OpalXMLElement {
 	}
 	
 	protected void generateAutomaticDelegatesFromClass(OpalParseContext argContext, String argClassName) {
-		Validate.notNull(argContext);
+		Objects.requireNonNull(argContext);
 		
 		if (argClassName == null) {
 			return;
@@ -456,7 +456,7 @@ public class Mapping extends OpalXMLElement {
 	}
 	
 	protected void generateValidateDelegatesFromClass(OpalParseContext argContext, String argClassName) {
-		Validate.notNull(argContext);
+		Objects.requireNonNull(argContext);
 		
 		if (argClassName == null) {
 			return;
@@ -542,7 +542,7 @@ public class Mapping extends OpalXMLElement {
 	}
 	
 	protected Class<?> determineSpecialJavaType(DatabaseColumn argDC, Class<?> argType) {
-		Validate.notNull(argDC);
+		Objects.requireNonNull(argDC);
 		
 		if (argType == null) {
 			return null;

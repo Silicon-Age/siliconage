@@ -10,8 +10,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.Validate;
-
 import com.siliconage.web.form.AssembledDropdownField;
 import com.siliconage.web.form.NameCodeExtractor;
 
@@ -26,7 +24,7 @@ public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends Iden
 	
 	private IdentityFactory<U> myFactory;
 	private DatabaseQuery myQuery;
-	private Predicate<U> myFilter = x -> true;
+	private Predicate<U> myFilter = _ -> true;
 	private boolean myNewObjectForm;
 	private boolean myNullable = false;
 	
@@ -41,7 +39,7 @@ public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends Iden
 		}
 		
 		// No sense in Validate.notNull()'ing argOF, since the superclass constructor call will already have thrown an NPE if argOF == null
-		myFactory = Validate.notNull(argFactory);
+		myFactory = Objects.requireNonNull(argFactory);
 		
 		myNewObjectForm = argOF.isNew();
 	}
@@ -92,7 +90,7 @@ public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends Iden
 	}
 	
 	public T query(String argSQL, Object... argParameters) {
-		Validate.notNull(argSQL);
+		Objects.requireNonNull(argSQL);
 		String lclSQL = argSQL.trim();
 		if (lclSQL.length() > 6) { // 6 == "select".length();
 			if (argSQL.toLowerCase().startsWith("select")) {
@@ -103,7 +101,7 @@ public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends Iden
 	}
 	
 	public T filter(Predicate<U> argFilter) {
-		Validate.notNull(argFilter);
+		Objects.requireNonNull(argFilter);
 		
 		myFilter = myFilter.and(argFilter);
 		
@@ -131,7 +129,7 @@ public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends Iden
 		if (lclSpecifiedChoices != null) {
 			lclChoices.addAll(lclSpecifiedChoices);
 		} else {
-			Factory<U> lclFactory = Validate.notNull(getFactory());
+			Factory<U> lclFactory = Objects.requireNonNull(getFactory());
 			
 			DatabaseQuery lclDQ = getQuery();
 			

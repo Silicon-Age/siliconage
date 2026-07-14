@@ -3,10 +3,11 @@ package com.opal.creator.database;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.text.StringEscapeUtils;
 
 import com.opal.OpalUtility;
 
@@ -56,7 +57,7 @@ public class ConstantDefaultValue extends DefaultValue {
 	
 	@Override
 	public String generateDefinition(Class<?> argType, String argMemberName) {
-		Validate.notNull(argType);
+		Objects.requireNonNull(argType);
 		Validate.notBlank(argMemberName);
 		
 		StringBuilder lclSB = new StringBuilder(80);
@@ -70,7 +71,7 @@ public class ConstantDefaultValue extends DefaultValue {
 				try {
 					lclInt = Integer.parseInt(getValue().toString());
 				} catch (NumberFormatException lclE) {
-					throw new IllegalStateException("Cannot generate proper default value.");
+					throw new IllegalStateException("Cannot generate proper default value.", lclE);
 				}
 			}
 			lclSB.append(Integer.class.getName() + ".valueOf(" + lclInt + ")");

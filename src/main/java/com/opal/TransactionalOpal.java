@@ -4,11 +4,10 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.sql.DataSource;
-
-import org.apache.commons.lang3.Validate;
 
 public abstract class TransactionalOpal<U extends UserFacing/*<U>*/> extends AbstractTransactionAware implements Opal<U> { // OPALFIXME
 
@@ -34,9 +33,7 @@ public abstract class TransactionalOpal<U extends UserFacing/*<U>*/> extends Abs
 	protected <O extends TransactionalOpal<U>> TransactionalOpal(OpalFactory<U, O> argOpalFactory) {
 		super();
 		
-		Validate.notNull(argOpalFactory);
-		
-		myAbstractOpalFactory = argOpalFactory;
+		myAbstractOpalFactory = Objects.requireNonNull(argOpalFactory);
 		
 		initializeReferences();
 	}

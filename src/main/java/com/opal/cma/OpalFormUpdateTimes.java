@@ -44,12 +44,20 @@ public class OpalFormUpdateTimes implements Map<IdentityUserFacing, Long>, Seria
 	
 	@Override
 	public boolean containsKey(Object argKey) {
-		return getMap().containsKey(argKey);
+		if (argKey instanceof IdentityUserFacing iuf) {
+			return getMap().containsKey(iuf);
+		} else {
+			return false;
+		}		
 	}
 	
 	@Override
 	public boolean containsValue(Object argValue) {
-		return getMap().containsValue(argValue);
+		if (argValue instanceof Long l) {
+			return getMap().containsValue(l);
+		} else {
+			return false;
+		}
 	}
 	
 	@Override
@@ -59,7 +67,11 @@ public class OpalFormUpdateTimes implements Map<IdentityUserFacing, Long>, Seria
 	
 	@Override
 	public Long get(Object argKey) {
-		return getMap().get(argKey);
+		if (argKey instanceof IdentityUserFacing iuf) {
+			return getMap().get(iuf);
+		} else {
+			return null;
+		}
 	}
 	
 	@Override
@@ -84,7 +96,11 @@ public class OpalFormUpdateTimes implements Map<IdentityUserFacing, Long>, Seria
 	
 	@Override
 	public Long remove(Object argKey) {
-		return getMap().remove(argKey);
+		if (argKey instanceof IdentityUserFacing iuf) {
+			return getMap().remove(iuf);
+		} else {
+			return null;
+		}
 	}
 	
 	@Override

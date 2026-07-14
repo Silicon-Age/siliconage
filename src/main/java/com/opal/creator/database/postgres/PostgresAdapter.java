@@ -9,10 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
-
-import org.apache.commons.lang3.Validate;
 
 import org.w3c.dom.Element;
 
@@ -139,7 +138,7 @@ public class PostgresAdapter extends RelationalDatabaseAdapter {
 		if (lclTableName == null) {
 			lclTableName = XMLElement.getAttributeValue(argElement, "View");
 		}
-		Validate.notNull(lclTableName);
+		Objects.requireNonNull(lclTableName);
 		
 //		System.out.println("Creating table name: " + lclDatabaseName + "/" + lclTableName);
 		return new PostgresTableName(lclDatabaseName, lclTableName);
@@ -174,7 +173,7 @@ public class PostgresAdapter extends RelationalDatabaseAdapter {
 				try {
 					Class<?> lclC = Class.forName(lclJavaType);
 					return lclC;
-				} catch (ClassNotFoundException lclE) {
+				} catch (ClassNotFoundException _) {
 					System.out.println("*** Could not convert user-specific type mapping of \"" + lclJavaType + "\" into an actual type using Class.forName() ***");
 				}
 			}
@@ -383,10 +382,9 @@ public class PostgresAdapter extends RelationalDatabaseAdapter {
 		try {
 			int lclI = Integer.parseInt(lclDefaultString);
 			return new ConstantDefaultValue(Integer.valueOf(lclI));
-		} catch (NumberFormatException lclE) {
+		} catch (NumberFormatException _) {
 			/* Okay, not an int */
-		}
-		
+		}		
 		
 		if (lclDefaultString.equalsIgnoreCase("true")) {
 			return new ConstantDefaultValue(Boolean.TRUE);
@@ -397,14 +395,14 @@ public class PostgresAdapter extends RelationalDatabaseAdapter {
 		try {
 			long lclL = Long.parseLong(lclDefaultString);
 			return new ConstantDefaultValue(Long.valueOf(lclL));
-		} catch (NumberFormatException lclE) {
+		} catch (NumberFormatException _) {
 			/* Okay, not a long */
 		}
 		
 		try {
 			double lclD = Double.parseDouble(lclDefaultString);
 			return new ConstantDefaultValue(Double.valueOf(lclD));
-		} catch (NumberFormatException lclE) {
+		} catch (NumberFormatException _) {
 			/* Okay, not a double */
 		}
 		
@@ -636,8 +634,8 @@ public class PostgresAdapter extends RelationalDatabaseAdapter {
 				if (lclIndex == null) {
 					lclNewIndex = true;
 				} else {
-					Validate.notNull(lclLastIndexName);
-					Validate.notNull(lclLastTableName);
+					Objects.requireNonNull(lclLastIndexName);
+					Objects.requireNonNull(lclLastTableName);
 					if (!lclLastIndexName.equals(lclIndexName) || (!lclLastTableName.equals(lclTableName))) {
 						lclNewIndex = true;
 					}
@@ -661,7 +659,7 @@ public class PostgresAdapter extends RelationalDatabaseAdapter {
 					lclLastIndexName = lclIndexName;
 					lclLastTableName = lclTableName;
 				}
-				Validate.notNull(lclIndex);
+				Objects.requireNonNull(lclIndex);
 				lclIndex.getColumnNames().add(lclRS.getString("column_name"));
 			}
 			
@@ -709,7 +707,7 @@ public class PostgresAdapter extends RelationalDatabaseAdapter {
 	
 	@Override
 	protected String generateForeignKeyStatisticsSQL(ForeignKey argFK) {
-		Validate.notNull(argFK);
+		Objects.requireNonNull(argFK);
 		
 		StringBuilder lclSB = new StringBuilder(1024);
 		lclSB.append("SELECT min(T.num) AS min, avg(T.num) AS avg, max(T.num) AS max, stddev_pop(T.num) AS stdev ");

@@ -64,7 +64,7 @@ public abstract class HTMLUtility {
 		try {
 			return Integer.parseInt(lclString);
 		} catch (NumberFormatException lclE) {
-			throw new BadRequestException("We couldn't understand what you provided for " + argParameter + " (which was \"" + lclString + "\").");
+			throw new BadRequestException("We couldn't understand what you provided for " + argParameter + " (which was \"" + lclString + "\").", lclE);
 		}
 	}
 	
@@ -75,7 +75,7 @@ public abstract class HTMLUtility {
 		}
 		try {
 			return Integer.parseInt(lclString);
-		} catch (NumberFormatException lclE) {
+		} catch (NumberFormatException _) {
 			return argDefault;
 		}
 	}
@@ -86,8 +86,8 @@ public abstract class HTMLUtility {
 			return null;
 		}
 		try {
-			return Integer.parseInt(lclString);
-		} catch (NumberFormatException lclE) {
+			return Integer.valueOf(lclString);
+		} catch (NumberFormatException _) {
 			return null;
 		}
 	}
@@ -174,7 +174,7 @@ public abstract class HTMLUtility {
 		
 		try {
 			return URLEncoder.encode(argS, "UTF-8");
-		} catch (UnsupportedEncodingException lclE) {
+		} catch (UnsupportedEncodingException _) {
 			// this should never happen
 			return argS;
 		}
@@ -187,7 +187,7 @@ public abstract class HTMLUtility {
 		
 		try {
 			return URLDecoder.decode(argS, "UTF-8");
-		} catch (UnsupportedEncodingException lclE) {
+		} catch (UnsupportedEncodingException _) {
 			// this should never happen
 			return argS;
 		}

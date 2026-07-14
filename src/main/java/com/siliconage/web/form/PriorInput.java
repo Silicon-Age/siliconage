@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
@@ -117,12 +118,8 @@ public class PriorInput implements FormValueProvider {
 		return myFieldRequirements;
 	}
 	
-//	protected Set<Pair<String, String>> getCheckedNameValuePairs() {
-//		return myCheckedNameValuePairs;
-//	}
-	
 	protected void markField(String argFieldName) {
-		Validate.notNull(argFieldName);
+		Objects.requireNonNull(argFieldName);
 		
 		getIncorrectFields().add(argFieldName);
 	}
@@ -134,7 +131,7 @@ public class PriorInput implements FormValueProvider {
 	
 	@Override
 	public boolean isIncorrect(String argKey) {
-		Validate.notNull(argKey);
+		Objects.requireNonNull(argKey);
 		
 		Set<String> lclIF = getIncorrectFields();
 		return lclIF != null && lclIF.contains(argKey);
@@ -142,19 +139,10 @@ public class PriorInput implements FormValueProvider {
 	
 	@Override
 	public FormFieldRequirement determineRequirement(String argKey) {
-		Validate.notNull(argKey);
+		Objects.requireNonNull(argKey);
 		
 		return getFieldRequirements().getOrDefault(argKey, FormFieldRequirement.NOT_REQUIRED);
 	}
-	
-//	@Override
-//	public boolean isChecked(String argName, String argValue) {
-//		return isChecked(argName, (Object) argValue);
-//	}
-	
-//	public boolean isChecked(String argName, Object argValue) {
-//		return getCheckedNameValuePairs().contains(Pair.of(argName, argValue == null ? "" : String.valueOf(argValue))); // relies on Pair.equals comparing argKey and argValue with equals()
-//	}
 	
 	@Override
 	public boolean hasValueFor(String argKey) {
@@ -171,7 +159,7 @@ public class PriorInput implements FormValueProvider {
 	}
 	
 	public String get(String argKey, String argDefaultValue) {
-		Validate.notNull(argKey);
+		Objects.requireNonNull(argKey);
 		// argDefaultValue may be null
 		
 		if (hasRequestMap() == false) {
@@ -339,7 +327,7 @@ public class PriorInput implements FormValueProvider {
 	}
 	
 	public BooleanDropdownField<?> booleanDropdown(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		Object lclCurrentValueObj = get(argName);
 		Boolean lclCurrentValue = null;
@@ -365,7 +353,7 @@ public class PriorInput implements FormValueProvider {
 	}
 	
 	public <C> AssembledDropdownField<?, C> dropdown(String argName, Collection<C> argChoices, Collection<C> argCurrent, NameCodeExtractor<C> argNCE) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		// argCurrent may be null
 		Validate.notEmpty(argChoices);
 		
@@ -401,8 +389,8 @@ public class PriorInput implements FormValueProvider {
 	}
 
 	public StandardDropdownField<?, String> dropdown(String argName, String[] argNames, String[] argCodes, String argCurrentCode) {
-		Validate.notNull(argNames);
-		Validate.notNull(argCodes);
+		Objects.requireNonNull(argNames);
+		Objects.requireNonNull(argCodes);
 		Validate.isTrue(argNames.length == argCodes.length, "Name and code arrays are of different sizes");
 		
 		List<DropdownOption<?>> lclOptions = new ArrayList<>(argNames.length);

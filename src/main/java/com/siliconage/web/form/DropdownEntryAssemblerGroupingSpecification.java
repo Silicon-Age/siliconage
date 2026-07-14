@@ -16,7 +16,7 @@ public class DropdownEntryAssemblerGroupingSpecification<C, K> {
 		
 		// Each argument may be null
 		
-		myKeyExtractor = argKeyExtractor == null ? x -> null : argKeyExtractor; // null -> no grouping
+		myKeyExtractor = argKeyExtractor == null ? _ -> null : argKeyExtractor; // null -> no grouping
 		myKeyComparator = argKeyComparator; // may be null, in which case encounter order will be used
 		myKeyLabeler = argKeyLabeler == null ? Object::toString : argKeyLabeler;
 	}

@@ -2,9 +2,9 @@ package com.opal.creator.database;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 
 public class Key {
 	private final TableName myTableName;
@@ -16,12 +16,8 @@ public class Key {
 	public Key(TableName argTableName, String argName, boolean argRequired) {
 		super();
 		
-		Validate.notNull(argTableName);
-		myTableName = argTableName;
-		
-		Validate.notNull(argName);
-		myName = argName;
-		
+		myTableName = Objects.requireNonNull(argTableName);
+		myName = Objects.requireNonNull(argName);		
 		myRequired = argRequired;
 	}
 	

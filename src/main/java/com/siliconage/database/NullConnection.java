@@ -25,6 +25,7 @@ import java.sql.Struct;
  * @author <a href="mailto:info@silicon-age.com">Silicon Age, Inc.</a>
  */
 public final class NullConnection implements Connection {
+	@SuppressWarnings("resource") // It's okay to hold this in a static field because it has no state and doesn't need to be closed.
 	private final static NullConnection myInstance = new NullConnection();
 	
 	/**
@@ -40,7 +41,7 @@ public final class NullConnection implements Connection {
 	 */
 	@Override
 	public void clearWarnings() {
-			throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException();
 	}
 	
 	/**

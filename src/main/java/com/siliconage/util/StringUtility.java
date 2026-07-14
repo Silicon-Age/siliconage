@@ -55,7 +55,7 @@ public final class StringUtility {
 					argHTML.add(lclSub);
 					lclCurrentIndex = lclNextIndex + 1;
 					lclAreWeInATag = (lclCurrentIndex < lclLength && argString.charAt (lclCurrentIndex) == lclOpenTag);
-				} catch (ArrayIndexOutOfBoundsException e) {
+				} catch (ArrayIndexOutOfBoundsException _) {
 					lclAreWeDoneYet = true;
 				}
 			} else {
@@ -69,7 +69,7 @@ public final class StringUtility {
 					argHTML.add (lclSub);
 					lclCurrentIndex = lclNextIndex;
 					lclAreWeInATag = true;
-				} catch (ArrayIndexOutOfBoundsException e) {
+				} catch (ArrayIndexOutOfBoundsException _) {
 					lclAreWeDoneYet = true;
 				}
 			}

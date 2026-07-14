@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
@@ -50,7 +51,7 @@ public class Tally<K> {
 	public Tally(Map<K, Integer> argMap) {
 		super();
 		
-		Validate.notNull(argMap);
+		Objects.requireNonNull(argMap);
 		
 		myHashMap = new HashMap<>(argMap.size());
 		for (Map.Entry<K, Integer> lclEntry : argMap.entrySet()) {
@@ -168,7 +169,7 @@ public class Tally<K> {
 		if (argI == null) {
 			return this;
 		}
-		Validate.notNull(argKeyExtractor);
+		Objects.requireNonNull(argKeyExtractor);
 		
 		while (argI.hasNext()) {
 			T lclT = argI.next();
@@ -223,7 +224,7 @@ public class Tally<K> {
 	}
 	
 	public int getSubtotal(Predicate<K> argFilter) {
-		Validate.notNull(argFilter);
+		Objects.requireNonNull(argFilter);
 		
 		return getMap().keySet().stream()
 			.filter(argFilter)
@@ -275,7 +276,7 @@ public class Tally<K> {
 	}
 	
 	public K getSingleModeOrNull() {
-		Collection<K> lclModes = Validate.notNull(getModes());
+		Collection<K> lclModes = Objects.requireNonNull(getModes());
 		
 		if (lclModes.size() == 1) {
 			return lclModes.iterator().next();

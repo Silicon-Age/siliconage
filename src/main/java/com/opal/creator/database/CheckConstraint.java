@@ -1,6 +1,6 @@
 package com.opal.creator.database;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 /**
  * @author topquark
@@ -11,11 +11,9 @@ public abstract class CheckConstraint {
 	
 	public CheckConstraint(String argName, String argText) {
 		super();
-		Validate.notNull(argName);
-		myName = argName;
+		myName = Objects.requireNonNull(argName);
 		
-		Validate.notNull(argText);
-		myText = argText;
+		myText = Objects.requireNonNull(argText);
 	}
 
 	public String getName() {

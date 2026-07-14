@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -42,7 +42,7 @@ public abstract class FieldUtility {
 	
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static Class<?> getType(Class<? extends UserFacing> argUFClass, String argFieldName) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
 		
 		Class<?> lclTypeFromAccessor = getTypeFromAccessor(argUFClass, argFieldName);
@@ -68,7 +68,7 @@ public abstract class FieldUtility {
 	
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static Class<?> getTypeFromAccessor(Class<? extends UserFacing> argUFClass, String argFieldName) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
 		
 		Method lclAccessor = getAccessor(argUFClass, argFieldName);
@@ -81,7 +81,7 @@ public abstract class FieldUtility {
 	
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static Class<?> getTypeFromMutator(Class<? extends UserFacing> argUFClass, String argFieldName) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
 		
 		Method lclMutator = getMutator(argUFClass, argFieldName);
@@ -124,7 +124,7 @@ public abstract class FieldUtility {
 	
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static Method getAccessor(Class<? extends UserFacing> argUFClass, String argFieldName) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
 		
 		for (String lclPrefix : OpalUtility.ACCESSOR_PREFIXES) {
@@ -146,7 +146,7 @@ public abstract class FieldUtility {
 	
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static Method getMutator(Class<? extends UserFacing> argUFClass, String argFieldName) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
 		
 		List<Method> lclCandidates = new ArrayList<>(2);
@@ -196,7 +196,7 @@ public abstract class FieldUtility {
 	
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static Collection<Method> getAccessorAndMutator(Class<? extends UserFacing> argUFClass, String argFieldName) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
 		
 		Method lclAccessor = getAccessor(argUFClass, argFieldName);
@@ -217,9 +217,9 @@ public abstract class FieldUtility {
 	
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static <A extends Annotation> A getFieldAnnotation(Class<? extends UserFacing> argUFClass, String argFieldName, Class<A> argAnnotationType) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
-		Validate.notNull(argAnnotationType);
+		Objects.requireNonNull(argAnnotationType);
 		
 		Collection<Method> lclAM = getAccessorAndMutator(argUFClass, argFieldName);
 		
@@ -235,7 +235,7 @@ public abstract class FieldUtility {
 	
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static Trinary isNullable(Class<? extends UserFacing> argUFClass, String argFieldName) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
 		
 		Nullability lclN = getFieldAnnotation(argUFClass, argFieldName, Nullability.class);
@@ -248,7 +248,7 @@ public abstract class FieldUtility {
 	
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static Trinary isUpdatable(Class<? extends UserFacing> argUFClass, String argFieldName) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
 		
 		Updatability lclU = getFieldAnnotation(argUFClass, argFieldName, Updatability.class);
@@ -262,7 +262,7 @@ public abstract class FieldUtility {
 	@SuppressWarnings("unchecked")
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static <T> Optional<T> getDefault(Class<? extends UserFacing> argUFClass, String argFieldName) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
 		
 		{
@@ -296,7 +296,7 @@ public abstract class FieldUtility {
 	
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static OptionalLong getMinimumLength(Class<? extends UserFacing> argUFClass, String argFieldName) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
 		
 		// Validate.isTrue(getType(argUFClass, argFieldName) == String.class, "Cannot ask for the minimum length of " + argFieldName + " on " + argUFClass + " because it is not a String");
@@ -311,7 +311,7 @@ public abstract class FieldUtility {
 	
 //	@Deprecated // OPALFIXME: This should be deprecated, then removed
 	public static OptionalLong getMaximumLength(Class<? extends UserFacing> argUFClass, String argFieldName) {
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		Validate.notBlank(argFieldName);
 		
 		// Validate.isTrue(getType(argUFClass, argFieldName) == String.class, "Cannot ask for the maximum length of " + argFieldName + " on " + argUFClass + " because it is not a String");
@@ -330,7 +330,7 @@ public abstract class FieldUtility {
 	 */
 	/* TODO: Use a record. */
 	public static Collection<Pair<String, Class<? extends UserFacing/*<?>*/>>> getChildNamesAndTypes(Class<? extends UserFacing> argUFClass) { // OPALFIXME
-		Validate.notNull(argUFClass);
+		Objects.requireNonNull(argUFClass);
 		
 		Collection<Pair<String, Class<? extends UserFacing/*<?>*/>>> lclResults = new ArrayList<>(); // OPALFIXME
 		for (Method lclM : argUFClass.getMethods()) {
@@ -338,14 +338,14 @@ public abstract class FieldUtility {
 			if (lclMethodName.startsWith("create") && lclMethodName.endsWith("Array") && UserFacing[].class.isAssignableFrom(lclM.getReturnType()) && lclM.getParameterCount() == 0) {
 				// In other words, this is a createXArray() method that returns a UserFacing[]?  This would be harder with the Set<> child accessors because of type erasure (but see the next method).
 				
-				String lclChildName = StringUtils.removeStart(lclMethodName, "create");
-				lclChildName = StringUtils.removeEnd(lclChildName, "Array");
+				String lclChildName = Strings.CS.removeStart(lclMethodName, "create");
+				lclChildName = Strings.CS.removeEnd(lclChildName, "Array");
 				
 				String lclAttemptedAccessorName = "get" + lclChildName + "Set";
 				Method lclM2;
 				try {
 					lclM2 = argUFClass.getMethod(lclAttemptedAccessorName);
-				} catch (@SuppressWarnings("unused") NoSuchMethodException lclE) {
+				} catch (NoSuchMethodException _) {
 					lclM2 = null;
 				}
 				
@@ -360,7 +360,7 @@ public abstract class FieldUtility {
 				
 				@SuppressWarnings("unchecked")
 				Class<? extends UserFacing/*<?>*/> lclChildType = (Class<? extends UserFacing/*<?>*/>) lclM.getReturnType().getComponentType();
-				Validate.notNull(lclChildType);
+				Objects.requireNonNull(lclChildType);
 				
 				lclResults.add(Pair.of(lclChildName, lclChildType));
 			}
@@ -376,7 +376,7 @@ public abstract class FieldUtility {
 
 	// This returns the live Set.
 	public static <P extends UserFacing/*<P>*/, C extends UserFacing/*<C>*/> Set<C> getChildren(P argParent, String argName, String argAccessorName) { // OPALFIXME
-		Validate.notNull(argParent);
+		Objects.requireNonNull(argParent);
 		Validate.notBlank(argName);
 		
 		String lclChildAccessorName = argAccessorName;

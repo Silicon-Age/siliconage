@@ -1,9 +1,8 @@
 package com.opal;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
 
 import com.siliconage.util.UnimplementedOperationException;
 
@@ -107,7 +106,7 @@ public abstract class AbstractIdentityOpalFactory<U extends IdentityUserFacing/*
 //	private int myLoads = 0;
 	
 	protected O forOpalKey(OpalKey<O> argOK, boolean argConcrete) throws PersistenceException {
-		Validate.notNull(argOK);
+		Objects.requireNonNull(argOK);
 		OpalCache<O> lclOC = getCache();
 		
 		/* Lock the OpalCache so that we can check for the Opal's existence (and load it, if necessary), in an atomic fashion. */
@@ -262,7 +261,7 @@ public abstract class AbstractIdentityOpalFactory<U extends IdentityUserFacing/*
 	
 	@Override
 	public int getFieldIndex(String argFieldName) {
-		Validate.notNull(argFieldName);
+		Objects.requireNonNull(argFieldName);
 		String[] lclFieldNames = getFieldNames();
 		for (int lclI = 0; lclI < lclFieldNames.length; ++lclI) {
 			if (argFieldName.equals(lclFieldNames[lclI])) {
@@ -286,7 +285,7 @@ public abstract class AbstractIdentityOpalFactory<U extends IdentityUserFacing/*
 	 * calls this should be Opal.reload(). */
 	@Override
 	public void reload(O argOpal) throws PersistenceException {
-		Validate.notNull(argOpal);
+		Objects.requireNonNull(argOpal);
 		
 		throw new UnimplementedOperationException();
 		

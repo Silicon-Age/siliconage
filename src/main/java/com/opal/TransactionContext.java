@@ -7,6 +7,7 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -96,7 +97,7 @@ public class TransactionContext implements AutoCloseable {
 	
 	@SuppressWarnings("resource")
 	public void add(TransactionAware argItem) {
-		Validate.notNull(argItem);
+		Objects.requireNonNull(argItem);
 		if (lockOrThrow()) {
 			try {
 				if (getCommitStep() != NOT_CURRENTLY_COMMITTING) {
@@ -124,7 +125,7 @@ public class TransactionContext implements AutoCloseable {
 	}
 	
 	public void uponSuccessfulCommit(Runnable argAction) {
-		Validate.notNull(argAction);
+		Objects.requireNonNull(argAction);
 		if (lockOrThrow()) {
 			try {
 				if (getCommitStep() != NOT_CURRENTLY_COMMITTING) {
@@ -147,7 +148,7 @@ public class TransactionContext implements AutoCloseable {
 	}
 	
 	public void uponFailure(Runnable argAction) {
-		Validate.notNull(argAction);
+		Objects.requireNonNull(argAction);
 		if (lockOrThrow()) {
 			try {
 				if (getCommitStep() != NOT_CURRENTLY_COMMITTING) {
@@ -172,7 +173,7 @@ public class TransactionContext implements AutoCloseable {
 	
 	// FIXME: Wo calls this, and are they required to be synchronized/have the lock?	
 	protected TransactionAware[] arrangeOpals(ArrayList<TransactionAware> argTAs) {
-		Validate.notNull(argTAs, "Null TransactionAwares");
+		Objects.requireNonNull(argTAs, "Null TransactionAwares");
 		
 		Map<TransactionAware, Set<TransactionAware>> lclLinks = new IdentityHashMap<>((int) (argTAs.size() / 0.75)); // We really need a Multimap here, but Guava isn't a dependency
 		
@@ -280,7 +281,7 @@ public class TransactionContext implements AutoCloseable {
 				continue;
 			}
 			Set<TransactionAware> lclS = lclLinks.get(lclTA);
-			Validate.notNull(lclS);
+			Objects.requireNonNull(lclS);
 			while (lclS != null && lclS.isEmpty() == false) {
 				TransactionAware lclTA2 = null;
 				Iterator<TransactionAware> lclTAI = lclS.iterator();
@@ -311,7 +312,7 @@ public class TransactionContext implements AutoCloseable {
 			}
 			lclProperlyOrderedArray[lclPOI++] = lclTA;
 			lclS = lclLinks.remove(lclTA);
-			Validate.notNull(lclS);
+			Objects.requireNonNull(lclS);
 		}
 
 		if (lclLogging) {
@@ -348,6 +349,8 @@ public class TransactionContext implements AutoCloseable {
 		}
 	}
 	
+	/* I didn't want to do this here (instead labeling the various line that grab TransactionContexts, but Eclipse won't see that a throw line isn't problematic. */
+	@SuppressWarnings("resource")
 	public void commit() {
 		if (lockOrThrow()) {
 			try {
@@ -377,9 +380,10 @@ public class TransactionContext implements AutoCloseable {
 							
 							/* Sanity-check the list of Opals belonging to this Transaction */
 							for (TransactionAware lclItem : lclItems) {
-								Validate.notNull(lclItem);
+								Objects.requireNonNull(lclItem);
 								
-								if (lclItem.getTransactionContext() != this) {
+								var tc = lclItem.getTransactionContext();
+								if (tc != this) {
 									throw new IllegalStateException("lclItem.getTransactionContext() != this");
 								}
 								lclItem.ensureCommitStep(NOT_CURRENTLY_COMMITTING);
@@ -399,7 +403,7 @@ public class TransactionContext implements AutoCloseable {
 							
 							/* Execute a commit */
 							for (TransactionParameter lclTP : lclTPMap.values()) {
-								Validate.notNull(lclTP);
+								Objects.requireNonNull(lclTP);
 								lclTP.commitPhaseOne();
 							}
 							
@@ -493,7 +497,8 @@ public class TransactionContext implements AutoCloseable {
 							synchronized (lclItem) {
 								lclItem.leaveTransactionContext();
 								lclItem.ensureCommitStep(NOT_CURRENTLY_COMMITTING);
-								if (lclItem.getTransactionContext() != null) {
+								var tc = lclItem.getTransactionContext();
+								if (tc != null) {
 									ourLogger.error("TransactionAware item " + lclItem + " has non-null TransactionContext");
 								}
 							}
@@ -651,7 +656,8 @@ public class TransactionContext implements AutoCloseable {
 								synchronized (lclItem) {
 									lclItem.rollback();
 									lclItem.ensureCommitStep(NOT_CURRENTLY_COMMITTING);
-									if (lclItem.getTransactionContext() != null) {
+									var tc = lclItem.getTransactionContext(); // Why does declaring a temporary variable (instead of just checking the return value in the next line's guard condition prevent the warning?
+									if (tc != null) {
 										ourLogger.error("TransactionAware item " + lclItem + " did not have a null TransactionContext.");
 									}
 								}
@@ -670,7 +676,9 @@ public class TransactionContext implements AutoCloseable {
 					
 					setCommitStep(ROLLED_BACK);
 				} finally {
-					if (getActive() == this) {
+					@SuppressWarnings("resource")
+					var tc = getActive();
+					if (tc == this) {
 						setActive(null);
 					}
 					// ourLogger.atLevel(getLoggingLevel()).log("In the finally block for rolling back " + this);
@@ -695,7 +703,9 @@ public class TransactionContext implements AutoCloseable {
 				CommitStep lclCS = getCommitStep();
 				if (lclCS == COMMITTED || lclCS == ROLLED_BACK || lclCS == ROLLING_BACK) {
 					zeroStartCount();
-					if (getActive() == this) {
+					@SuppressWarnings("resource")
+					var tc = getActive();
+					if (tc == this) {
 						setActive(null);
 					}
 					return;
@@ -718,42 +728,52 @@ public class TransactionContext implements AutoCloseable {
 	
 	/* THINK: Do we need rollbackIfCreator? */
 	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext createAndActivate() {
 		return createAndActivate(DEFAULT_LOGGING_LEVEL, DEFAULT_TIME_OUT);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext createAndActivate(long argTimeOut) {
 		return createAndActivate(DEFAULT_LOGGING_LEVEL, argTimeOut);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext createAndActivate(Level argLoggingLevel) {
 		return createAndActivate(argLoggingLevel, DEFAULT_TIME_OUT);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext createAndActivate(Level argLoggingLevel, long argTimeOut) {
 		return activate(create(argLoggingLevel, argTimeOut));
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext create() {
 		return create(DEFAULT_LOGGING_LEVEL);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext create(Level argLoggingLevel) {
 		return create(argLoggingLevel, DEFAULT_TIME_OUT);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext create(long argTimeOut) {
 		return create(DEFAULT_LOGGING_LEVEL, argTimeOut);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext create(Level argLoggingLevel, long argTimeOut) {
 		return new TransactionContext(argLoggingLevel, argTimeOut);
 	}
 
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext joinActiveOrCreate() {
 		return joinActiveOrCreate(DEFAULT_TIME_OUT);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext joinActiveOrCreate(long argTimeOut) {
 		TransactionContext lclTC = getActive();
 		if (lclTC == null) {
@@ -766,17 +786,15 @@ public class TransactionContext implements AutoCloseable {
 			} finally {
 				lclTC.getLock().unlock();
 			}
-//			} else {
-//				throw new IllegalStateException("Unable to acquire the lock in joinActiveOrCreate() for existing TransactionContext " + lclTC + " within timeout period.");
-//			}
 		}
 	}
 	
 	/* Static convenience methods for working with the Thread's active TransactionContext. */
 	
 	// FIXME: Verify synchronization/locking here.
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext activate(TransactionContext argTC) {
-		Validate.notNull(argTC);
+		Objects.requireNonNull(argTC);
 		TransactionContext lclCurrentlyActive = getActive();
 		if (lclCurrentlyActive != null) {
 			throw new IllegalStateException("Cannot activate " + argTC + " because " + lclCurrentlyActive + " is already active.");
@@ -794,30 +812,21 @@ public class TransactionContext implements AutoCloseable {
 		return argTC;
 	}
 
-//	@Deprecated
-//	public static void commitActive() {
-//		TransactionContext lclTC = getActive();
-//		Validate.notNull(lclTC);
-//		
-//		/* commit() now removes itself as the active TransactionContxt */
-//		lclTC.commit();
-//	}
-	
-	// FIXME: Verify synchronization/locking here.
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller may or may not need to close.
 	public static TransactionContext deactivateActive() {
 		/* Make sure we're in one */
 		TransactionContext lclTC = getActive();
-		Validate.notNull(lclTC, "deactivateActive() called with no active TransactionContext");
+		Objects.requireNonNull(lclTC, "deactivateActive() called with no active TransactionContext");
 		setActive(null);
 		return lclTC;
 	}
 	
-	// FIXME: Verify synchronization/locking here.
+	@SuppressWarnings("resource") // We call getActive() to check its status, but we don't assume responsibility for closing it.
 	public static void assertActive() {
 		Validate.notNull(getActive(), "assertActive() called with no active TransactionContext.");
 	}
 	
-	// FIXME: Verify synchronization/locking here.
+	@SuppressWarnings("resource") // We call getActive() to check its status, but we don't assume responsibility for closing it.
 	public static void assertNoActive() {
 		TransactionContext lclTC = getActive();
 		if (lclTC != null) {
@@ -825,10 +834,12 @@ public class TransactionContext implements AutoCloseable {
 		}
 	}
 	
+	@SuppressWarnings("resource") // The caller may or may not be responsible for closing the returned TransactionContext.
 	public static TransactionContext getActive() {
 		return ourActiveTransactionContexts.get();
 	}
 	
+	@SuppressWarnings("resource") // We call getActive() to check its status, but we don't assume responsibility for closing it.
 	public static boolean hasActive() {
 		return getActive() != null;
 	}
@@ -843,6 +854,7 @@ public class TransactionContext implements AutoCloseable {
 		// ourLogger.atLevel(getLoggingLevel()).log("Setting active TC to " + String.valueOf(argTC));
 		
 //		synchronized (ourActiveTransactionContexts) { // THINK: Does one really have to synchronize on a ThreadLocal?
+			@SuppressWarnings("resource")
 			final TransactionContext lclTC = ourActiveTransactionContexts.get();
 			
 			if (lclTC != null) {
@@ -874,6 +886,7 @@ public class TransactionContext implements AutoCloseable {
 		// ourLogger.atLevel(getLoggingLevel()).log("Done setting TC");
 	}
 	
+	@SuppressWarnings("resource") // We call getActive() to check its status, but we don't assume responsibility for closing it.
 	public static void rollbackActive() {
 		TransactionContext lclTC = getActive();
 		Validate.notNull(lclTC, "rollbackActive() called with no active TransactionContext.");
@@ -881,6 +894,7 @@ public class TransactionContext implements AutoCloseable {
 		lclTC.rollback();
 	}
 	
+	@SuppressWarnings("boxing") // We box everything!
 	/* This is to be used for debugging/diagnostic purposes only.  It is not synchronized so it can be executed even when 
 	 * the general TransactionContext system is locked up.
 	 */

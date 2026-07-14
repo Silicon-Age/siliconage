@@ -5,7 +5,6 @@ import java.util.List;
 /**
  * @author topquark
  */
-@Deprecated
 public class BasicStringValidator extends FieldValidator {
 	private final boolean myNullAllowed;
 	private final int myMinLength;

@@ -1,10 +1,9 @@
 package com.opal;
 
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
-
-import org.apache.commons.lang3.Validate;
 
 public abstract class AbstractEphemeralOpalFactory<U extends UserFacing/*<U>*/, O extends Opal<U>> implements OpalFactory<U, O> { // OPALFIXME
 
@@ -93,7 +92,7 @@ public abstract class AbstractEphemeralOpalFactory<U extends UserFacing/*<U>*/, 
 	
 	@Override
 	public int getFieldIndex(String argFieldName) {
-		Validate.notNull(argFieldName);
+		Objects.requireNonNull(argFieldName);
 		String[] lclFieldNames = getFieldNames();
 		for (int lclI = 0; lclI < lclFieldNames.length; ++lclI) {
 			if (argFieldName.equals(lclFieldNames[lclI])) {

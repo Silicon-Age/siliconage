@@ -1,11 +1,10 @@
 package com.opal;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.Validate;
 
 /**
  * @author topquark
@@ -14,8 +13,7 @@ public abstract class AbstractFactory<U extends UserFacing/*<U>*/, O extends Opa
 	private final OpalFactory<U, O> myOpalFactory;
 	
 	protected AbstractFactory(OpalFactory<U, O> argOF) {
-		Validate.notNull(argOF);
-		myOpalFactory = argOF;
+		myOpalFactory = Objects.requireNonNull(argOF);
 	}
 	
 	protected OpalFactory<U, O> getOpalFactory() {
@@ -32,8 +30,8 @@ public abstract class AbstractFactory<U extends UserFacing/*<U>*/, O extends Opa
 	
 	@Override
 	public <T extends Collection<? super U>> T acquireForQuery(T argCollection, Query argQuery) {
-		Validate.notNull(argCollection);
-		Validate.notNull(argQuery);
+		Objects.requireNonNull(argCollection);
+		Objects.requireNonNull(argQuery);
 		
 		ArrayList<O> lclAL = new ArrayList<>();
 		getOpalFactory().acquireForQuery(lclAL, argQuery);

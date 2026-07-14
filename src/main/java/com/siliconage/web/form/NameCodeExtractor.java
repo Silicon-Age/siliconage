@@ -3,12 +3,11 @@ package com.siliconage.web.form;
 import java.util.Comparator;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.Validate;
 
 /**
  * @author topquark
@@ -21,7 +20,7 @@ public abstract class NameCodeExtractor<C> implements DropdownEntryAssembler<C> 
 	
 	@Override
 	public <K> List<DropdownEntry<?>> assemble(Collection<C> argChoices, Predicate<C> argSelectCondition, Predicate<C> argDisableCondition, DropdownEntryAssemblerGroupingSpecification<C, K> argGrouper) {
-		Validate.notNull(argChoices); // but it may be empty
+		Objects.requireNonNull(argChoices); // but it may be empty
 		// argSelectCondition may be null, which will be interpreted as not selecting any
 		// argDisableCondition may be null, which will be interpreted as not disabling any
 		

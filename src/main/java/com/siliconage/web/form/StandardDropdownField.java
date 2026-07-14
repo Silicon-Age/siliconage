@@ -4,9 +4,8 @@ import java.util.Collections;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.ArrayList;
-
-import org.apache.commons.lang3.Validate;
 
 public class StandardDropdownField<T extends StandardDropdownField<?, C>, C> extends DropdownField<T, C> {
 	private List<DropdownEntry<?>> myPreEntries = new ArrayList<>();
@@ -22,8 +21,8 @@ public class StandardDropdownField<T extends StandardDropdownField<?, C>, C> ext
 	}
 	
 	protected T add(List<DropdownEntry<?>> argTarget, Collection<? extends DropdownEntry<?>> argSource) {
-		Validate.notNull(argTarget);
-		Validate.notNull(argSource);
+		Objects.requireNonNull(argTarget);
+		Objects.requireNonNull(argSource);
 		
 		argTarget.addAll(argSource);
 		

@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -166,7 +167,7 @@ public abstract class OpalRestlet<U extends IdentityUserFacing/*<U>*/, A> extend
 		try {
 			return Integer.parseInt(argS);
 		} catch (NumberFormatException lclE) {
-			throw new RestResultException(RestResult.badRequest("Invalid integer \"" + argS + "\""));
+			throw new RestResultException(RestResult.badRequest("Invalid integer \"" + argS + "\"", lclE));
 		}
 	}
 	
@@ -261,14 +262,14 @@ public abstract class OpalRestlet<U extends IdentityUserFacing/*<U>*/, A> extend
 	
 	@SuppressWarnings("unused")
 	protected RestResult processEntityGet(HttpServletRequest argRequest, A argCredential, U argUF) {
-		Validate.notNull(argUF);
+		Objects.requireNonNull(argUF);
 		
 		return RestResult.ok(toJson(argUF));
 	}
 	
 	@SuppressWarnings("unused")
 	protected RestResult processEntityChildGet(HttpServletRequest argRequest, String argChildCollection, A argCredential, U argUF) throws RestResultException {
-		Validate.notNull(argUF);
+		Objects.requireNonNull(argUF);
 		throw new RestResultException(RestResult.internalError("Default implementation of processEntityChildGet invoked",  null));
 	}
 	
@@ -326,13 +327,13 @@ public abstract class OpalRestlet<U extends IdentityUserFacing/*<U>*/, A> extend
 				ourLogger.error(lclE.getMessage(), lclE);
 				lclRR = RestResult.internalError("Could not read body for parsing into Json", lclE);
 			} catch (RestResultException lclE) {
-				lclRR = Validate.notNull(lclE.getRestResult());
+				lclRR = Objects.requireNonNull(lclE.getRestResult());
 	//		} catch (Exception lclE) {
 	//			ourLogger.error(lclE.getMessage(), lclE);
 	//			throw lclE;
 			}
 		}
-		Validate.notNull(lclRR);
+		Objects.requireNonNull(lclRR);
 		sendResponse(argResponse, lclRR);
 		return;
 	}
@@ -431,9 +432,10 @@ public abstract class OpalRestlet<U extends IdentityUserFacing/*<U>*/, A> extend
 	protected boolean requestBodyMustBeValidJson() {
 		return false;
 	}
-	
+
+	@SuppressWarnings("resource") // We access argRequest's Writer, but we are not responsible for closing it.
 	protected void sendResponse(HttpServletResponse argResponse, RestResult argRR) /* throws IOException */ {
-		Validate.notNull(argRR);
+		Objects.requireNonNull(argRR);
 		argResponse.setContentType(CONTENT_TYPE); // THINK: How is the JsonFilter supposed to work?
 		int lclSC = argRR.getStatusCode();
 		argResponse.setStatus(lclSC);
@@ -483,9 +485,9 @@ public abstract class OpalRestlet<U extends IdentityUserFacing/*<U>*/, A> extend
 //		
 //		sendResponse(argResponse, lclErrorAsJson);
 //	}
-	
+	@SuppressWarnings("resource") // We access argRequest's Reader, but we are not responsible for closing it.
 	protected JsonElement requestBodyToJson(final HttpServletRequest argRequest) throws JsonIOException, JsonSyntaxException, IOException {
-		Validate.notNull(argRequest);
+		Objects.requireNonNull(argRequest);
 		
 		try {
 			return new JsonParser().parse(argRequest.getReader()); // THINK: Do we need to create a new JsonParser every time?

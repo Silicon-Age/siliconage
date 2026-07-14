@@ -4,10 +4,9 @@ import java.util.Collections;
 import java.util.Collection;
 import java.util.Set;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
-
-import org.apache.commons.lang3.Validate;
 
 import com.siliconage.util.UnimplementedOperationException;
 
@@ -85,7 +84,7 @@ public abstract class AbstractMoneIdentityOpalFactory<U extends IdentityUserFaci
 	/* I'd like this to be protected */
 	@Override
 	public TransactionParameter extractTransactionParameter(Map<DataSource, TransactionParameter> argTPMap) throws PersistenceException {
-		Validate.notNull(argTPMap);
+		Objects.requireNonNull(argTPMap);
 
 		return null;
 	}

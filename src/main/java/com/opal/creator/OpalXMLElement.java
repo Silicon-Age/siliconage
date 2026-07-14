@@ -2,8 +2,7 @@ package com.opal.creator;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -39,7 +38,7 @@ public abstract class OpalXMLElement extends XMLElement {
 	}
 	
 	protected Element getSingleChildElement(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		Element lclFound = null;
 		for (Element lclE : getChildElements()) {
 			if (argName.equals(lclE.getNodeName())) {
@@ -54,7 +53,7 @@ public abstract class OpalXMLElement extends XMLElement {
 	}
 	
 	protected String getSingleChildContent(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		Element lclE = getSingleChildElement(argName);
 		if (lclE == null) {
 			return null;
@@ -64,7 +63,7 @@ public abstract class OpalXMLElement extends XMLElement {
 	}
 	
 	protected Node getSingleChildNode(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		Node lclFound = null;
 		NodeList lclList = getNode().getChildNodes();
 		int lclLength = lclList.getLength();
@@ -96,7 +95,7 @@ public abstract class OpalXMLElement extends XMLElement {
 	}
 	
 	protected List<Element> getChildElements(String argName) {
-		Validate.notNull(argName);
+		Objects.requireNonNull(argName);
 		
 		ArrayList<Element> lclAL = new ArrayList<>();
 		NodeList lclList = getNode().getChildNodes();

@@ -52,6 +52,7 @@ public class Cache<K, V> implements Map<K, V> {
 	}
 	
 	@Override
+	@SuppressWarnings("unlikely-arg-type") // We can't cast argKey to K before passing it to the backing Map.
 	public V remove(Object argKey) {
 		if (argKey == null) {
 			throw new IllegalArgumentException("argKey is null");
@@ -66,7 +67,7 @@ public class Cache<K, V> implements Map<K, V> {
 	}
 	
 	/* Form to make sure that we are removing the one that we think we are */
-	
+	@SuppressWarnings("unlikely-arg-type") // We can't cast argKey to K before passing it to the backing Map.	
 	public void removeWithVerify(Object argKey, Object argValue) {
 //		ourLogger.debug("Removing " + argOK + " (" + argOK.hashCode() + ") (expected to be " + argOpal + ") from " + this); 
 		Object lclRemoved = remove(argKey);
@@ -87,6 +88,7 @@ public class Cache<K, V> implements Map<K, V> {
 	}
 	
 	@Override
+	@SuppressWarnings("unlikely-arg-type") // We can't cast argKey to K before passing it to the backing Map.
 	public V get(Object argKey) {
 		if (argKey == null) {
 			throw new IllegalArgumentException("argKey is null");
@@ -197,6 +199,7 @@ public class Cache<K, V> implements Map<K, V> {
 	 * @see java.util.Map#containsKey(java.lang.Object)
 	 */
 	@Override
+	@SuppressWarnings("unlikely-arg-type") // We can't cast argKey to K before passing it to the backing Map.
 	public boolean containsKey(Object argKey) {
 		return get(argKey) != null;
 	}

@@ -1,6 +1,6 @@
 package com.opal;
 
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
 
 public abstract /* value */ class MultipleValueOpalKey<O extends Opal<? extends UserFacing>> extends OpalKey<O> { // OPALFIXME
 
@@ -10,8 +10,7 @@ public abstract /* value */ class MultipleValueOpalKey<O extends Opal<? extends 
 
 	protected MultipleValueOpalKey(Object[] argValues) {
 		super();
-		Validate.notNull(argValues);
-		myFields = argValues;
+		myFields = Objects.requireNonNull(argValues);
 	}
 	
 	@Override
@@ -65,7 +64,7 @@ public abstract /* value */ class MultipleValueOpalKey<O extends Opal<? extends 
 	// THINK: Is this really the ideal way to generate a hash code?  Probably there is research on this.
 	@Override
 	public final int hashCode() {
-		Validate.notNull(myFields);
+		Objects.requireNonNull(myFields);
 		
 		int lclHashCode = 0;
 		boolean lclAtLeastOneNotNullField = false;

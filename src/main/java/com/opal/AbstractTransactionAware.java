@@ -2,16 +2,16 @@ package com.opal;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang3.Validate;
-
 import static com.opal.CommitStep.*;
 
-public abstract class AbstractTransactionAware implements TransactionAware /* implements Serializable */ {
+@SuppressWarnings("resource") // This class owns (and accesses) a reference to a TransactionContext that is not responsible for closing.
+public abstract class AbstractTransactionAware implements TransactionAware {
 	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(AbstractTransactionAware.class.getName());
 	
 	private static final int TRY_MUTATE_TIMEOUT = 60 * 1000; // 60 seconds
@@ -26,7 +26,7 @@ public abstract class AbstractTransactionAware implements TransactionAware /* im
 	/* THINK: Do we know for sure that we will already be synchronized on this object before commitPhaseOne is called? */
 	@Override
 	public final synchronized void commitPhaseOne(Map<DataSource, TransactionParameter> argTPMap) throws PersistenceException {
-		Validate.notNull(argTPMap);
+		Objects.requireNonNull(argTPMap);
 //		assert argTPMap != null;
 		
 		ensureCommitStep(STARTED_PHASE_ONE);
@@ -46,7 +46,7 @@ public abstract class AbstractTransactionAware implements TransactionAware /* im
 	/* THINK: Do we know for sure that we will already be synchronized on this object before commitPhaseTwo is called? */
 	@Override
 	public final synchronized void commitPhaseTwo(Map<DataSource, TransactionParameter> argTPMap) throws PersistenceException {
-		Validate.notNull(argTPMap);
+		Objects.requireNonNull(argTPMap);
 		
 //		ourLogger.debug("commitPhaseTwo for " + defaultToString());
 		
@@ -99,7 +99,7 @@ public abstract class AbstractTransactionAware implements TransactionAware /* im
 	}
 
 	protected final synchronized void joinTransactionContext(TransactionContext argTC) {
-		Validate.notNull(argTC);
+		Objects.requireNonNull(argTC);
 		
 		TransactionContext lclOldTC = getTransactionContext();
 		if (lclOldTC == argTC) {
