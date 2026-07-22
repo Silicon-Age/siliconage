@@ -13,7 +13,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.opal.DatabaseQuery;
+import com.opal.AbstractDatabaseQuery;
 
 /* This class exists to provide a convenient way to populate Java records from a database query.  The quick guide to using it is that
  * you make a public record class for the data you want.  For instance;
@@ -276,7 +276,7 @@ public abstract class Records {
 	}
 
 	@SafeVarargs
-	public static <T extends Record> List<T> select(Connection conn, DatabaseQuery dq, T... typeDeducingVararg) throws SQLException {
+	public static <T extends Record> List<T> select(Connection conn, AbstractDatabaseQuery dq, T... typeDeducingVararg) throws SQLException {
 		if (conn == null) {
 			throw new IllegalArgumentException("conn is null.");
 		}
@@ -307,7 +307,7 @@ public abstract class Records {
 	}
 	
 	@SafeVarargs
-	public static <T extends Record> List<T> select(DataSource ds, DatabaseQuery dq, T... typeDeducingVararg) throws SQLException {
+	public static <T extends Record> List<T> select(DataSource ds, AbstractDatabaseQuery dq, T... typeDeducingVararg) throws SQLException {
 		if (ds == null) {
 			throw new IllegalArgumentException("ds is null.");
 		}

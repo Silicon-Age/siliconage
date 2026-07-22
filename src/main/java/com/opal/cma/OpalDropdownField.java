@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import com.siliconage.web.form.AssembledDropdownField;
 import com.siliconage.web.form.NameCodeExtractor;
-
+import com.opal.AbstractDatabaseQuery;
 import com.opal.DatabaseQuery;
 import com.opal.Factory;
 import com.opal.IdentityFactory;
@@ -23,7 +23,7 @@ public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends Iden
 	// private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(OpalDropdownField.class.getName());
 	
 	private IdentityFactory<U> myFactory;
-	private DatabaseQuery myQuery;
+	private AbstractDatabaseQuery myQuery;
 	private Predicate<U> myFilter = _ -> true;
 	private boolean myNewObjectForm;
 	private boolean myNullable = false;
@@ -80,11 +80,11 @@ public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends Iden
 		return castThis();
 	}
 	
-	public DatabaseQuery getQuery() {
+	public AbstractDatabaseQuery getQuery() {
 		return myQuery;
 	}
 	
-	public T query(DatabaseQuery argQuery) {
+	public T query(AbstractDatabaseQuery argQuery) {
 		myQuery = argQuery;
 		return castThis();
 	}
@@ -92,12 +92,11 @@ public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends Iden
 	public T query(String argSQL, Object... argParameters) {
 		Objects.requireNonNull(argSQL);
 		String lclSQL = argSQL.trim();
-		if (lclSQL.length() > 6) { // 6 == "select".length();
-			if (argSQL.toLowerCase().startsWith("select")) {
-				return query(new DatabaseQuery(lclSQL, argParameters));
-			}
+		if (argSQL.toLowerCase().startsWith("select")) {
+			return query(new DatabaseQuery(lclSQL, argParameters));
+		} else {
+			return query(new ImplicitTableDatabaseQuery(lclSQL, argParameters));
 		}
-		return query(new ImplicitTableDatabaseQuery(lclSQL, argParameters));
 	}
 	
 	public T filter(Predicate<U> argFilter) {
@@ -131,7 +130,7 @@ public class OpalDropdownField<T extends OpalDropdownField<?, U>, U extends Iden
 		} else {
 			Factory<U> lclFactory = Objects.requireNonNull(getFactory());
 			
-			DatabaseQuery lclDQ = getQuery();
+			AbstractDatabaseQuery lclDQ = getQuery();
 			
 			if (lclDQ == null) {
 				lclChoices.addAll(lclFactory.getAll());
