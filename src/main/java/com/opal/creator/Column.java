@@ -36,6 +36,11 @@ public class Column extends OpalXMLElement {
 			lclCM.suggestType(lclTypeName);
 		}
 		
+//		String lclEnumValues = getAttributeValue("Enum");
+//		if (lclEnumValues != null) {
+//			lclCM.setEnumValues(lclEnumValues);
+//		}
+		
 		String lclTypeParameter = getAttributeValue("TypeParameter");
 		if (lclTypeParameter != null) {
 			lclCM.setTypeParameter(lclTypeParameter);
