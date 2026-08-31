@@ -350,16 +350,14 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing/
 				"WHERE " + lclITDQ.getSQL(),
 				lclParameters
 			);
-		} else if (argQuery instanceof DatabaseQuery) {
-			DatabaseQuery lclDQ = (DatabaseQuery) argQuery;
-			
-			Object[] lclParameters = lclDQ.getParameters();
+		} else if (argQuery instanceof AbstractDatabaseQuery adq) {
+			Object[] lclParameters = adq.getParameters();
 			adjustParameters(lclParameters);
 			
 			return DatabaseUtility.select(
 				argConnection,
-				lclDQ.getSQL(),
-				lclDQ.getParameters()
+				adq.getSQL(),
+				adq.getParameters()
 			);
 		} else {
 			throw new IllegalArgumentException("This database-driven OpalFactory only understands DatabaseQuery objects; it was passed a " + argQuery.getClass().getName() + " that stringifies as \"" + argQuery + "\"");
@@ -377,7 +375,7 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing/
 		try (Connection lclC = getDataSource().getConnection();
 			ResultSet lclRS = createResultSet(lclC, argQuery)) {
 			
-			acquireFromResultSet(lclRS, argCollection, ((DatabaseQuery) argQuery).areColumnsInCanonicalOrder());
+			acquireFromResultSet(lclRS, argCollection, ((AbstractDatabaseQuery) argQuery).areColumnsInCanonicalOrder());
 			long lclF = System.currentTimeMillis();
 			com.siliconage.database.DatabaseUtility.ourTally.tally("Acquiring from " + getFullyQualifiedTableName() + " for " + argQuery, lclF - lclA);
 			return;

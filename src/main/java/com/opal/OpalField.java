@@ -60,7 +60,7 @@ public interface OpalField<U extends UserFacing/*<U>*/, T> { // OPALFIXME
 	}
 	// THINK: set-with-conversion?
 	
-	default DatabaseQuery query(T argSearchValue) {		
+	default AbstractDatabaseQuery query(T argSearchValue) {		
 		String lclColumnName = (String) getSourceMetadata();
 		String lclSQL;
 		if (argSearchValue != null) {

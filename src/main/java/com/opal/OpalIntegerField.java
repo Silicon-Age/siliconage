@@ -27,7 +27,7 @@ public class OpalIntegerField <U extends UserFacing/*<U>*/> extends OpalSpecific
 		return myMaximumValue;
 	}
 
-	public DatabaseQuery query(int argSearchValue) {
+	public AbstractDatabaseQuery query(int argSearchValue) {
 		return query(Integer.valueOf(argSearchValue));
 	}
 	

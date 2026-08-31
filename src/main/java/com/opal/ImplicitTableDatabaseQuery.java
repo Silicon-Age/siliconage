@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * @author topquark
  */
-public class ImplicitTableDatabaseQuery extends DatabaseQuery {
+public class ImplicitTableDatabaseQuery extends AbstractDatabaseQuery {
 	/**
 	 * @param argSQL The SQL statement to execute, without the SELECT or FROM clauses
 	 */

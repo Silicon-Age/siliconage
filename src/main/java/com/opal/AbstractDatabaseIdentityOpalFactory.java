@@ -617,7 +617,7 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 			lclRS = createResultSet(lclConnection, argQuery);
 //			long lclD = System.currentTimeMillis();
 //			System.out.println("C to D = " + (lclD - lclC) + " ms.");
-			acquireFromResultSet(lclRS, argCollection, ((DatabaseQuery) argQuery).areColumnsInCanonicalOrder());
+			acquireFromResultSet(lclRS, argCollection, ((AbstractDatabaseQuery) argQuery).areColumnsInCanonicalOrder());
 //			lclE = System.currentTimeMillis();
 //			System.out.println("D to E = " + (lclE - lclD) + " ms.");
 		} catch (SQLException lclEx) {
