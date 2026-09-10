@@ -34,7 +34,6 @@ public abstract class TransactionalOpal<U extends UserFacing/*<U>*/> extends Abs
 		super();
 		
 		myAbstractOpalFactory = Objects.requireNonNull(argOpalFactory);
-		
 		initializeReferences();
 	}
 	

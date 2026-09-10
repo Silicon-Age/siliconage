@@ -15,7 +15,7 @@ public abstract non-sealed class UpdatableOpal<U extends IdentityUserFacing/*<U>
 	private Object[] myOldValues;
 	private Object[] myNewValues;
 	
-	protected UpdatableOpal(){
+	protected UpdatableOpal() {
 		super();
 	}
 	
