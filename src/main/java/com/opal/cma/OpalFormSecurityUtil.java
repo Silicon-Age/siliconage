@@ -31,12 +31,16 @@ import com.siliconage.web.form.HiddenField;
 	static {
 		try {
 			InitialContext lclIC = new InitialContext();
-			String lclSecuritySalt = (String) lclIC.lookup("java:comp/env/opal/forms/salt");
-			if (StringUtils.isBlank(lclSecuritySalt)) {
-				ourLogger.warn("No OpalForms security salt was provided in the InitialContext; OpalForms security will not be very effective");
-				// STATIC_SALT will be null, which means it's not used, which means the digest is made exclusively from content that the user has access to
-			} else {
-				STATIC_SALT = lclSecuritySalt;
+			try {
+				String lclSecuritySalt = (String) lclIC.lookup("java:comp/env/opal/forms/salt");
+				if (StringUtils.isBlank(lclSecuritySalt)) {
+					ourLogger.warn("No OpalForms security salt was provided in the InitialContext; OpalForms security will not be very effective");
+					// STATIC_SALT will be null, which means it's not used, which means the digest is made exclusively from content that the user has access to
+				} else {
+					STATIC_SALT = lclSecuritySalt;
+				}
+			} finally {
+				lclIC.close();
 			}
 		} catch (NamingException lclE) {
 			ourLogger.warn("Couldn't look up OpalForms security salt; OpalForms security will not be very effective", lclE);
