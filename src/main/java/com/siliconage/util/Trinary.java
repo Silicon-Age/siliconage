@@ -88,26 +88,38 @@ public enum Trinary {
 		return StringUtils.isBlank(argString) ? UNKNOWN : valueOf(argString.toUpperCase());
 	}
 	
-	public static Trinary valueOf(Boolean argBoolean) {
+	public static Trinary of(Boolean argBoolean) {
 		return argBoolean == null ? UNKNOWN : valueOf(argBoolean.booleanValue());
 	}
 	
-	public static Trinary valueOf(boolean argBoolean) {
+	public static Trinary valueOf(Boolean argBoolean) {
+		return of(argBoolean);
+	}
+	
+	public static Trinary of(boolean argBoolean) {
 		return argBoolean ? TRUE : FALSE;
 	}
 	
-	public static Trinary valueOf(Object argO) {
+	public static Trinary valueOf(boolean argBoolean) {
+		return of(argBoolean);
+	}
+	
+	public static Trinary of(Object argO) {
 		if (argO == null) {
 			return UNKNOWN;
-		} else if (argO instanceof Trinary) {
-			return (Trinary) argO;
-		} else if (argO instanceof Boolean) {
-			return valueOf((Boolean) argO);
-		} else if (argO instanceof String) {
-			return valueOf((String) argO);
+		} else if (argO instanceof Trinary t) {
+			return t;
+		} else if (argO instanceof Boolean b) {
+			return valueOf(b);
+		} else if (argO instanceof String s) {
+			return fromString(s);
 		} else {
-			return valueOf(argO.toString()); // which may not work
+			return fromString(argO.toString()); // which may not work
 		}
+	}
+	
+	public static Trinary valueOf(Object argO) {
+		return of(argO);
 	}
 	
 	/**
