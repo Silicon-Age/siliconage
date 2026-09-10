@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.JDBCType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -651,12 +652,15 @@ public abstract class DatabaseUtility {
 			argPS.setString(argIndex, String.valueOf(c)); // Is this still necessary with the Microsoft JDBC Driver?
 			break;
 		case Date date:
+			log.warn("Encountered java.sql.Date while setting query parameter.");
 			argPS.setDate(argIndex, date);
 			break;
 		case Time time:
+			log.warn("Encountered java.sql.Time while setting query parameter.");
 			argPS.setTime(argIndex, time);
 			break;
 		case Timestamp ts:
+			log.warn("Encountered java.sql.Timestamp while setting query parameter.");
 			argPS.setTimestamp(argIndex, ts);
 			break;
 		case String s:
@@ -672,12 +676,12 @@ public abstract class DatabaseUtility {
 			}
 			break;
 		case java.time.LocalDate ld:
-			log.warn("Encountered LocalDate while setting query parameter.");
-			argPS.setObject(argIndex, ld);
+//			log.warn("Encountered LocalDate while setting query parameter.");
+			argPS.setObject(argIndex, ld, JDBCType.DATE);
 			break;
 		case java.time.LocalDateTime ldt:
-			log.warn("Encountered LocalDateTime while setting query parameter.");
-			argPS.setObject(argIndex, ldt);
+//			log.warn("Encountered LocalDateTime while setting query parameter.");
+			argPS.setObject(argIndex, ldt, JDBCType.TIMESTAMP);
 			break;
 		default:
 			argPS.setObject(argIndex, argV);
