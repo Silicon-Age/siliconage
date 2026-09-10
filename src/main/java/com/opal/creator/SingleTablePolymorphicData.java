@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * @author topquark
  */
-public class SingleTablePolymorphicData extends PolymorphicData {
+public final class SingleTablePolymorphicData extends PolymorphicData {
 	private final ArrayList<String> myDereferenceMethods = new ArrayList<>();
 	private final ArrayList<String> myDereferenceNames = new ArrayList<>();
 	private final ArrayList<MappedForeignKey> myDereferenceKeys = new ArrayList<>();

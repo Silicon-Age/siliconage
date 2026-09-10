@@ -3,7 +3,7 @@ package com.opal.creator;
 /**
  * @author topquark
  */
-public abstract class PolymorphicData {
+public sealed abstract class PolymorphicData permits SingleTablePolymorphicData, SubtablePolymorphicData {
 
 	protected PolymorphicData() {
 		super();
