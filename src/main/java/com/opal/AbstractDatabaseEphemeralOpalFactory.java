@@ -3,8 +3,6 @@ package com.opal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Set;
 import java.util.HashSet;
@@ -12,7 +10,7 @@ import java.util.Objects;
 
 import javax.sql.DataSource;
 
-import com.opal.types.StringSerializable;
+//import com.opal.types.StringSerializable;
 import com.siliconage.database.DatabaseUtility;
 
 /* This class provides a default implementation for OpalFactories that have the responsibilities of connecting to a specific
@@ -118,23 +116,10 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing/
 		}
 		
 		if (argWhereClauseColumnNames != null) {
-			for (int lclI = 0; lclI < argWhereClauseColumnNames.length; ++lclI) {
-				Object lclO = argParameters[lclI];
-				if (lclO instanceof java.time.LocalDate) {
-					argParameters[lclI] = java.sql.Date.valueOf((LocalDate) lclO);
-				} else if (lclO instanceof java.time.LocalDateTime){
-					argParameters[lclI] = java.sql.Timestamp.valueOf((LocalDateTime) lclO);
-				} else if (lclO instanceof StringSerializable) {
-					argParameters[lclI] = ((StringSerializable) lclO).toSerializedString();
-				} else {
-					// No conversion required
-				}
-			}
+			AbstractDatabaseIdentityOpalFactory.convertParametersToDatabaseAppropriateValues(argParameters);
 		}
 		
-//		System.out.println("About to call select");
 		ResultSet lclRS = DatabaseUtility.select(argConnection, lclSB.toString(), argParameters);
-//		System.out.println("Done with select");
 		
 		return lclRS; // This escaping ResultSet is why we suppress "resource" warnings.
 	}
@@ -316,22 +301,24 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing/
 		}
 	}
 	
-	/* CHECK: This method is shared with AbstractDatabaseOpalFactory; consolidate */
-	protected void adjustParameters(Object[] argParameters) {
-		if (argParameters == null) {
-			return;
-		}
-		for (int lclI = 0; lclI < argParameters.length; ++lclI) {
-			Object lclO = argParameters[lclI];
-			if (lclO instanceof LocalDate) {
-				argParameters[lclI] = java.sql.Date.valueOf((LocalDate) lclO);
-			} else if (lclO instanceof LocalDateTime) {
-				argParameters[lclI] = java.sql.Timestamp.valueOf((LocalDateTime) lclO);
-			} else {
-				/* Do nothing */
-			}
-		}
-	}
+//	/* CHECK: This method is shared with AbstractDatabaseOpalFactory; consolidate */
+//	protected void adjustParameters(Object[] argParameters) {
+//		if (argParameters == null) {
+//			return;
+//		}
+//		// FIXME: Why doesn't this need to deal with UTCDateTime or OffsetDateTime or StringSerializable values?
+//		// We should no longer need to pass java.time.* classes through their java.sql.* "equivalents"
+////		for (int lclI = 0; lclI < argParameters.length; ++lclI) {
+////			Object lclO = argParameters[lclI];
+////			if (lclO instanceof LocalDate) {
+////				argParameters[lclI] = java.sql.Date.valueOf((LocalDate) lclO);
+////			} else if (lclO instanceof LocalDateTime) {
+////				argParameters[lclI] = java.sql.Timestamp.valueOf((LocalDateTime) lclO);
+////			} else {
+////				/* Do nothing */
+////			}
+////		}
+//	}
 	
 	/* CHECK: This method is shared with AbstractDatabaseOpalFactory; consolidate */
 	@SuppressWarnings("resource") // Necessary because we return a ResultSet for the caller to close.
@@ -340,7 +327,7 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing/
 			ImplicitTableDatabaseQuery lclITDQ = (ImplicitTableDatabaseQuery) argQuery;
 			
 			Object[] lclParameters = lclITDQ.getParameters();
-			adjustParameters(lclParameters);
+			AbstractDatabaseIdentityOpalFactory.convertParametersToDatabaseAppropriateValues(lclParameters);
 			
 			return DatabaseUtility.select(
 				argConnection,
@@ -352,7 +339,7 @@ public abstract class AbstractDatabaseEphemeralOpalFactory<U extends UserFacing/
 			);
 		} else if (argQuery instanceof AbstractDatabaseQuery adq) {
 			Object[] lclParameters = adq.getParameters();
-			adjustParameters(lclParameters);
+			AbstractDatabaseIdentityOpalFactory.convertParametersToDatabaseAppropriateValues(lclParameters);
 			
 			return DatabaseUtility.select(
 				argConnection,
