@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 
@@ -361,7 +360,7 @@ public class OracleAdapter extends RelationalDatabaseAdapter {
 				return String.class;
 			}
 		} else if (lclS.equals("DATE")) {
-			return Timestamp.class;
+			return java.sql.Timestamp.class;
 		} else if (lclS.equals("NUMBER")) {
 			if (argDatabaseColumn.getScale() > 0) {
 				return Double.class; /* TODO:  Should some of these be Floats? */
