@@ -30,6 +30,7 @@ import com.siliconage.util.Trinary;
 import com.siliconage.web.HTMLUtility;
 
 import com.opal.ArgumentTooLongException;
+import com.opal.CheckConstraintException;
 import com.opal.FactoryCreator;
 import com.opal.FactoryPolymorphicCreator;
 import com.opal.FieldUtility;
@@ -651,9 +652,7 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 								lclMutator.invoke(lclUF, lclNewValue);
 							} catch (Exception lclE) {
 								String lclDisplayMessage;
-								if (lclE.getCause() instanceof ArgumentTooLongException) {
-									ArgumentTooLongException lclATLE = (ArgumentTooLongException) lclE.getCause();
-									
+								if (lclE.getCause() instanceof ArgumentTooLongException lclATLE) {
 									Integer lclOverage = lclATLE.getOverage();
 									if (lclOverage == null) {
 										lclDisplayMessage = "Could not update the " + argFieldName + " field because the argument was too long.";
@@ -663,11 +662,13 @@ public class OpalFormUpdater<U extends IdentityUserFacing/*<U>*/> { // OPALFIXME
 										
 										lclDisplayMessage = "Could not update the " + argFieldName + " field because the argument was " + lclCharacters + " too long.";
 									}
+								} else if (lclE.getCause() instanceof CheckConstraintException) {
+									lclDisplayMessage = "The new value " + lclNewValue + " for " + argFieldName + " violated a database-level integrity constraint.";
 								} else {
 									lclDisplayMessage = "Could not invoke mutator " + lclMutator + " to set " + argFieldName + " on " + lclUF.getClass() + " to " + lclNewValue;
+									ourLogger.error(lclDisplayMessage, lclE);
 								}
 								
-								ourLogger.error(lclDisplayMessage, lclE);
 								addError(argFieldName, lclDisplayMessage);
 							}
 						}
