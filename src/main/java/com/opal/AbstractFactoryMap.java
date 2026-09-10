@@ -22,18 +22,18 @@ public abstract class AbstractFactoryMap implements Map<Class<? extends Identity
 	
 	protected abstract void initialize();
 	
-	protected Map<Class<? extends IdentityUserFacing>, IdentityFactory<?>> getMap() {
+	protected Map<Class<? extends IdentityUserFacing>, IdentityFactory<?>> getMap() { // FIXME: Back to private?
 		return myMap;
 	}
 	
 	// Delegating methods
 	@Override
 	public void clear() {
-		getMap().clear();
+		throw new UnsupportedOperationException("You cannot clear an AbstractFactoryMap.");
 	}
 	
 	/* The warning suppression here is a little frustrating.  Eclipse doesn't want me to pass an Object to the contains()
-	 * method of the backing map, but I can't just instanceof Class? extends IdentityUserFacing> because that's not
+	 * method of the backing map, but I can't just instanceof Class<? extends IdentityUserFacing> because that's not
 	 * reifiable.  I could check to see that key is an instance of Class and that that Class is assignable to
 	 * IdentityUserFacing, but that adds two type into something that might plausibly be called in a hot path.
 	 */
@@ -53,6 +53,17 @@ public abstract class AbstractFactoryMap implements Map<Class<? extends Identity
 	public Set<Map.Entry<Class<? extends IdentityUserFacing>, IdentityFactory<?>>> entrySet() {
 		return getMap().entrySet();
 	}
+	
+//	private static <T extends IdentityUserFacing> IdentityFactory<T> invokeGetInstance(Class<? extends IdentityFactory<T>> factoryClass) {
+//		try {
+//	        var method = factoryClass.getMethod("getInstance");
+//	        // Verify static?
+//	        Object result = method.invoke(null);
+//	        return factoryClass.cast(result);
+//	    } catch (ReflectiveOperationException e) {
+//	        throw new IllegalArgumentException("Could not invoke getInstance on " + factoryClass.getName() + ".", e);
+//	    }
+//	}
 	
 	@Override
 	@SuppressWarnings("unlikely-arg-type") // See note on containsKey()
@@ -77,13 +88,12 @@ public abstract class AbstractFactoryMap implements Map<Class<? extends Identity
 	
 	@Override
 	public void putAll(Map<? extends Class<? extends IdentityUserFacing>, ? extends IdentityFactory<?>> m) {
-		getMap().putAll(m);
+		throw new UnsupportedOperationException("You cannot add things to an AbstractFactoryMap.");
 	}
 	
 	@Override
-	@SuppressWarnings("unlikely-arg-type") // See note on containsKey()
 	public IdentityFactory<?> remove(Object key) {
-		return getMap().remove(key);
+		throw new UnsupportedOperationException("You cannot remove things from an AbstractFactoryMap.");
 	}
 	
 	@Override
