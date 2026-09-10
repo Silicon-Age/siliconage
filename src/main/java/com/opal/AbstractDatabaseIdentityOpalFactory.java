@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Set;
@@ -203,7 +201,7 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 			lclSB.append(argOrderBy);
 		}
 		
-		adjustParameters(lclParameters);
+		convertParametersToDatabaseAppropriateValues(lclParameters);
 		ResultSet lclRS = DatabaseUtility.select(argConnection, lclSB.toString(), lclParameters);
 		
 		return lclRS;
@@ -541,32 +539,15 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 	 * the user uses to construct queries) can't be used in that way.  This method runs through an array
 	 * of parameters containing programmer-facing values (e.g., LocalDates) and converts them into the objects
 	 * that need to be used as part of a SQL query (in this case, java.sql.Date).
-	 * 
-	 * It might be faster to check for the more common datatypes (e.g., Strings/Numbers) to avoid the majority
-	 * of these instanceof tests.  On the other hand, I haven't profiled the code to see that this is really
-	 * a bottleneck.
+	 * FIXME: This comment needs to be rewritten
 	 */
-	protected static void adjustParameters(Object[] argParameters) {
+	protected static void convertParametersToDatabaseAppropriateValues(Object[] argParameters) {
 		if (argParameters == null) {
 			return;
 		}
 		for (int lclI = 0; lclI < argParameters.length; ++lclI) {
-			Object lclO = argParameters[lclI];
-			argParameters[lclI] = switch (lclO) {
-			case LocalDate lclLD -> java.sql.Date.valueOf(lclLD);
-			case LocalTime lclLT -> java.sql.Time.valueOf(lclLT);
-			case LocalDateTime lclLDT -> java.sql.Timestamp.valueOf(lclLDT);
-			case UTCDateTime lclUDT -> java.sql.Timestamp.valueOf((lclUDT).toLocalDateTime()); // The local time in UTC
-			/* The following conversion is problematic, as the actual time zone of the OffsetDateTime is lost.  This
-			 * doesn't matter for the motivating use case of NAQT, but it will almost certainly cause problems
-			 * in other contexts.  However, there's not really a good SQL Server type to store a local date/time
-			 * and a time zone.  We'd need Opal to understand how to break this apart and store the components
-			 * in two separate columns (possibly without a good standard for how to represent the time zone).
-			 */
-			case OffsetDateTime lclODT -> java.sql.Timestamp.valueOf((lclODT).toLocalDateTime()); // FIXME: Loses zone data
-			case StringSerializable lclSS -> lclSS.toSerializedString();
-			default -> lclO;
-			};
+			Object o = argParameters[lclI];
+			argParameters[lclI] = translateJavaObjectToSQLValue(o);
 		}
 	}
 	
@@ -574,7 +555,7 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 	protected ResultSet createResultSet(Connection argConnection, Query argQuery) throws SQLException {
 		if (argQuery instanceof ImplicitTableDatabaseQuery lclITDQ) {
 			Object[] lclParameters = lclITDQ.getParameters();
-			adjustParameters(lclParameters);
+			convertParametersToDatabaseAppropriateValues(lclParameters);
 			
 			return DatabaseUtility.select(
 					argConnection,
@@ -586,7 +567,7 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 					);
 		} else if (argQuery instanceof DatabaseQuery lclDQ) {
 			Object[] lclParameters = lclDQ.getParameters();
-			adjustParameters(lclParameters);
+			convertParametersToDatabaseAppropriateValues(lclParameters);
 			
 			return DatabaseUtility.select(
 					argConnection,
@@ -768,33 +749,41 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 	/* This method has essentially the same content as adjustParameters, except it processes a single value at a
 	 * time.  I don't remember why it was broken out; I suspect that adjustParameters could be re-implemented in terms
 	 * of this method.
+	 * 
+	 * How slow does this end up being?
 	 */
-	protected Object translateJavaObjectToSQLValue(Object argO) { // THINK: Is this actually really slow?  Should we check Strings and Numbers first?
+	protected static Object translateJavaObjectToSQLValue(Object argO) { // THINK: Is this actually really slow?  Should we check Strings and Numbers first?
 		assert argO != null;
-		Object lclDatabaseValue;
-		if (argO instanceof LocalDate lclLD) {
-			lclDatabaseValue = java.sql.Date.valueOf(lclLD);
-		} else if (argO instanceof LocalTime lclLT) {
-			lclDatabaseValue = java.sql.Time.valueOf(lclLT);
-		} else if (argO instanceof LocalDateTime lclLDT) {
-			lclDatabaseValue = java.sql.Timestamp.valueOf(lclLDT);
-		} else if (argO instanceof UTCDateTime lclUDT) {
-			lclDatabaseValue = java.sql.Timestamp.valueOf((lclUDT).toLocalDateTime());
-		} else if (argO instanceof OffsetDateTime lclODT) {
-//			lclDatabaseValue = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format((OffsetDateTime) argO);
-			/* Note that this conversion loses the Zone data.  In effect, it assumes that the user only wants to store the local
-			 * date and time values in the database.  This is probably wrong in most cases (but correct for the specific NAQT
-			 * application that led to this datatype being supported), but most databases don't have "zoned datetime" columns,
-			 * so properly supporting this would require the ability to map multiple database columns into a single composite
-			 * Java object when loading.  We probably want that eventually, but it's going to be a pain.
-			 */
-			lclDatabaseValue = java.sql.Timestamp.valueOf((lclODT).toLocalDateTime());
-		} else if (argO instanceof StringSerializable lclSS) {
-			lclDatabaseValue = lclSS.toSerializedString();
-		} else {
-			lclDatabaseValue = argO;
-		}
-		return lclDatabaseValue;
+		return switch(argO) {
+		case UTCDateTime udt -> udt.toLocalDateTime(); // No actual conversion is going on.
+		case OffsetDateTime odt -> odt.toLocalDateTime(); // Discards time zone information, which will probably eventually bite us.
+		case StringSerializable ss -> ss.toSerializedString();
+		default -> argO;
+		};
+//		
+//		if (argO instanceof LocalDate lclLD) {
+//			lclDatabaseValue = java.sql.Date.valueOf(lclLD);
+//		} else if (argO instanceof LocalTime lclLT) {
+//			lclDatabaseValue = java.sql.Time.valueOf(lclLT);
+//		} else if (argO instanceof LocalDateTime lclLDT) {
+//			lclDatabaseValue = java.sql.Timestamp.valueOf(lclLDT);
+//		} else if (argO instanceof UTCDateTime lclUDT) {
+//			lclDatabaseValue = java.sql.Timestamp.valueOf((lclUDT).toLocalDateTime());
+//		} else if (argO instanceof OffsetDateTime lclODT) {
+////			lclDatabaseValue = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format((OffsetDateTime) argO);
+//			/* Note that this conversion loses the Zone data.  In effect, it assumes that the user only wants to store the local
+//			 * date and time values in the database.  This is probably wrong in most cases (but correct for the specific NAQT
+//			 * application that led to this datatype being supported), but most databases don't have "zoned datetime" columns,
+//			 * so properly supporting this would require the ability to map multiple database columns into a single composite
+//			 * Java object when loading.  We probably want that eventually, but it's going to be a pain.
+//			 */
+//			lclDatabaseValue = java.sql.Timestamp.valueOf((lclODT).toLocalDateTime());
+//		} else if (argO instanceof StringSerializable lclSS) {
+//			lclDatabaseValue = lclSS.toSerializedString();
+//		} else {
+//			lclDatabaseValue = argO;
+//		}
+//		return lclDatabaseValue;
 	}
 	
 	protected void populateUpdateMap(Map<String, Object> argMap, O argOpal) {

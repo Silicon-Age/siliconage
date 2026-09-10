@@ -666,19 +666,24 @@ public abstract class OpalForm<U extends IdentityUserFacing/*<U>*/> implements F
 				@SuppressWarnings("unchecked")
 				Class<T> lclReturnTypeOfAccessor = (Class<T>) lclAccessor.getReturnType();
 				
-				// CHECK: How slow is this?
-				try {
+				/* FIXME: Getting InitialContexts isn't enormously slow, but it would be better to do one lookup and then cache the
+				 * AbstractFactoryMap somewhere safe.
+				 */
+				try {					
 					InitialContext lclC = new InitialContext();
-					AbstractFactoryMap lclAFM = (AbstractFactoryMap) lclC.lookup(FACTORY_MAP_JNDI_KEY);
-					if (lclAFM == null) {
-						throw new IllegalStateException("Could not find instance of AbstractFactoryMap in the InitialContext under the key \"" + FACTORY_MAP_JNDI_KEY + "\".");
-					}
-					@SuppressWarnings("unchecked")
-					IdentityFactory<T> lclTempIF = (IdentityFactory<T>) lclAFM.get(lclReturnTypeOfAccessor); // lclTempIF only exists to suppress warnings
-					lclIF = lclTempIF;
-					
-				} catch (NamingException _) {
-					throw new IllegalStateException("Could not get an InitialContext or could not look up the FactoryMap.");
+					try {
+						AbstractFactoryMap lclAFM = (AbstractFactoryMap) lclC.lookup(FACTORY_MAP_JNDI_KEY);
+						if (lclAFM == null) {
+							throw new IllegalStateException("Could not find instance of AbstractFactoryMap in the InitialContext under the key \"" + FACTORY_MAP_JNDI_KEY + "\".");
+						}
+						@SuppressWarnings("unchecked")
+						IdentityFactory<T> lclTempIF = (IdentityFactory<T>) lclAFM.get(lclReturnTypeOfAccessor); // lclTempIF only exists to suppress warnings
+						lclIF = lclTempIF;
+					} finally {
+						lclC.close();
+					}						
+				} catch (NamingException e) {
+					throw new IllegalStateException("Could not get an InitialContext or could not look up the FactoryMap.", e);
 				}
 			} catch (NoSuchMethodException lclE) {
 				throw new IllegalStateException("Could not find accessor \"" + lclAccessorName + "\" on " + lclInterfaceClass.getName() + " to determine the proper return type.", lclE);

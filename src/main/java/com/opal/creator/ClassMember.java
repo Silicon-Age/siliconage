@@ -43,6 +43,8 @@ public class ClassMember {
 	// Other ClassMembers that depends on this ClassMember.
 	private final List<ClassMember> myDependents = new ArrayList<>();
 
+	private List<MappedCheckConstraint> myMappedCheckConstraints;
+	
 	private boolean myDeprecated = false;
 	private Trinary myPublic = Trinary.UNKNOWN;
 	// private String myAccessorMethodName; // null -> use default
@@ -196,6 +198,7 @@ public class ClassMember {
 		return getBaseMutatorName();
 	}
 	
+	// FIXME: Should there be a LocalDate or LocalDateTime in here?
 	public String getResultSetAccessor() {
 		Class<?> lclClass = getMemberType();
 		if (lclClass == Integer.class) {
@@ -227,6 +230,7 @@ public class ClassMember {
 		return myFieldIndex;
 	}
 	
+	// FIXME: Should there be a LocalDate or LocalDateTime in here?
 	public String getSKMInserter() {
 		Class<?> lclClass = getMemberType();
 		if (lclClass == int.class) {
@@ -569,6 +573,16 @@ public class ClassMember {
 	
 	public String getInverseObjectAccessorMethodNameOrDefault() {
 		return getInverseAccessorMethodNameOrDefault() + "AsObject";
+	}
+	
+	public List<MappedCheckConstraint> getMappedCheckConstraints() {
+		if (myMappedCheckConstraints == null) {
+			myMappedCheckConstraints = new ArrayList<>();
+			for (var cc : getDatabaseColumn().getCheckConstraints()) {
+				myMappedCheckConstraints.add(new MappedCheckConstraint(this, cc));
+			}
+		}
+		return myMappedCheckConstraints;
 	}
 	
 	public void outputAnnotations(PrintWriter argPW, MappedClass argMC) {

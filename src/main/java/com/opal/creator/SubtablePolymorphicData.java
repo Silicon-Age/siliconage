@@ -3,7 +3,7 @@ package com.opal.creator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SubtablePolymorphicData extends PolymorphicData {
+public final class SubtablePolymorphicData extends PolymorphicData {
 	private final ArrayList<String> myDereferenceMethods = new ArrayList<>();
 	private final ArrayList<String> myDereferenceNames = new ArrayList<>();
 	private final ArrayList<MappedForeignKey> myDereferenceKeys = new ArrayList<>();

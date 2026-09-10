@@ -171,7 +171,7 @@ public class TransactionContext implements AutoCloseable {
 		}
 	}
 	
-	// FIXME: Wo calls this, and are they required to be synchronized/have the lock?	
+	// FIXME: Who calls this, and are they required to be synchronized/have the lock?	
 	protected TransactionAware[] arrangeOpals(ArrayList<TransactionAware> argTAs) {
 		Objects.requireNonNull(argTAs, "Null TransactionAwares");
 		
@@ -795,12 +795,12 @@ public class TransactionContext implements AutoCloseable {
 	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext activate(TransactionContext argTC) {
 		Objects.requireNonNull(argTC);
-		TransactionContext lclCurrentlyActive = getActive();
+		TransactionContext lclCurrentlyActive = getActive(); // FIXME: Should this stuff be behind the lock?
 		if (lclCurrentlyActive != null) {
 			throw new IllegalStateException("Cannot activate " + argTC + " because " + lclCurrentlyActive + " is already active.");
 		}
-		argTC.lockOrThrow();
 		try {
+			argTC.lockOrThrow();
 			if (argTC.getCommitStep() != NOT_CURRENTLY_COMMITTING) {
 				throw new IllegalStateException(argTC + " cannot be activated because it is not in the " + NOT_CURRENTLY_COMMITTING + " state.");
 			}

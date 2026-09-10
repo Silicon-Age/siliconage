@@ -24,15 +24,20 @@ public abstract class LocalDateCache {
 	
 	private static void initCache() {
 		try {
+			String lclStartString;
+			String lclEndString;
 			InitialContext lclIC = new InitialContext();
-			
-			String lclStartString = (String) lclIC.lookup("java:comp/env/opal/localdatecache/start");
-			if (lclStartString == null) {
-				ourLogger.info("No LocalDateCache start date provided; cache disabled.");
-			}
-			String lclEndString = (String) lclIC.lookup("java:comp/env/opal/localdatecache/end");
-			if (lclEndString == null) {
-				ourLogger.info("No LocalDateCache end date provided; cache disabled.");
+			try {
+				lclStartString = (String) lclIC.lookup("java:comp/env/opal/localdatecache/start");
+				if (lclStartString == null) {
+					ourLogger.info("No LocalDateCache start date provided; cache disabled.");
+				}
+				lclEndString = (String) lclIC.lookup("java:comp/env/opal/localdatecache/end");
+				if (lclEndString == null) {
+					ourLogger.info("No LocalDateCache end date provided; cache disabled.");
+				}
+			} finally {
+				lclIC.close();
 			}
 			if (lclStartString == null || lclEndString == null) {
 				return;
@@ -104,16 +109,27 @@ public abstract class LocalDateCache {
 		return getDate(lclInstant, lclOffset);
 	}
 	
-	public static LocalDate cache(java.sql.Date argDate) {
+	/* This is package-private to discourage ordinary user code from using java.sql.Date.  I'd like to deprecate it,
+	 * but it is still called by methods internal to Opal.
+	 */
+	/* package */ static LocalDate cache(java.sql.Date argDate) {
+		ourLogger.warn("cache(java.sql.Date) invoked.");
 		if (argDate == null) {
 			return null;
+		}
+		if (argDate.getClass() != java.sql.Date.class) {
+			ourLogger.warn("cache(java.sql.Date) invoked with an instance of {}.", argDate.getClass());
 		}
 		Instant lclInstant = Instant.ofEpochMilli(argDate.getTime());
 		ZoneOffset lclOffset = ZoneId.systemDefault().getRules().getOffset(lclInstant);
 		return getDate(lclInstant, lclOffset);
 	}
 	
-	public static LocalDate cache(java.sql.Timestamp argTS) {
+	/* This is package-private to discourage ordinary user code from using java.sql.Timestamp.  I'd like to deprecate it,
+	 * but it is still called by methods internal to Opal.
+	 */
+	/* package */ static LocalDate cache(java.sql.Timestamp argTS) {
+		ourLogger.warn("cache(java.sql.Timestamp) invoked.");
 		if (argTS == null) {
 			return null;
 		}

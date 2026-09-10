@@ -1626,6 +1626,12 @@ public class MappedClass {
 		return getMultipleLookUpSpecifications().isEmpty() == false;
 	}
 	
+	public boolean hasAtLeastOneMappedCheckConstraint() {
+		return getClassMembers().stream()
+				.filter(ClassMember::isMapped)
+				.anyMatch(x -> x.getMappedCheckConstraints().size() > 0);
+	}
+	
 	public void setMone(Trinary argMone) {
 		Objects.requireNonNull(argMone);
 		myMone = argMone;

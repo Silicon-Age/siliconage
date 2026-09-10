@@ -39,6 +39,7 @@ import com.opal.AbstractIdentityImpl;
 import com.opal.AbstractImpl;
 import com.opal.AbstractMoneIdentityOpalFactory;
 import com.opal.ArgumentTooLongException;
+import com.opal.CheckConstraintException;
 import com.opal.EphemeralOpal;
 import com.opal.FactoryCreator;
 import com.opal.FactoryPolymorphicCreator;
@@ -77,6 +78,8 @@ import com.opal.annotation.Nullability;
 import com.opal.annotation.RequiresActiveTransaction;
 import com.opal.annotation.Updatability;
 import com.opal.creator.database.ReferentialAction;
+import com.opal.creator.database.CheckConstraintParser;
+import com.opal.creator.database.CheckConstraintParser.Supported;
 import com.opal.creator.database.DefaultValue;
 import com.opal.types.JavaClass;
 import com.opal.types.OpalBackCollectionDoubleSet;
@@ -1010,13 +1013,17 @@ public class ClassGenerator {
 			lclBW.println("package " + lclMC.getUserFacingPackageName() + ';');
 			lclBW.println();
 			
+			if (lclMC.hasAtLeastOneMappedCheckConstraint()) {
+				lclBW.println("import " + Trinary.class.getName() + ";");
+			}
+			
 			if (GENERATE_FIELD_CLASS) {
 				lclBW.println("import " + OpalField.class.getName() + ";");
 				if (GENERIC_USERFACING) {
 					lclBW.println("import " + lclMC.getFullyQualifiedInterfaceClassName() + ";");
 				}
+				lclBW.println();
 			}
-			lclBW.println(); // FIXME: Should really be inside the GENERATE_FIELD_CLASS block, but I'm trying to avoid merge conflicts
 			
 			/* Does this class have an intrinsic order? */
 			
@@ -1538,6 +1545,10 @@ public class ClassGenerator {
 				lclBW.println("\t\treturn (argSupplier != null) ? argSupplier." + lclMC.getSupplierAccessorName() + "() == this : false;");
 				lclBW.println("\t}");
 				lclBW.println();
+				lclBW.println("\tdefault boolean doesNotMatch(" + lclMC.getSupplierInterfaceName() + " argSupplier) {");
+				lclBW.println("\t\treturn matches(argSupplier) == false;");
+				lclBW.println("\t}");
+				lclBW.println();
 			}
 
 			for (MappedForeignKey lclMFK : lclMC.getForeignKeysTo()) {
@@ -1826,7 +1837,22 @@ public class ClassGenerator {
 				lclBW.println("\t}");
 				lclBW.println();
 			}
-						
+			
+			for (ClassMember lclCM : lclMC.getClassMembers()) {
+				if (lclCM.isMapped()) {
+					for (MappedCheckConstraint lclMCC : lclCM.getMappedCheckConstraints()) {
+						var pr = lclMCC.getParseResult();
+						if (pr instanceof Supported spr) {
+							String methodName = lclMCC.getMethodName();
+							String argumentName = lclMCC.getArgumentName(); 
+							String java = CheckConstraintParser.generateStaticValidationMethod(methodName, argumentName, 1, spr.check());
+							// FIXME: Comment linking it to CHECK constraint
+							lclBW.println(java); // FIXME: Needs indentation
+						}
+					}
+				}
+			}
+
 			lclBW.println("}");
 		} // Closes lclBW with try-with-resources
 	}
@@ -2298,17 +2324,19 @@ public class ClassGenerator {
 					}
 					
 					final Class<?> lclMemberType = lclCM.getMemberType();
-					final String lclMemberTypeName = lclCM.getMemberParameterizedTypeName(); // {OpalUtility.generateTypeName(lclMemberType);
+					final String lclMemberTypeName = lclCM.getMemberParameterizedTypeName();
 					
+					String oman = lclCM.getObjectMutatorArgumentName();
+
 					/* This mutator accepts an Object. */
-					lclBW.println("\tpublic synchronized " + lclMC.determineMutatorReturnType(lclOCN) + ' ' + lclCM.getObjectMutatorName() + "(final " + lclMemberTypeName + ' ' + lclCM.getObjectMutatorArgumentName() + ") {");
+					lclBW.println("\tpublic synchronized " + lclMC.determineMutatorReturnType(lclOCN) + ' ' + lclCM.getObjectMutatorName() + "(final " + lclMemberTypeName + ' ' + oman + ") {");
 					lclBW.println("\t\ttryMutate();");
-					
+
 					/* Cache whether or not the field for which we are creating a mutator is nullable. */
 					boolean lclNullable = lclCM.getDatabaseColumn().isNullable();
 					/* If it can't be null, create code to check whether the argument is null. */
 					if (!lclNullable) {
-						lclBW.println("\t\tif (" + lclCM.getObjectMutatorArgumentName() + " == null) {");
+						lclBW.println("\t\tif (" + oman + " == null) {");
 						lclBW.println("\t\t\tthrow new " + IllegalNullArgumentException.class.getName() + "(\"Cannot set " + lclCM.getMemberName() + " on \" + this + \" to null.\");");
 						lclBW.println("\t\t}");
 					}
@@ -2322,13 +2350,28 @@ public class ClassGenerator {
 							if (lclNullable) {
 								/* Yes.  We need to generate an if condition that guards against a NullPointerException
 								* from calling length() on the string. */
-								lclBW.println("\t\tif ((" + lclCM.getObjectMutatorArgumentName() + " != null) && (" + lclCM.getObjectMutatorArgumentName() + ".length() > " + lclMaxLength + ")) {");
+								lclBW.println("\t\tif ((" + oman + " != null) && (" + oman + ".length() > " + lclMaxLength + ")) {");
 							} else {
 								/* No.  We should generate an if condition without that check since it is redundant and
 								* will be flagged with a warning by modern compilers. */
-								lclBW.println("\t\tif (" + lclCM.getObjectMutatorArgumentName() + ".length() > " + lclMaxLength + ") {");
+								lclBW.println("\t\tif (" + oman + ".length() > " + lclMaxLength + ") {");
 							}
-							lclBW.println("\t\t\tthrow new " + ArgumentTooLongException.class.getName() + "(\"Cannot set " + lclCM.getMemberName() + " on \" + this + \" to \\\"\" + " + lclCM.getObjectMutatorArgumentName() + " + \"\\\" because that field's maximum length is " + lclMaxLength + ".\", " + lclCM.getObjectMutatorArgumentName() + ".length(), " + lclMaxLength + ");");
+							lclBW.println("\t\t\tthrow new " + ArgumentTooLongException.class.getName() + "(\"Cannot set " + lclCM.getMemberName() + " on \" + this + \" to \" + " + oman + " + \" because that field's maximum length is " + lclMaxLength + ".\", " + lclCM.getObjectMutatorArgumentName() + ".length(), " + lclMaxLength + ");");
+							lclBW.println("\t\t}");
+						}
+					}
+					
+					/* If there's a CHECK constraint on the column, apply it. */
+					for (MappedCheckConstraint mcc : lclCM.getMappedCheckConstraints()) {
+						if (mcc.getParseResult() instanceof Supported) {
+							String checkMethodName = mcc.getMethodName();
+							Class<?> primitiveType = ClassUtils.wrapperToPrimitive(lclMemberType);
+							if ((primitiveType != null) && (lclCM.isNullAllowed() == false)) {
+								lclBW.println("\t\tif (" + lclMC.getUserFacingClassName() + "." + checkMethodName + "(" + oman + "." + primitiveType + "Value()) == false) {");								
+							} else {
+								lclBW.println("\t\tif (" + lclMC.getUserFacingClassName() + "." + checkMethodName + "(" + oman + ") == false) {");
+							}
+							lclBW.println("\t\t\tthrow new " + CheckConstraintException.class.getName() + "(\"Cannot set " + lclCM.getMemberName() + " on \" + this + \" to \" + " + oman + " + \" because it violates a check constraint.\");");
 							lclBW.println("\t\t}");
 						}
 					}
@@ -2336,11 +2379,11 @@ public class ClassGenerator {
 					/* Does this ClassMember have a delegated method for validating the value? */
 					if (lclCM.getValidationMethodClassName() != null) {
 						/* Yes.  Call that first.  It will throw an Exception if there is a problem, so if execution continues, there was no problem. */
-						lclBW.println("\t\t" + lclCM.getValidationMethodClassName() + '.' + lclCM.getValidationMethodName() + "(" + lclCM.getObjectMutatorArgumentName() + ");");
+						lclBW.println("\t\t" + lclCM.getValidationMethodClassName() + '.' + lclCM.getValidationMethodName() + "(" + oman + ");");
 					} else {
 						/* No.  We therefore don't call any such method. */
 					}
-					lclBW.println("\t\tgetNewValues()[" + lclIndex + "] = " + lclCM.getObjectMutatorArgumentName() + ';');
+					lclBW.println("\t\tgetNewValues()[" + lclIndex + "] = " + oman + ';');
 					
 					/* After updating this particular field, we need to check to see if any computed fields depend on
 					 * the value of this one.  If they do, update those as well. */
@@ -2622,7 +2665,11 @@ public class ClassGenerator {
 							}
 						} else {
 							/* Assume the field is immutable.  FIXME: We should probably make an explicit list of types here, just so we 
-							 * don't get boned by some expecting type in the future.
+							 * don't get boned by some unexpected type in the future.
+							 * 
+							 * FIXME: Any record is okay
+							 * FIXME: Any enum is okay
+							 * FIXME: Any value class is okay
 							 */
 							lclAtLeastOneFieldToCopy = true;
 							lclSB.append("\t\tlclTargetNewValues[" + lclFI + "] = lclValues[" + lclFI + "]; /* " + lclCM.getBaseMemberName() + " (immutable) */" + System.lineSeparator());

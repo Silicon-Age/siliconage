@@ -199,7 +199,8 @@ public abstract class RelationalDatabaseAdapter {
 			lclBW.println("\t\treturn DATA_SOURCE_JNDI_NAME;");
 			lclBW.println("\t}");
 			lclBW.println();
-			
+
+			// FIXME: This should close its InitialContext
 			lclBW.println("\t@Override");
 			lclBW.println("\tpublic synchronized DataSource getDataSource() throws PersistenceException {");
 			lclBW.println("\t\tif (myDataSource == null) {");
@@ -1251,19 +1252,24 @@ public abstract class RelationalDatabaseAdapter {
 		try (PrintWriter lclBW = new PrintWriter(new BufferedWriter(new FileWriter(lclOpalClassFile)))) {
 			lclBW.println("package " + lclPackage + ';');
 			lclBW.println();
-			lclBW.println("import com.opal.AbstractFactoryMap;");
+			lclBW.println("import " + AbstractFactoryMap.class.getName() + ";");
 			lclBW.println();
 			lclBW.println("public class " + lclFM + " extends AbstractFactoryMap {");
 			lclBW.println();
-			lclBW.println("\tprivate static final " + lclFM + " ourInstance = new " + lclFM + "();");
+			lclBW.println("\tprivate static " + lclFM + " ourInstance = new " + lclFM + "();");
 			lclBW.println();
 			
 			/* A static accessor to obtain a reference to the singleton instance. */
 			
-			lclBW.println("\tpublic static FactoryMap getInstance() {");
-			lclBW.println("\t\treturn ourInstance;");
-			lclBW.println("\t}");
-			lclBW.println();
+			lclBW.println(
+					"""
+						public static synchronized FactoryMap getInstance() {
+							if (ourInstance == null) {
+								ourInstance = new FactoryMap();
+							}
+							return ourInstance;
+						}						
+					""");
 			
 			String lclCollections = argMappedClasses.stream().map(MappedClass::getCollections).filter(Objects::nonNull).findAny().orElse(null);
 			if (lclCollections != null) {

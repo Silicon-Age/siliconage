@@ -14,7 +14,7 @@ import java.time.temporal.TemporalUnit;
 
 /* THINK: Can this be done with an internal LocalDateTime? */
 
-public class UTCDateTime implements Serializable, Comparable<UTCDateTime>, Temporal, /* TemporalAccessor, */ TemporalAdjuster {
+public /* value */ class UTCDateTime implements Serializable, Comparable<UTCDateTime>, Temporal, /* TemporalAccessor, */ TemporalAdjuster {
 	private static final long serialVersionUID = 1L;
 	
 	// THINK: Can this be done with a LocalDateTime to save some memory and method invocations?
@@ -66,8 +66,9 @@ public class UTCDateTime implements Serializable, Comparable<UTCDateTime>, Tempo
 		return getInternal();
 	}
 	
-	/* Should this be toLocalDateTime?  asLocalDateTime? extractLocalDateTime?  They key idea is tha it gives the zoneless
-	 * LocalDateTime in UTC (as opposed to correcting it for whatever the default timezone of the server is).
+	/* Should this be toLocalDateTime?  asLocalDateTime? extractLocalDateTime?  They key idea is that it gives the zoneless
+	 * LocalDateTime in UTC (as opposed to correcting it for whatever the default timezone of the server is).  Maybe
+	 * reinterpretAsLocalDateTime?  toUnzonedLocalDateTime?
 	 */
 	public LocalDateTime toLocalDateTime() {
 		return getInternal().toLocalDateTime();
