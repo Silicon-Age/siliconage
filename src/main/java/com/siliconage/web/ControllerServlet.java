@@ -138,7 +138,7 @@ public abstract class ControllerServlet extends HttpServlet {
 			}
 			
 			argResponse.setStatus(HttpServletResponse.SC_SEE_OTHER);
-			argResponse.setHeader("Location", argResponse.encodeRedirectURL(lclDestination));
+			argResponse.setHeader("Location", encodeRedirectURL(argResponse, lclDestination));
 		} catch (WebException lclE) {
 			try {
 				argRequest.setAttribute("com.siliconage.web.exception.WebException", lclE);
@@ -153,6 +153,11 @@ public abstract class ControllerServlet extends HttpServlet {
 		} finally {
 			ourPassBacks.set(null);
 		}
+	}
+	
+	// This method exists to be overridden in case we want to use a different encoding technique.
+	protected String encodeRedirectURL(HttpServletResponse argResponse, String argDestination) {
+		return argResponse.encodeRedirectURL(argDestination);
 	}
 	
 	protected static Map<String, Object> getPassBack() {
