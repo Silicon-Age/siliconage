@@ -753,8 +753,8 @@ public abstract class AbstractDatabaseIdentityOpalFactory<U extends IdentityUser
 	 * How slow does this end up being?
 	 */
 	protected static Object translateJavaObjectToSQLValue(Object argO) { // THINK: Is this actually really slow?  Should we check Strings and Numbers first?
-		assert argO != null;
 		return switch(argO) {
+		case null -> null;
 		case UTCDateTime udt -> udt.toLocalDateTime(); // No actual conversion is going on.
 		case OffsetDateTime odt -> odt.toLocalDateTime(); // Discards time zone information, which will probably eventually bite us.
 		case StringSerializable ss -> ss.toSerializedString();

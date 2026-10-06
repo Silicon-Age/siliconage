@@ -113,7 +113,10 @@ public abstract class LocalDateCache {
 	 * but it is still called by methods internal to Opal.
 	 */
 	/* package */ static LocalDate cache(java.sql.Date argDate) {
-		ourLogger.warn("cache(java.sql.Date) invoked.");
+		/* FIXME: All uses of java.sql.Date should be removed from Opal.  I don't know to what extent those uses are hidden in
+		 * JDBC drivers that construct them from ResultSets (as opposed to Opal's own code).
+		 */
+		ourLogger.debug("cache(java.sql.Date) invoked.");
 		if (argDate == null) {
 			return null;
 		}
@@ -129,7 +132,10 @@ public abstract class LocalDateCache {
 	 * but it is still called by methods internal to Opal.
 	 */
 	/* package */ static LocalDate cache(java.sql.Timestamp argTS) {
-		ourLogger.warn("cache(java.sql.Timestamp) invoked.");
+		/* FIXME: All uses of java.sql.Date should be removed from Opal.  I don't know to what extent those uses are hidden in
+		 * JDBC drivers that construct them from ResultSets (as opposed to Opal's own code).
+		 */
+		ourLogger.debug("cache(java.sql.Timestamp) invoked.");
 		if (argTS == null) {
 			return null;
 		}
@@ -139,25 +145,20 @@ public abstract class LocalDateCache {
 	}
 	
 	public static LocalDate cache(LocalDate argLD) {
-//		System.out.println("Checking the cache for " + argLD);
 		if (argLD == null) {
 			return null;
 		}
 		if (ourCache == null) {
-//			System.out.println("No cache");
 			return argLD;
 		}
 		int lclNumber = toInt(argLD);
 		if (lclNumber == Integer.MIN_VALUE) {
-//			System.out.println("Out of absolute range");
 			return argLD;
 		}
 		if (lclNumber < ourStartNumber || lclNumber >= ourEndNumber) {
-//			System.out.println("Out of specified range");
 			return argLD;
 		}
 		LocalDate lclLD = ourCache[lclNumber - ourStartNumber];
-//		System.out.println("Cache for " + lclNumber + " is " + lclLD);
 		if (lclLD == null) {
 			return ourCache[lclNumber - ourStartNumber] = argLD;
 		} else {

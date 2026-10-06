@@ -53,6 +53,12 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	 */
 	private Set<C> myNewSet;
 	
+	/* This new member expands the memory footprint of every instance of this class, which is irritating, after I worked so
+	 * hard to slim it down.  As of right now, though, it seems to be necessary.  It indicates whether the cached
+	 * operations stored in myNewSet need to be resolved.  We previously resolved them immediately upon loading,
+	 * but the load could be triggered by a different Thread than the one that had cached the operations, and that
+	 * led to problems.  Except for the extra memory, this is probably better for performance.
+	 */ 
 	private boolean myCachedOperationsResolved;
 	
 	/* The Opal for which this is a back collection. */
@@ -93,17 +99,27 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		return getLoader().removalAllowed();
 	}
 	
-	protected /* synchronized */ Set<C> determineSet(boolean argX) {
+	/* This returns either the "old" (outside of a TransactionContext) child set or "new" (inside a TransactionContext) depending
+	 * on argX (true = new, false = old).  It guarantees that the set has been loaded from persistent storage and any necessary
+	 * cached operations resolved.
+	 * 
+	 * In practical terms, if the next thing you want to do is iterate over the Set and truly process all the child Opals that
+	 * should be there, this is what you want to call.
+	 */
+	protected /* synchronized */ Set<C> determineSetLoaded(boolean argX) {
 		ensureMonitor();
-		Set<C> set = Objects.requireNonNull(argX ? getNewSet() : getOldSet());
+		Set<C> set = Objects.requireNonNull(argX ? getNewSetLoaded() : getOldSetLoaded());
 		Set<C> sentinel = getSentinelOldSet();
 		Validate.isTrue(set != sentinel); // THINK: Eventually, we ought to be able to remove this check.
 		return set;
 	}
 
-	protected /* synchronized */ Set<C> determineSet() {
+	/* Depending on whether we are outside or inside the current Thread's TransactionContext, this returns either the old child set
+	 * or the new child set, guaranteeing that it has been loaded and had any necessary cached operations resolved.
+	 */
+	protected /* synchronized */ Set<C> determineSetLoaded() {
 		ensureMonitor();
-		Set<C> set = determineSet(tryAccess());
+		Set<C> set = determineSetLoaded(tryAccess());
 		Set<C> sentinel = getSentinelOldSet();
 		Validate.isTrue(set != sentinel); // THINK: Eventually, we ought to be able to remove this check.
 		return set;
@@ -132,13 +148,16 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		Validate.isTrue(isLoaded());
 	}
 	
+	/* This creates the appropriate Set to use for the "old" child set (taking advantage of the fact that they can
+	 * be unmodifiable).  Small sets are put into custom classes, large sets are just returned.
+	 */
 	private static <C> Set<C> store(Set<C> argCs) {
 		Objects.requireNonNull(argCs);
 		int lclSize = argCs.size();
 		if (lclSize == 0) {
 			return Collections.emptySet();
 		} else if (lclSize == 1) {
-			return Collections.singleton(argCs.iterator().next()); // THINK: Is there a better way to get this element?
+			return Collections.singleton(argCs.iterator().next()); // THINK: Is there a classier way to get this element?
 		} else if (lclSize <= 3) {
 			return new Fast3Set<>(argCs); // THINK: Should make an unmodifiable version of this for extra safety?
 		} else {
@@ -168,14 +187,31 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		Objects.requireNonNull(myOldSet, "myOldSet is null");
 	}
 	
+	// THINK: Can this ever be called when isLoaded is false?
 	@SuppressWarnings("resource")
 	protected /* synchronized */ void resolveCachedOperations() {
 		ensureMonitor();
-		Validate.isTrue(myOldSet != null);
 		Set<C> sentinel = getSentinelOldSet();
 		Validate.isTrue(myOldSet != sentinel);
 		Validate.isTrue(myCachedOperationsResolved == false);
+	
+		if (ourLogger.isDebugEnabled()) {
+			ourLogger.debug("resolveCachedOperations on {} belonging to {}.",
+					defaultToString(),
+					getOwner()
+					);
+		}
 		
+		if (isLoaded() == false) {
+			ourLogger.warn("resolvedCachedOperations called on {} belonging to {} when isLoaded() == false.",
+					defaultToString(),
+					getOwner()
+					);
+		}		
+		
+		/* Note that myOldSet can be null here.  If we grab a reference to an Opal and then immediately clear one of its
+		 * child collections, both myOldSet and myNewSet will be null and myCachedOperationsResolved will be false.
+		 */		
 		if (myNewSet != null) {
 			TransactionContext tc = TransactionContext.getActive();
 			if (tc == null) {
@@ -193,6 +229,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 						lclOwner.defaultToString()
 						);
 			}
+			ensureLoaded();
 			myNewSet = createSet(myOldSet);
 			for (C lclC : lclCachedOperations) {
 				P lclCurrentOwner = getLoader().getChildAccessor().apply(lclC);
@@ -260,21 +297,25 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 				}
 			}
 			Objects.requireNonNull(myNewSet, "myNewSet is null");
+			myCachedOperationsResolved = true;
+		} else if (isLoaded()) {
+			myNewSet = createSet(myOldSet);
+			myCachedOperationsResolved = true;
 		} else {
-			ourLogger.warn("In OpalBackCollectionDoubleSet::resolveCacheOperations, myNewSet is null.");
+			// Nothing to do
 		}
-		myCachedOperationsResolved = true;
+		// Note that resolveCachedOperations could, in theory, still be false here.
 	}
 		
-	/* This will not return null. */ 
-	protected /* synchronized */ Set<C> getOldSet() {
+	/* This returns the "old" (outside of a TransactionContext) child set guaranteeing that it has been loaded from persistent storage. */ 
+	protected /* synchronized */ Set<C> getOldSetLoaded() {
 		ensureMonitor();
 		ensureLoaded();
 		return Objects.requireNonNull(myOldSet);
 	}
 	
 	/* This will not return null. */ 
-	protected /* synchronized */ Set<C> getNewSet() {
+	protected /* synchronized */ Set<C> getNewSetForAddsAndRemoves() {
 		ensureMonitor();
 		if (myNewSet == null) {
 			if (isLoaded()) {
@@ -284,7 +325,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 							getOwner()
 							);
 				}
-				myNewSet = Objects.requireNonNull(createSet(getOldSet())); // FIXME: This may be unnecessary; do we actually need to copy it until we know we are changing things?  Can we handle Iterator.remove()?
+				myNewSet = Objects.requireNonNull(createSet(myOldSet)); // FIXME: This may be unnecessary; do we actually need to copy it until we know we are changing things?  Can we handle Iterator.remove()?
 			} else {
 				if (ourLogger.isDebugEnabled()) {
 					ourLogger.debug("Initializing myNewSet with a new set for cached operations in {} owned by {}.",
@@ -292,8 +333,24 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 							getOwner()
 							);
 				}
-				myNewSet = createSet(); // This will be a temporary Set in which to cache added and removed C's in the current TransactionContext.
+				Validate.isTrue(myCachedOperationsResolved == false);
+				myNewSet = Objects.requireNonNull(createSet()); // This will be a temporary Set in which to cache added and removed C's in the current TransactionContext.
 			}
+		} else {
+			/* myNewSet might be either for cached operations or actual operations. */
+		}
+		Objects.requireNonNull(myNewSet);
+		return myNewSet;
+	}
+	
+	/* This returns the "new" (inside the current Thread's TransactionContext) child set guaranteeing that it has been loaded from
+	 * persistent storage and any necessary cached operations resolved.
+	 */ 
+	protected /* synchronized */ Set<C> getNewSetLoaded() {
+		ensureMonitor();
+		ensureLoaded();
+		if (myNewSet == null) {
+			myNewSet = Objects.requireNonNull(createSet(myOldSet)); // We do have to copy it at this point; people calling getNewSetLoaded are ready to use the contents
 		} else {
 			if (myCachedOperationsResolved == false) {
 				if (ourLogger.isDebugEnabled()) {
@@ -303,7 +360,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 							getOwner()
 							);
 				}
-				resolveCachedOperations();
+				resolveCachedOperations(); // This might replace myNewSet with a different Set
 			} else {
 				if (ourLogger.isDebugEnabled()) {
 					ourLogger.debug("Cached operations have already been resolved when accessing the new set for {} owned by {}.",
@@ -351,7 +408,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 			throw new IllegalArgumentException("Tried to addInternal a null element to a back collection belonging to " + getOwner() + ".");
 		}
 		tryMutate();
-		return getNewSet().add(argC); // This might end up being a cached operation.
+		return getNewSetForAddsAndRemoves().add(argC); // This might end up being a cached operation.
 	}
 	
 	@Override
@@ -376,18 +433,24 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		if (isLoaded() == false) {
 			ourLogger.debug("clear() called for unloaded back collection belonging to {}.", getOwner());
 		}
-		ensureLoaded();
-		Set<C> lclNewSet = getNewSet();
+		Set<C> lclNewSet = getNewSetLoaded();
+//		System.out.println("In clear() myOldSet has " + myOldSet.size() + " elements and myNewSet has " + myNewSet.size() + "elements.");
 		for (C lclC : lclNewSet) {
+//			System.out.println("Clearing " + lclC + " from " + defaultToString());
 			if (lclC instanceof UpdatableOpal<?>) {
 				UpdatableOpal<?> lclUO = (UpdatableOpal<?>) lclC;
+//				System.out.println("In clear(), calling the unsafe child mutator for " + lclC);
 				getLoader().getUnsafeChildMutator().accept(lclC, null);
+//				System.out.println("In clear(), unlinking " + lclC);
 				lclUO.unlink();
+//				System.out.println("In clear(), unlinked " + lclC);
 			} else {
 				throw new IllegalStateException("Tried to clear " + lclC + " from a back collection owned by " + getOwner() + " but the reference cannot be set to null (and it is not an UpdatableOpal and therefore couldn't be unlinked).");
 			}
 		}
 		lclNewSet.clear();
+		Validate.isTrue(lclNewSet == myNewSet);
+//		System.out.println("Ending clear for " + defaultToString() + " with myOldSet = " + System.identityHashCode(myOldSet) + " and size() = " + myOldSet.size() + "; myNewSet = " +System.identityHashCode(myNewSet) + " and size() = " + myNewSet.size());
 	}
 	
 	/* Calling the contains(...) method with a non-C Opal probably indicates incorrectly conceived code. */
@@ -400,8 +463,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		if ((argO instanceof Opal<?>) == false) {
 			ourLogger.warn("Called OpalBackCollectionDoubleSet.contains() with a non-Opal argument {}.", argO);
 		}
-		ensureLoaded();
-		return determineSet().contains(argO); // THINK: This could be made faster if we had access to the Source's accessor
+		return determineSetLoaded().contains(argO); // THINK: This could be made faster if we had access to the Source's accessor
 	}
 	
 	/* Calling the containsAll(...) method with a Collection that is not a Collection of COpals probably indicates
@@ -412,21 +474,18 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		if (argC == null) {
 			return false;
 		}
-		ensureLoaded();
-		return determineSet().containsAll(argC); // THINK: This could be made faster if we had access to the Source's accessor
+		return determineSetLoaded().containsAll(argC); // THINK: This could be made faster if we had access to the Source's accessor
 	}
 	
 	@Override
 	public synchronized boolean isEmpty() {
-		ensureLoaded();
-		return determineSet().isEmpty();
+		return determineSetLoaded().isEmpty();
 	}
 	
 	@Override
 	public synchronized Iterator<C> iterator() {
-		ensureLoaded();
 		boolean lclAccess = tryAccess();
-		Set<C> lclS = determineSet(lclAccess);
+		Set<C> lclS = determineSetLoaded(lclAccess);
 		if (ourLogger.isDebugEnabled()) {
 			ourLogger.debug("Creating REI with lclS = {} and lclAccess == {}.", lclS, Boolean.valueOf(lclAccess));
 		}
@@ -503,22 +562,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 					getOwner().defaultToString()
 					);
 		}
-		if (isLoaded()) {
-			if (ourLogger.isDebugEnabled()) {
-				ourLogger.debug("{} was loaded.", defaultToString());
-			}
-			return getNewSet().remove(argC);
-		} else {
-			getNewSet().add(argC); // Cached operation
-			if (ourLogger.isDebugEnabled()) {
-				ourLogger.debug("{} was not loaded.  Added {} to the list of cached operations (which is now size {}).",
-						defaultToString(),
-						argC,
-						Integer.valueOf(getNewSet().size())
-						);
-			}
-			return true; /* Quite possibly a lie. */
-		}
+		return getNewSetForAddsAndRemoves().remove(argC);
 	}
 	
 	@Override
@@ -534,7 +578,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 				if (lclC == null) {
 					throw new IllegalStateException("Collection passed to removeAll() contained a null.");
 				}
-				lclResult ^= removeForReal(lclC);
+				lclResult |= removeForReal(lclC);
 			} catch (ClassCastException e) {
 				ourLogger.warn("Collection passed to removeAll() had an object of type {}.", lclO.getClass().getName(), e);
 			}
@@ -544,10 +588,9 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	
 	@Override
 	public synchronized boolean removeIf(Predicate<? super C> argP) { /* THINK: Is it possible to not synchronize on the entire collection for the entirety of this method? */
-		ensureLoaded();
 		tryMutate();
 		boolean lclResult = false;
-		Iterator<C> lclPI = getNewSet().iterator();
+		Iterator<C> lclPI = getNewSetLoaded().iterator();
 		while (lclPI.hasNext()) {
 			C lclC = lclPI.next();
 			if (argP.test(lclC)) {
@@ -576,20 +619,17 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	
 	@Override
 	public synchronized int size() {
-		ensureLoaded();
-		return determineSet().size();
+		return determineSetLoaded().size();
 	}
 	
 	@Override
 	public synchronized Object[] toArray() {
-		ensureLoaded();
-		return determineSet().toArray();
+		return determineSetLoaded().toArray();
 	}
 	
 	@Override
 	public synchronized <U> U[] toArray(U[] argA) { // Why can't/shouldn't this be "U super C"?
-		ensureLoaded();
-		return determineSet().toArray(argA);
+		return determineSetLoaded().toArray(argA);
 	}
 	
 	/* commitPhaseOne should make any changes to external, persistent stores that need to happen to reflect the new
@@ -628,9 +668,24 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		Set<C> sentinel = getSentinelOldSet();
 		if (isLoaded()) {
 			if (myOldSet == sentinel) {
-				ourLogger.debug("After phase-2 commit of {}, myOldSet was the sentinel.", defaultToString());
+				if (ourLogger.isDebugEnabled()) {
+					ourLogger.debug("After phase-2 commit of {}, myOldSet was the sentinel.", defaultToString());
+				}
 			}
-			myOldSet = store(myNewSet); // THINK ABOUT THIS
+			if (myNewSet != null) {
+				if (myCachedOperationsResolved == false) {
+					if (ourLogger.isDebugEnabled()) {
+						ourLogger.debug("After phase-2 commit of {}, cached operations are being resolved", defaultToString());
+					}
+					resolveCachedOperations();
+				}
+				Validate.isTrue(myCachedOperationsResolved);
+				myOldSet = store(myNewSet);
+			} else {
+				// TODO: Explain why there is nothing to do here.
+			}
+		} else {
+			// TODO: Explain why there is nothing to do here.
 		}
 		myNewSet = null;
 		if (myOldSet == sentinel) {
@@ -767,8 +822,8 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	 */	
 	@Override
 	public synchronized String toString() {
-		ensureLoaded();
+//		ensureLoaded();
 //		return String.valueOf(System.identityHashCode(this)); // Use this when debugging (and comment out ensureLoaded()
-		return determineSet().toString();
+		return determineSetLoaded().toString();
 	}
 }
