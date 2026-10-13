@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public abstract non-sealed class UpdatableOpal<U extends IdentityUserFacing/*<U>*/> extends IdentityOpal<U> { // OPALFIXME
 
-//	private static final org.slf4j.Logger ourLogger = org.slf4j.LoggerFactory.getLogger(UpdatableOpal.class.getName());
+//	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UpdatableOpal.class.getName());
 	
 	/* Bit field for various status flags. */
 	private static final int MY_OLD_OPAL_EXISTS = 1 << 0;
@@ -53,12 +53,19 @@ public abstract non-sealed class UpdatableOpal<U extends IdentityUserFacing/*<U>
 		}
 	}
 	
+	/* FIXME: This only returns the correct thing if we are in the TransactionContext.  Otherwise it could leak
+	 * the fact that some other Thread was in the process of deleting the Opal.
+	 */	
 	@Override
 	public synchronized final boolean isDeleted() {
 		/* Note that an object can be both "new" and "deleted" at the same time. */
 		return !doesNewOpalExist();
 	}
-	
+
+	/* In theory, it only makes sense to call this inside of a TransactionContext, but it turns out that it is
+	 * called quite often by back-collection creating/loading code that could be operating on new or existing
+	 * Opals.
+	 */
 	@Override
 	public synchronized boolean isNew() {
 		/* Note that an object can be "New" even if it has been deleted before being persisted; that is, both
@@ -72,7 +79,7 @@ public abstract non-sealed class UpdatableOpal<U extends IdentityUserFacing/*<U>
 	}
 	
 	/* getOldValues() has the vibe of a method that should be private (since it is directly guarding the contents
-	 * of the Opal, but it needs to be accessed by methods that work with foreign keys and the database in other
+	 * of the Opal) but it needs to be accessed by methods that work with foreign keys and the database in other
 	 * classes.
 	 * 
 	 * For the love of God, don't call this method unless you know what you are doing.
@@ -83,7 +90,7 @@ public abstract non-sealed class UpdatableOpal<U extends IdentityUserFacing/*<U>
 	}
 	
 	/* getNewValues() has the vibe of a method that should be private (since it is directly guarding the contents
-	 * of the Opal, but it needs to be accessed by methods that work with foreign keys and the database in other
+	 * of the Opal), but it needs to be accessed by methods that work with foreign keys and the database in other
 	 * classes.
 	 * 
 	 * For the love of God, don't call this method unless you know what you are doing.

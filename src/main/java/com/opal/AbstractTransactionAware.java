@@ -260,7 +260,7 @@ public abstract class AbstractTransactionAware implements TransactionAware {
 	}
 	
 	public String defaultToString() {
-		return getClass().getName() + '@' + System.identityHashCode(this);
+		return getClass().getSimpleName() + '@' + System.identityHashCode(this);
 	}
 
 }
