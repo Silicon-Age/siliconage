@@ -734,37 +734,57 @@ public class TransactionContext implements AutoCloseable {
 	}
 	
 	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
+	public static TransactionContext create() {
+		return createAndActivate();
+	}
+	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext createAndActivate(long argTimeOut) {
 		return createAndActivate(DEFAULT_LOGGING_LEVEL, argTimeOut);
 	}
 	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
+	public static TransactionContext create(long argTimeOut) {
+		return createAndActivate(argTimeOut);
+	}
+
 	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext createAndActivate(Level argLoggingLevel) {
 		return createAndActivate(argLoggingLevel, DEFAULT_TIME_OUT);
 	}
 	
 	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
-	public static TransactionContext createAndActivate(Level argLoggingLevel, long argTimeOut) {
-		return activate(create(argLoggingLevel, argTimeOut));
-	}
-	
-	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
-	public static TransactionContext create() {
-		return create(DEFAULT_LOGGING_LEVEL);
-	}
-	
-	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext create(Level argLoggingLevel) {
-		return create(argLoggingLevel, DEFAULT_TIME_OUT);
+		return createAndActivate(argLoggingLevel);
 	}
 	
 	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
-	public static TransactionContext create(long argTimeOut) {
-		return create(DEFAULT_LOGGING_LEVEL, argTimeOut);
+	public static TransactionContext createAndActivate(Level argLoggingLevel, long argTimeOut) {
+		return activate(createInactive(argLoggingLevel, argTimeOut));
 	}
 	
 	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
 	public static TransactionContext create(Level argLoggingLevel, long argTimeOut) {
+		return createAndActivate(argLoggingLevel, argTimeOut);
+	}
+	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
+	public static TransactionContext createInactive() {
+		return createInactive(DEFAULT_LOGGING_LEVEL);
+	}
+	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
+	public static TransactionContext createInactive(Level argLoggingLevel) {
+		return createInactive(argLoggingLevel, DEFAULT_TIME_OUT);
+	}
+	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
+	public static TransactionContext createInactive(long argTimeOut) {
+		return createInactive(DEFAULT_LOGGING_LEVEL, argTimeOut);
+	}
+	
+	@SuppressWarnings("resource") // We are returning a TransactionContext that the caller must close.
+	public static TransactionContext createInactive(Level argLoggingLevel, long argTimeOut) {
 		return new TransactionContext(argLoggingLevel, argTimeOut);
 	}
 
