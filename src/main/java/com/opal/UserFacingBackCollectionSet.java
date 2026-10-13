@@ -63,7 +63,7 @@ public class UserFacingBackCollectionSet<U extends UserFacing/*<U>*/, O extends 
 			O lclO = determineOpal(lclU);
 			return myOpalSet.contains(lclO);
 		} else {
-			/* If it's not a U, it can't possibly have an Opal in our internal Set. */
+			/* If it's not a UserFacing, it can't possibly have an Opal in our internal Set. */
 			return false;
 		}
 	}
