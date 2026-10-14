@@ -1,8 +1,8 @@
 package com.opal.types;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -64,7 +64,8 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 	 */
 //	private boolean myCachedOperationsResolved;
 
-	private Set<CachedOperation<C>> myCachedOperations;
+	// FIXME: Explain why this has to be a List
+	private ArrayList<CachedOperation<C>> myCachedOperations;
 
 	/* The Opal for which this is a back collection. */
 	private final P myOwner;
@@ -256,12 +257,20 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 			switch (co.type()) {
 			case ADD:
 				if (myNewSet.add(child) == false) {
-					ourLogger.warn("While implementing cached ADD for {} of {}, it was already found in myNewSet", defaultToString(), child.defaultToString());
+					ourLogger.warn("While implementing cached ADD for {} of {} owned by {}, it was already found in myNewSet",
+							defaultToString(),
+							child.defaultToString(),
+							getOwner().defaultToString()
+							);
 				}
 				break;
 			case REMOVE:
 				if (myNewSet.remove(child) == false) {
-					ourLogger.warn("While implementing cached REMOVE for {} of {}, it was not found in myNewSet", defaultToString(), child.defaultToString());
+					ourLogger.warn("While implementing cached REMOVE for {} of {} owned by {}, it was not found in myNewSet",
+							defaultToString(),
+							child.defaultToString(),
+							getOwner().defaultToString()
+							);
 				}
 				break;
 			}
@@ -420,7 +429,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 			return myNewSet.add(argC);
 		} else {
 			if (myCachedOperations == null) {
-				myCachedOperations = new HashSet<>();
+				myCachedOperations = new ArrayList<>();
 			}
 			assert myCachedOperations != null;
 			myCachedOperations.add(CachedOperation.ofAdd(argC));
@@ -450,23 +459,25 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 		if (isLoaded() == false) {
 			ourLogger.debug("clear() called for unloaded back collection belonging to {}.", getOwner());
 		}
-		Set<C> lclNewSet = getLoadedNewSet();
+		Set<C> lclNewSet = getLoadedNewSet(); // This will reference the same Set as myNewSet.
 		Validate.isTrue(myCachedOperations == null);
-//		System.out.println("In clear() myOldSet has " + myOldSet.size() + " elements and myNewSet has " + myNewSet.size() + "elements.");
+//		System.out.println("In clear() myOldSet has " + myOldSet.size() + " elements and lclNewSet has " + lclNewSet.size() + "elements.");
 		for (C lclC : lclNewSet) {
-//			System.out.println("Clearing " + lclC + " from " + defaultToString());
+//			System.out.println("Clearing " + lclC.defaultToString() + " from " + defaultToString());
 			if (lclC instanceof UpdatableOpal<?> uo) {
 //				UpdatableOpal<?> lclUO = (UpdatableOpal<?>) lclC;
 //				System.out.println("In clear(), calling the unsafe child mutator for " + lclC);
 				getLoader().getUnsafeChildMutator().accept(lclC, null);
-//				System.out.println("In clear(), unlinking " + lclC);
+//				System.out.println("In clear(), unlinking " + lclC.defaultToString());
 				uo.unlink();
 //				System.out.println("In clear(), unlinked " + lclC);
 			} else {
 				throw new IllegalStateException("Tried to clear " + lclC + " from a back collection owned by " + getOwner() + " but the reference cannot be set to null (and it is not an UpdatableOpal and therefore couldn't be unlinked).");
 			}
 		}
+//		System.out.println("Pre-clear: lclNewSet.size() = " + lclNewSet.size() + " myNewSet.size() = " + myNewSet.size());
 		lclNewSet.clear();
+//		System.out.println("Post-clear: lclNewSet.size() = " + lclNewSet.size() + " myNewSet.size() = " + myNewSet.size());
 		Validate.isTrue(lclNewSet == myNewSet);
 //		System.out.println("Ending clear for " + defaultToString() + " with myOldSet = " + System.identityHashCode(myOldSet) + " and size() = " + myOldSet.size() + "; myNewSet = " +System.identityHashCode(myNewSet) + " and size() = " + myNewSet.size());
 	}
@@ -592,7 +603,7 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 			return myNewSet.remove(argC);
 		} else {
 			if (myCachedOperations == null) {
-				myCachedOperations = new HashSet<>();
+				myCachedOperations = new ArrayList<>();
 			}
 			assert myCachedOperations != null;
 			myCachedOperations.add(CachedOperation.ofRemove(argC));
@@ -749,7 +760,12 @@ public class OpalBackCollectionDoubleSet<C extends TransactionalOpal<?>, P exten
 			for (var c : myOldSet) {
 				if (c instanceof UpdatableOpal<?> uo) {
 					if (uo.isDeleted()) {
-						ourLogger.warn("After phase-2 committing {}, myOldSet contains {}, which is deleted.", defaultToString(), c.defaultToString());
+						ourLogger.warn("After phase-2 committing {} belonging to {}, myOldSet contains {}, which is deleted.  The total size is {}.",
+								defaultToString(),
+								getOwner().defaultToString(),
+								c.defaultToString(),
+								Integer.valueOf(myOldSet.size())
+								);
 					}
 				}
 			}
